@@ -1,0 +1,35 @@
+# CTH-8 - Comprovante de reserva
+
+| Campo | Valor |
+|---|---|
+| **Prioridade** | Alta (MVP) |
+| **Requisitos** | RF09 · [Fluxo principal de reserva](../docs/08-fluxo-de-reserva.md) (passo 5) |
+| **Depende de** | CTH-3, CTH-4, CTH-6, CTH-7 |
+
+## Objetivo
+
+Entregar ao usuário um comprovante com os dados do agendamento e as orientações de uso, assim que a reserva for registrada.
+
+## Quem usa
+
+| Perfil | O que faz |
+|---|---|
+| Mutualista / profissional do Crea | Recebe e guarda o comprovante |
+| Instituição parceira | Recebe e guarda o comprovante |
+| Público externo | Recebe o comprovante ou a confirmação de recebimento da solicitação |
+
+## Indicadores de sucesso (proposta da equipe)
+
+- Redução de contatos à equipe para confirmar se a reserva foi feita.
+
+## História
+
+**Como** usuário, **quero** receber um comprovante da minha reserva, **para** ter registro do agendamento e saber o que devo cumprir.
+
+## Critérios de aceite
+
+- [ ] Ao registrar a solicitação, o sistema **exibe o comprovante / protocolo na tela** informando que a reserva foi **encaminhada para análise** e que o status será confirmado via **WhatsApp e e-mail**.
+- [ ] O comprovante traz os **dados do agendamento**: ambiente (e estação, quando houver), data, horário e dados do solicitante.
+- [ ] O comprovante traz os **textos de orientação**: **compromisso de uso** e **política de cancelamento**.
+- [ ] O comprovante orienta o usuário a **acessar sua conta (login)** caso queira cancelar a reserva (CTH-9).
+- [ ] O comprovante e o status final após análise são enviados por **WhatsApp e/ou e-mail** (CTH-10).
