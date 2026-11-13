@@ -6,6 +6,13 @@ Projeto do curso de Engenharia de Software do iCEV (Laboratório de Inovação),
 
 > **Status:** esta documentação parte da Análise de Requisitos **v1.0 (04/11/2026)**, um rascunho para validação com o cliente. O documento precisa ser validado e assinado pela Mútua-PI antes do início da implementação.
 
+## Desenvolvimento
+
+O backend está em [`backend/`](backend/README.md), com Java 25, Spring Boot e Maven Wrapper.
+Consulte o README dessa pasta para executar e testar a fundação inicial.
+As histórias em [`histories/`](histories/PLANO-DE-IMPLEMENTACAO.md) registram as decisões
+mais recentes de escopo; a documentação abaixo preserva o levantamento original.
+
 ## Documentação
 
 | # | Documento | Conteúdo |

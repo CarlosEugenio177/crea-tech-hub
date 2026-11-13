@@ -1,0 +1,15 @@
+# Configurações locais e credenciais
+.env
+.env.*
+!.env.example
+
+# IDEs e sistema operacional
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Saídas locais
+**/target/
+*.log
