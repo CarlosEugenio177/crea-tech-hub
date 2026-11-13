@@ -86,6 +86,7 @@ A hospedagem para deploy automático ainda será definida.
 - `br.com.mutua.createchhub`: aplicação Spring Boot.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `user`: conta de usuário, perfil de acesso e repositório JPA.
+- `shared.error`: tratamento centralizado de exceções e respostas de erro.
 - `src/main/resources/application.yml`: configuração comum; a porta aceita `SERVER_PORT`.
 - `src/test/java`: testes da aplicação.
 
@@ -93,6 +94,9 @@ O backend será uma aplicação única, organizada por funcionalidade conforme c
 história for implementada: usuários, espaços, reservas e bloqueios. Cada funcionalidade
 terá seus controllers, serviços, DTOs e persistência quando necessários. Os endpoints
 de negócio seguirão o prefixo `/api/v1`.
+
+O contrato de erros, com `ProblemDetail`, está descrito em
+[Erros da API](../docs/14-erros-da-api.md).
 
 Nesta etapa, apenas `GET /actuator/health` é público. As demais rotas são negadas;
 não existe usuário padrão, formulário de login ou autenticação implementada.
