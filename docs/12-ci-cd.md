@@ -25,7 +25,9 @@ o commit de merge de teste com a branch de destino. Os artefatos ficam disponív
 Novos commits cancelam a execução anterior do mesmo pull request ou branch. As actions
 são fixadas por SHA e o workflow usa permissão de leitura do repositório.
 
-A CI não precisa de secrets, banco de dados ou conta de hospedagem nesta etapa.
+A CI não precisa de secrets nem conta de hospedagem nesta etapa. Os testes usam
+Docker, disponível no runner Ubuntu, para criar bancos PostgreSQL temporários com
+Testcontainers.
 
 ## CD: destino a definir
 
