@@ -45,6 +45,10 @@ e a restrição das demais rotas.
 
 ## Estrutura e convenções
 
+A [CI do backend](../docs/12-ci-cd.md) compila, testa e disponibiliza o JAR em pushes
+e pull requests para `develop` e `main`. A hospedagem para deploy automático ainda
+será definida.
+
 - `br.com.mutua.createchhub`: aplicação Spring Boot.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `src/main/resources/application.yml`: configuração comum; a porta aceita `SERVER_PORT`.
