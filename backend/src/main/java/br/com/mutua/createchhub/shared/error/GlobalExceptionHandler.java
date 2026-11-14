@@ -22,65 +22,84 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Order(-1)
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-	@ExceptionHandler(ResourceNotFoundException.class)
-	ProblemDetail handleNotFound(ResourceNotFoundException exception) {
-		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
-	}
+  @ExceptionHandler(ResourceNotFoundException.class)
+  ProblemDetail handleNotFound(ResourceNotFoundException exception) {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+  }
 
-	@ExceptionHandler(ResourceConflictException.class)
-	ProblemDetail handleConflict(ResourceConflictException exception) {
-		return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
-	}
+  @ExceptionHandler(ResourceConflictException.class)
+  ProblemDetail handleConflict(ResourceConflictException exception) {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+  }
 
-	@ExceptionHandler(AuthenticationException.class)
-	ProblemDetail handleAuthentication(AuthenticationException exception) {
-		return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Autenticação necessária ou inválida.");
-	}
+  @ExceptionHandler(AuthenticationException.class)
+  ProblemDetail handleAuthentication(AuthenticationException exception) {
+    return ProblemDetail.forStatusAndDetail(
+        HttpStatus.UNAUTHORIZED, "Autenticação necessária ou inválida.");
+  }
 
-	@ExceptionHandler(AccessDeniedException.class)
-	ProblemDetail handleAccessDenied(AccessDeniedException exception) {
-		return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Você não tem permissão para esta operação.");
-	}
+  @ExceptionHandler(AccessDeniedException.class)
+  ProblemDetail handleAccessDenied(AccessDeniedException exception) {
+    return ProblemDetail.forStatusAndDetail(
+        HttpStatus.FORBIDDEN, "Você não tem permissão para esta operação.");
+  }
 
-	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
-			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-		var errors = exception.getBindingResult().getAllErrors().stream()
-				.map(error -> new FieldValidationError(
-						error instanceof FieldError fieldError ? fieldError.getField() : error.getObjectName(),
-						error.getDefaultMessage()))
-				.toList();
-		var problem = ProblemDetail.forStatusAndDetail(status, "Verifique os campos informados.");
-		problem.setProperty("errors", errors);
-		return handleExceptionInternal(exception, problem, headers, status, request);
-	}
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException exception,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    var errors =
+        exception.getBindingResult().getAllErrors().stream()
+            .map(
+                error ->
+                    new FieldValidationError(
+                        error instanceof FieldError fieldError
+                            ? fieldError.getField()
+                            : error.getObjectName(),
+                        error.getDefaultMessage()))
+            .toList();
+    var problem = ProblemDetail.forStatusAndDetail(status, "Verifique os campos informados.");
+    problem.setProperty("errors", errors);
+    return handleExceptionInternal(exception, problem, headers, status, request);
+  }
 
-	@Override
-	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException exception,
-			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-		var problem = ProblemDetail.forStatusAndDetail(status,
-				"O corpo da requisição está ausente ou contém JSON inválido.");
-		return handleExceptionInternal(exception, problem, headers, status, request);
-	}
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException exception,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    var problem =
+        ProblemDetail.forStatusAndDetail(
+            status, "O corpo da requisição está ausente ou contém JSON inválido.");
+    return handleExceptionInternal(exception, problem, headers, status, request);
+  }
 
-	@Override
-	protected ResponseEntity<Object> handleExceptionInternal(Exception exception, Object body,
-			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-		if (status.is5xxServerError()) {
-			body = internalError(exception, status);
-		}
-		return super.handleExceptionInternal(exception, body, headers, status, request);
-	}
+  @Override
+  protected ResponseEntity<Object> handleExceptionInternal(
+      Exception exception,
+      Object body,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    if (status.is5xxServerError()) {
+      body = internalError(exception, status);
+    }
+    return super.handleExceptionInternal(exception, body, headers, status, request);
+  }
 
-	@ExceptionHandler(Exception.class)
-	ProblemDetail handleUnexpected(Exception exception) {
-		return internalError(exception, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+  @ExceptionHandler(Exception.class)
+  ProblemDetail handleUnexpected(Exception exception) {
+    return internalError(exception, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
-	private ProblemDetail internalError(Exception exception, HttpStatusCode status) {
-		log.error("Falha inesperada ao processar a requisição.", exception);
-		return ProblemDetail.forStatusAndDetail(status, "Ocorreu um erro interno. Tente novamente mais tarde.");
-	}
+  private ProblemDetail internalError(Exception exception, HttpStatusCode status) {
+    log.error("Falha inesperada ao processar a requisição.", exception);
+    return ProblemDetail.forStatusAndDetail(
+        status, "Ocorreu um erro interno. Tente novamente mais tarde.");
+  }
 }

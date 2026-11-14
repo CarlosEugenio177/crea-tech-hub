@@ -17,33 +17,37 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("bootstrap-admin")
 public class AdminBootstrap implements ApplicationRunner {
 
-	private static final Logger log = LoggerFactory.getLogger(AdminBootstrap.class);
+  private static final Logger log = LoggerFactory.getLogger(AdminBootstrap.class);
 
-	private final UserAccountRepository repository;
-	private final PasswordEncoder passwords;
-	private final Environment environment;
+  private final UserAccountRepository repository;
+  private final PasswordEncoder passwords;
+  private final Environment environment;
 
-	public AdminBootstrap(UserAccountRepository repository, PasswordEncoder passwords, Environment environment) {
-		this.repository = repository;
-		this.passwords = passwords;
-		this.environment = environment;
-	}
+  public AdminBootstrap(
+      UserAccountRepository repository, PasswordEncoder passwords, Environment environment) {
+    this.repository = repository;
+    this.passwords = passwords;
+    this.environment = environment;
+  }
 
-	@Override
-	@Transactional
-	public void run(ApplicationArguments arguments) {
-		if (repository.existsByAccessRole(AccessRole.ADMIN)) {
-			log.info("Inicialização administrativa ignorada: já existe administrador.");
-			return;
-		}
-		var password = environment.getRequiredProperty("BOOTSTRAP_ADMIN_PASSWORD");
-		if (password.length() < 12 || password.length() > 128) {
-			throw new IllegalStateException("BOOTSTRAP_ADMIN_PASSWORD deve conter de 12 a 128 caracteres.");
-		}
-		repository.saveAndFlush(new UserAccount(
-				environment.getRequiredProperty("BOOTSTRAP_ADMIN_NAME"),
-				environment.getRequiredProperty("BOOTSTRAP_ADMIN_EMAIL"),
-				passwords.encode(password), AccessRole.ADMIN));
-		log.info("Conta administrativa inicial criada.");
-	}
+  @Override
+  @Transactional
+  public void run(ApplicationArguments arguments) {
+    if (repository.existsByAccessRole(AccessRole.ADMIN)) {
+      log.info("Inicialização administrativa ignorada: já existe administrador.");
+      return;
+    }
+    var password = environment.getRequiredProperty("BOOTSTRAP_ADMIN_PASSWORD");
+    if (password.length() < 12 || password.length() > 128) {
+      throw new IllegalStateException(
+          "BOOTSTRAP_ADMIN_PASSWORD deve conter de 12 a 128 caracteres.");
+    }
+    repository.saveAndFlush(
+        new UserAccount(
+            environment.getRequiredProperty("BOOTSTRAP_ADMIN_NAME"),
+            environment.getRequiredProperty("BOOTSTRAP_ADMIN_EMAIL"),
+            passwords.encode(password),
+            AccessRole.ADMIN));
+    log.info("Conta administrativa inicial criada.");
+  }
 }
