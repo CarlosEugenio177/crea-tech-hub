@@ -7,6 +7,19 @@ O Maven Wrapper fixa a versão do Maven; não é necessário instalá-lo separad
 
 Requisitos: JDK 25 no `PATH` ou em `JAVA_HOME` e Docker em execução.
 
+### Usando o Dev Container
+
+Como alternativa à instalação do JDK e do Maven na máquina, abra a raiz do
+repositório no VS Code e selecione **Reopen in Container**. Para isso, é
+necessário ter o Docker (ou Docker Desktop), o VS Code e a extensão
+**Dev Containers** instalados.
+
+O container configura o Java, as extensões do VS Code e o acesso ao Docker
+usado pelo Testcontainers. Na primeira criação, a imagem e as dependências
+Maven serão baixadas; nas próximas execuções, o cache Maven persistirá em um
+volume do Docker. O código continua sendo o código do repositório aberto no
+VS Code, portanto ainda é necessário cloná-lo previamente.
+
 Na raiz do repositório, prepare o banco local no PowerShell:
 
 ```powershell
