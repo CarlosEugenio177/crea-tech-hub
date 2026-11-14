@@ -30,7 +30,8 @@ Permitir que o usuário cancele a própria reserva a qualquer momento, sendo avi
 
 ## Critérios de aceite
 
-- [ ] O usuário precisa estar **autenticado (login no site)** e pode cancelar **a qualquer momento** **somente as próprias reservas**.
+- [ ] O solicitante usa o **link individual e imprevisível** associado à sua reserva para acompanhar ou cancelar, sem precisar de login nesta fase.
+- [ ] O código público do protocolo, isoladamente, não autoriza o cancelamento; o link permite gerenciar somente a reserva correspondente.
 - [ ] Se o cancelamento ocorrer com **menos de 24 h de antecedência**, o sistema **avisa** o usuário antes de confirmar o cancelamento.
 - [ ] O cancelamento com menos de 24 h é **marcado como tardio** na reserva (histórico por usuário e bloqueio ficam no CTH-18, fora do MVP).
 - [ ] Após cancelar, o **horário é liberado** na disponibilidade (CTH-2) e a reserva aparece como cancelada no painel (CTH-13).

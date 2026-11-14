@@ -31,5 +31,5 @@ Entregar ao usuário um comprovante com os dados do agendamento e as orientaçõ
 - [ ] Ao registrar a solicitação, o sistema **exibe o comprovante / protocolo na tela** informando que a reserva foi **encaminhada para análise** e que o status será confirmado via **WhatsApp e e-mail**.
 - [ ] O comprovante traz os **dados do agendamento**: ambiente (e estação, quando houver), data, horário e dados do solicitante.
 - [ ] O comprovante traz os **textos de orientação**: **compromisso de uso** e **política de cancelamento**.
-- [ ] O comprovante orienta o usuário a **acessar sua conta (login)** caso queira cancelar a reserva (CTH-9).
+- [ ] O solicitante recebe um **link individual e imprevisível** para acompanhar ou cancelar sua solicitação (CTH-9), sem precisar de conta nesta fase.
 - [ ] O comprovante e o status final após análise são enviados por **WhatsApp e/ou e-mail** (CTH-10).
