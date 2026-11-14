@@ -11,16 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AdminAccountService {
 
-	private final UserAccountRepository repository;
+  private final UserAccountRepository repository;
 
-	public AdminAccountService(UserAccountRepository repository) {
-		this.repository = repository;
-	}
+  public AdminAccountService(UserAccountRepository repository) {
+    this.repository = repository;
+  }
 
-	public AdminAccountResponse current(String email) {
-		return repository.findByEmailAndAccessRole(email, AccessRole.ADMIN)
-				.filter(UserAccount::isActive)
-				.map(AdminAccountResponse::from)
-				.orElseThrow(() -> new BadCredentialsException("Conta administrativa indisponível."));
-	}
+  public AdminAccountResponse current(String email) {
+    return repository
+        .findByEmailAndAccessRole(email, AccessRole.ADMIN)
+        .filter(UserAccount::isActive)
+        .map(AdminAccountResponse::from)
+        .orElseThrow(() -> new BadCredentialsException("Conta administrativa indisponível."));
+  }
 }

@@ -15,18 +15,28 @@ permanentes são `main` e `develop`.
 ## CI no GitHub Actions
 
 O workflow [Backend CI](../.github/workflows/backend-ci.yml) executa em pushes e pull
-requests destinados a `develop` ou `main`.
+requests destinados a `develop` ou `main`. Cada novo commit enviado para a branch de
+um pull request dispara uma nova execução dos checks.
 
-Cada execução:
+Em pull requests, os checks são separados em:
 
-1. Obtém o código e prepara Java 25 (Temurin), com cache das dependências Maven.
-2. Executa `./mvnw --batch-mode --no-transfer-progress clean verify` em `backend/`.
-3. Após sucesso, disponibiliza o JAR executável como artefato da execução.
-4. Disponibiliza os relatórios de testes, inclusive quando os testes falham.
+1. **Formatação:** verifica o Spotless com `spotless:check`.
+2. **Análise estática:** executa o SpotBugs.
+3. **Testes e cobertura:** executa `clean verify`, incluindo os testes com Testcontainers
+   e o limite de cobertura do JaCoCo.
+4. **Build:** gera o JAR somente depois que os três checks anteriores passarem.
+
+Todos os jobs obtêm o código e preparam Java 25 (Temurin), com cache das dependências
+Maven. O build disponibiliza o JAR executável como artefato e o job de testes disponibiliza
+os relatórios, inclusive quando os testes falham.
 
 O JAR é identificado pelo SHA da revisão construída. Em pull requests, o GitHub valida
 o commit de merge de teste com a branch de destino. Os artefatos ficam disponíveis por
 7 dias na página da execução, na aba **Actions** do repositório.
+
+Para impedir o merge quando um check falhar, os checks devem ser marcados como obrigatórios
+nas regras de proteção da branch `develop` no GitHub. A execução do workflow, por si só,
+não bloqueia o merge.
 
 Novos commits cancelam a execução anterior do mesmo pull request ou branch. As actions
 são fixadas por SHA e o workflow usa permissão de leitura do repositório.

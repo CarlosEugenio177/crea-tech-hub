@@ -16,40 +16,39 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/test/errors")
 class ErrorTestController {
 
-	@GetMapping("/not-found")
-	void notFound() {
-		throw new ResourceNotFoundException("Usuário não encontrado.");
-	}
+  @GetMapping("/not-found")
+  void notFound() {
+    throw new ResourceNotFoundException("Usuário não encontrado.");
+  }
 
-	@GetMapping("/conflict")
-	void conflict() {
-		throw new ResourceConflictException("O horário solicitado já está ocupado.");
-	}
+  @GetMapping("/conflict")
+  void conflict() {
+    throw new ResourceConflictException("O horário solicitado já está ocupado.");
+  }
 
-	@GetMapping("/authentication")
-	void authentication() {
-		throw new BadCredentialsException("Internal authentication details");
-	}
+  @GetMapping("/authentication")
+  void authentication() {
+    throw new BadCredentialsException("Internal authentication details");
+  }
 
-	@GetMapping("/forbidden")
-	void forbidden() {
-		throw new AccessDeniedException("Internal authorization details");
-	}
+  @GetMapping("/forbidden")
+  void forbidden() {
+    throw new AccessDeniedException("Internal authorization details");
+  }
 
-	@GetMapping("/unexpected")
-	void unexpected() {
-		throw new IllegalStateException("SQLSTATE 23505: database.internal");
-	}
+  @GetMapping("/unexpected")
+  void unexpected() {
+    throw new IllegalStateException("SQLSTATE 23505: database.internal");
+  }
 
-	@GetMapping("/server-error")
-	void serverError() {
-		throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "database.internal unavailable");
-	}
+  @GetMapping("/server-error")
+  void serverError() {
+    throw new ResponseStatusException(
+        HttpStatus.SERVICE_UNAVAILABLE, "database.internal unavailable");
+  }
 
-	@PostMapping("/validation")
-	void validation(@Valid @RequestBody TestRequest request) {
-	}
+  @PostMapping("/validation")
+  void validation(@Valid @RequestBody TestRequest request) {}
 
-	record TestRequest(@NotBlank(message = "O nome é obrigatório.") String name) {
-	}
+  record TestRequest(@NotBlank(message = "O nome é obrigatório.") String name) {}
 }
