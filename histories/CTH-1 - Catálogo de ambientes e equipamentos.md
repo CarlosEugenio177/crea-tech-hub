@@ -32,4 +32,4 @@ Permitir que qualquer visitante conheça as salas e estações reserváveis do H
 - [ ] Cada item mostra **foto**, **capacidade** (obtida no Framer), **recursos disponíveis** e **regras de uso**.
 - [ ] O catálogo exibe a informação de que o prédio tem **elevador e banheiros acessíveis**.
 - [ ] Ambientes marcados como **indisponíveis ao público** (ex.: salas da diretoria, ver CTH-15) não aparecem para o visitante.
-- [ ] A partir de um item, o visitante segue para a consulta de disponibilidade (CTH-2); para concluir a reserva, realiza cadastro/login (CTH-7).
+- [ ] A partir de um item, o visitante segue para a consulta de disponibilidade (CTH-2) e informa seus dados na solicitação (CTH-7), sem criar conta nesta fase.

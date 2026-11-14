@@ -98,16 +98,22 @@ de negócio seguirão o prefixo `/api/v1`.
 O contrato de erros, com `ProblemDetail`, está descrito em
 [Erros da API](../docs/14-erros-da-api.md).
 
-Nesta etapa, apenas `GET /actuator/health` é público. As demais rotas são negadas;
-não existe usuário padrão, formulário de login ou autenticação implementada.
-A proteção CSRF continua habilitada. A definição da autenticação virá com CTH-12/CTH-7.
+Nesta etapa, a leitura da saúde e os endpoints necessários para entrar são públicos.
+As rotas administrativas de autenticação estão descritas em
+[Acesso administrativo](../docs/15-autenticacao.md). Esse documento explica como
+criar o primeiro administrador, obter CSRF, entrar, consultar a sessão e sair.
+
+O acesso administrativo usa e-mail e senha com sessão por cookie. O fluxo de
+solicitação de reservas continuará público nesta fase, com os dados informados
+na própria solicitação. O login de solicitantes via Crea/Mútua é uma evolução futura.
 
 ## Limite desta entrega
 
-Esta etapa inclui conexão com PostgreSQL, primeira migração e persistência de contas.
-Login, cadastro por API, permissões por perfil, catálogo, reservas, aprovação,
-notificações e frontend serão implementados nas próximas etapas. O CTH-12 ainda
-precisa da autenticação e das regras de autorização.
+Esta etapa inclui PostgreSQL, migrações, persistência de contas, login administrativo
+e restrição da área administrativa à role `ADMIN`. As roles são `ADMIN` e `USER`;
+somente administradores ativos usam o login local nesta fase.
+Gestão de contas por API, catálogo, reservas, aprovação, notificações e frontend
+serão implementados nas próximas etapas.
 
 Decisões de reserva já alinhadas para a implementação futura:
 

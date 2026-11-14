@@ -35,7 +35,7 @@ class UserAccountPersistenceTests {
 	@Test
 	void persistsAccountAndLoadsItFromPostgres() {
 		var saved = repository.saveAndFlush(
-				new UserAccount("Ana Silva", "ana@example.com", PASSWORD_HASH, AccessRole.OPERATOR));
+				new UserAccount("Ana Silva", " ANA@EXAMPLE.COM ", PASSWORD_HASH, AccessRole.ADMIN));
 		entityManager.clear();
 
 		var loaded = repository.findById(saved.getId()).orElseThrow();
@@ -44,19 +44,18 @@ class UserAccountPersistenceTests {
 		assertThat(loaded.getFullName()).isEqualTo("Ana Silva");
 		assertThat(loaded.getEmail()).isEqualTo("ana@example.com");
 		assertThat(loaded.getPasswordHash()).isEqualTo(PASSWORD_HASH);
-		assertThat(loaded.getAccessRole()).isEqualTo(AccessRole.OPERATOR);
+		assertThat(loaded.getAccessRole()).isEqualTo(AccessRole.ADMIN);
 		assertThat(loaded.isActive()).isTrue();
 		assertThat(loaded.getCreatedAt()).isNotNull();
 	}
 
 	@Test
-	void allowsRepeatedContactEmailAsDefinedInTheRequirements() {
-		repository.save(new UserAccount("Ana Silva", "shared@example.com", PASSWORD_HASH, AccessRole.REQUESTER));
-		repository.saveAndFlush(
-				new UserAccount("Bruno Lima", "shared@example.com", PASSWORD_HASH, AccessRole.REQUESTER));
-		entityManager.clear();
+	void rejectsRepeatedLoginEmailRegardlessOfCase() {
+		repository.saveAndFlush(new UserAccount("Ana Silva", "shared@example.com", PASSWORD_HASH, AccessRole.ADMIN));
 
-		assertThat(repository.count()).isEqualTo(2);
+		assertThatThrownBy(() -> repository.saveAndFlush(
+				new UserAccount("Bruno Lima", "SHARED@example.com", PASSWORD_HASH, AccessRole.USER)))
+				.isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 	@Test

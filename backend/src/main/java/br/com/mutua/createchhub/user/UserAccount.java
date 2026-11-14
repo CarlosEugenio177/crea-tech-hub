@@ -1,6 +1,7 @@
 package br.com.mutua.createchhub.user;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -34,7 +35,7 @@ public class UserAccount {
 	@NotBlank
 	@Email
 	@Size(max = 254)
-	@Column(nullable = false, length = 254)
+	@Column(nullable = false, length = 254, unique = true)
 	private String email;
 
 	@NotBlank
@@ -59,7 +60,7 @@ public class UserAccount {
 
 	public UserAccount(String fullName, String email, String passwordHash, AccessRole accessRole) {
 		this.fullName = fullName;
-		this.email = email;
+		this.email = email == null ? null : email.strip().toLowerCase(Locale.ROOT);
 		this.passwordHash = passwordHash;
 		this.accessRole = accessRole;
 	}
@@ -86,6 +87,10 @@ public class UserAccount {
 
 	public boolean isActive() {
 		return active;
+	}
+
+	public void deactivate() {
+		active = false;
 	}
 
 	public Instant getCreatedAt() {
