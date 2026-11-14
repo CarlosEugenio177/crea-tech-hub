@@ -1,0 +1,232 @@
+/* Crea Tec HUB — recriação das telas do Framer (projeto "Functional Technology").
+   Tokens extraídos dos estilos de cor do Framer: "Crea Tec — Azul elétrico", "Gelo",
+   "Preto profundo", "Texto" e "Texto secundário". */
+
+:root {
+  --azul: #2563eb;          /* Crea Tec — Azul elétrico */
+  --gelo: #f8f9fa;          /* Crea Tec — Gelo */
+  --preto: #0a0a0a;         /* Crea Tec — Preto profundo */
+  --texto: #111827;         /* Crea Tec — Texto */
+  --texto-2: #64748b;       /* Crea Tec — Texto secundário */
+  --texto-3: #677281;
+  --placeholder: #98a2b3;
+  --borda: #dce3ea;
+  --borda-2: #e1e7ee;
+  --divisor: #e9eef3;
+  --chip: #eef2f6;
+  --azul-claro: #eef4ff;
+  --ativo: #0f1b35;
+  --avatar: #202733;
+  --verde-bg: #ecfdf3;
+  --verde: #15803d;
+  --verde-ponto: #16a34a;
+  --vermelho: #dc2626;
+  --branco: #ffffff;
+  --raio-card: 16px;
+  --raio-campo: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: "Inter", system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  color: var(--texto);
+  background: var(--gelo);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { width: 1200px; min-height: 800px; display: flex; flex-direction: column; }
+
+img { display: block; }
+
+/* ---------- Navegação superior ---------- */
+.topnav {
+  background: var(--preto);
+  color: var(--branco);
+  height: 90px;
+  padding: 15px 24px 0;
+}
+.topnav .marca { font-size: 15px; line-height: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.topnav ul { list-style: none; display: flex; gap: 26px; margin-top: 16px; padding-left: 11px; }
+.topnav li { font-size: 13px; font-weight: 600; }
+
+/* ---------- Tipografia ---------- */
+.eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--texto-2);
+}
+h1 { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+.sub { font-size: 16px; color: var(--texto-2); line-height: 1.45; }
+.muted { color: var(--texto-2); }
+
+/* ---------- Cartões ---------- */
+.card {
+  background: var(--branco);
+  border: 1px solid var(--borda-2);
+  border-radius: var(--raio-card);
+}
+
+/* ---------- Botões ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--azul); color: var(--branco);
+  font: 600 13px/1 "Inter", sans-serif;
+  border-radius: 8px; height: 40px; padding: 0 20px; border: 0;
+}
+.btn.lg { height: 48px; font-size: 15px; border-radius: var(--raio-campo); width: 100%; }
+.btn.sm { height: 32px; font-size: 12px; padding: 0 16px; border-radius: 6px; }
+.btn.claro { background: var(--branco); color: var(--texto); }
+
+/* ---------- Formulário (Home) ---------- */
+.home { display: grid; grid-template-columns: 1fr 350px; gap: 40px;
+  align-items: center; padding: 14px 80px 40px 80px; }
+.home .cabecalho { padding-left: 7px; }
+.home h1 { margin: 10px 0 12px; }
+.form { margin-top: 32px; padding: 24px 23px 22px; }
+.campo + .campo { margin-top: 20px; }
+.campo label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 9px; }
+.campo .input {
+  height: 48px; border: 1px solid var(--borda); border-radius: var(--raio-campo);
+  padding: 0 12px; display: flex; align-items: center;
+  font-size: 14px; color: var(--texto-2); background: var(--branco);
+}
+.form .aviso { font-size: 12px; color: var(--texto-2); margin: 20px 0 16px; }
+.form .nota { font-size: 11px; color: var(--texto-2); margin-top: 16px; }
+
+/* ---------- Área com barra lateral ---------- */
+.shell { flex: 1; display: grid; grid-template-columns: 252px 1fr; }
+.lateral { background: var(--preto); color: var(--branco); padding: 24px 16px 20px;
+  display: flex; flex-direction: column; }
+.lateral .logo { display: flex; align-items: center; gap: 10px; padding: 0 4px; }
+.lateral .logo i { width: 31px; height: 31px; border-radius: 8px; background: var(--azul); }
+.lateral .logo b { font-size: 15px; }
+.lateral .secao { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: #c3cbd6;
+  text-transform: uppercase; margin: 26px 0 -14px 4px; }
+.lateral nav { margin-top: 34px; display: flex; flex-direction: column; gap: 8px; }
+.lateral nav a { display: flex; align-items: center; gap: 10px; color: #d4dce5;
+  font-size: 13px; font-weight: 500; text-decoration: none; padding: 12px 12px; border-radius: 6px; }
+.lateral nav a::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: #677281; }
+.lateral nav a.on { background: var(--ativo); color: var(--branco); font-weight: 600; }
+.lateral nav a.on::before { background: var(--azul); }
+.lateral .rodape { margin-top: auto; border-top: 1px solid #202733; padding: 16px 4px 0;
+  display: flex; align-items: center; gap: 12px; }
+.lateral .rodape i { width: 32px; height: 32px; border-radius: 50%; background: var(--avatar); }
+.lateral .rodape b { font-size: 12px; display: block; }
+.lateral .rodape span { font-size: 10px; color: #aab2bf; }
+
+.conteudo { padding: 34px 40px 32px; }
+.conteudo .topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.conteudo .topo h2 { font-size: 23px; font-weight: 600; letter-spacing: -0.02em; }
+.conteudo .topo .data { font-size: 12px; color: var(--texto-2); display: flex; align-items: center; gap: 12px; }
+
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600;
+  border-radius: 999px; padding: 4px 9px; }
+.badge.azul { background: var(--azul-claro); color: var(--azul); }
+.badge.verde { background: var(--verde-bg); color: var(--verde); }
+.badge.verde::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--verde-ponto); }
+
+/* Painel do profissional */
+.hero { display: grid; grid-template-columns: 1fr 260px; align-items: center; padding: 42px 28px 42px 28px; }
+.hero h3 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 10px 0 12px; max-width: 420px; }
+.hero p { font-size: 14px; color: var(--texto-2); margin-bottom: 22px; }
+.hero .eyebrow { font-size: 10px; }
+.duas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 22px; }
+.duas .card { padding: 22px 21px; }
+.duas .card h4 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.linha-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.proxima { background: var(--gelo); border: 1px solid var(--borda-2); border-radius: 10px;
+  padding: 16px 16px; display: flex; justify-content: space-between; align-items: center; }
+.proxima .eyebrow { font-size: 9.5px; }
+.proxima b { display: block; font-size: 15px; font-weight: 600; margin: 8px 0 6px; }
+.proxima small { font-size: 11px; color: var(--texto-2); }
+.proxima strong { font-size: 13px; }
+.divisor { border-top: 1px solid var(--divisor); margin: 18px 0 14px; }
+.espacos { display: flex; justify-content: space-between; align-items: flex-start; }
+.espacos b { font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px; }
+.espacos small { font-size: 11px; color: var(--texto-2); }
+.link { font-size: 12px; font-weight: 600; color: var(--azul); }
+.cta { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.cta .eyebrow { font-size: 9.5px; margin-bottom: 14px; }
+.cta h4 { margin: 18px 0 10px; }
+.cta p { font-size: 12px; color: var(--texto-2); max-width: 280px; line-height: 1.5; margin-bottom: 14px; }
+
+/* Visão geral (admin) */
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+.kpis .card { padding: 16px 15px 18px; border-radius: 12px; }
+.kpis small { font-size: 11px; color: var(--texto-3); display: block; }
+.kpis b { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; display: block; margin: 10px 0 10px; }
+.kpis span { font-size: 10px; color: var(--texto-2); }
+.kpis .vermelho { color: var(--vermelho); }
+.kpis .azul { color: var(--azul); }
+.duas.admin { grid-template-columns: 1fr 1fr; margin-top: 22px; align-items: start; }
+.agenda h4, .prioridade h4 { font-size: 16px; font-weight: 600; }
+.agenda .linha-topo { margin-bottom: 14px; }
+.agenda .hoje { font-size: 10px; font-weight: 600; color: var(--texto-3); background: var(--gelo); padding: 4px 6px; border-radius: 4px; }
+.agenda .desc { font-size: 11px; color: var(--texto-2); padding-bottom: 14px; border-bottom: 1px solid var(--divisor); }
+.agenda .item { padding: 14px 0 18px; border-bottom: 1px solid var(--divisor); }
+.agenda .item:last-child { border-bottom: 0; padding-bottom: 4px; }
+.agenda .item b { font-size: 12px; font-weight: 600; }
+.agenda .item b em { font-style: normal; color: var(--azul); font-size: 11px; margin-left: 8px; }
+.agenda .item small { display: block; font-size: 10px; color: var(--texto-2); margin: 5px 0 6px; }
+.agenda .item .badge { font-size: 10px; padding: 4px 7px; border-radius: 6px; }
+.agenda .item .btn { margin-top: 10px; }
+.prioridade { text-align: center; }
+.prioridade .linha-topo { text-align: left; }
+.prioridade p { font-size: 12px; color: var(--texto-2); max-width: 300px; margin: 0 auto 16px; line-height: 1.5; }
+.prioridade .tracejado { border: 1.5px dashed var(--borda); border-radius: 10px; height: 200px;
+  display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+.rodape-demo { font-size: 10px; color: var(--texto-2); margin-top: 20px; }
+
+/* Páginas simples (cabeçalho + cartões) */
+.pagina { flex: 1; padding: 24px 106px 48px 106px; }
+.pagina .cab { display: flex; justify-content: space-between; align-items: center; padding: 0 8px; }
+.pagina .cab h1 { margin: 10px 0 12px; }
+.pagina .cab .sub { font-size: 16px; }
+.pagina .cab img { height: 140px; width: 200px; object-fit: contain; object-position: right center; }
+.pagina .lista { margin-top: 24px; display: flex; flex-direction: column; gap: 17px; }
+.pagina .lista .card { padding: 30px 24px 30px; border-radius: 14px; }
+.pagina .lista h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 14px; }
+.pagina .lista p { font-size: 14px; color: var(--texto-2); }
+.pagina .lista li { list-style: none; font-size: 14px; margin-top: 17px; color: #202733; }
+
+/* Nova reserva — etapa 1 */
+.espacos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 17px; margin-top: 36px; padding: 0 76px 0 96px; }
+.espacos-grid .card { padding: 16px 23px 23px; border-radius: 14px; }
+.espacos-grid .ilu { height: 190px; display: flex; align-items: center; justify-content: center; }
+.espacos-grid .ilu img { max-height: 172px; max-width: 220px; }
+.espacos-grid h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 14px 0 12px; }
+.espacos-grid p { font-size: 14px; color: var(--texto-2); line-height: 1.5; min-height: 42px; }
+.espacos-grid .tag { font-size: 13px; letter-spacing: .02em; margin: 16px 0 14px; color: #202733; }
+.espacos-grid .btn { width: 100%; height: 42px; border-radius: 8px; }
+.etapa1 { flex: 1; padding: 30px 0 48px; }
+.etapa1 .cab { padding: 0 0 0 104px; }
+.etapa1 h1 { margin: 10px 0 12px; }
+
+/* Nova reserva — etapas 2 e 3 */
+.etapa { flex: 1; padding: 30px 106px 48px; }
+.etapa h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 22px 0 22px; }
+.etapa .sub { font-size: 15px; }
+.etapa .card { margin-top: 22px; padding: 22px 23px 24px; border-radius: 14px; }
+.etapa .card h4 { font-size: 16px; font-weight: 600; }
+.chips { display: flex; gap: 10px; margin: 20px 0 22px; }
+.chip { height: 40px; padding: 0 16px; border-radius: 6px; background: var(--chip); font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; color: #202733; }
+.chip.on { background: var(--azul); color: var(--branco); }
+.etapa .card .nota { font-size: 11px; color: var(--texto-2); margin-top: -8px; }
+.etapa .acoes { margin-top: 26px; display: flex; flex-direction: column; gap: 26px; align-items: flex-start; }
+.etapa .btn.claro { height: 40px; border-radius: 6px; padding: 0 16px; }
+.etapa .resumo p { font-size: 15px; color: var(--texto-2); margin: 16px 0 12px; }
+.etapa .resumo small { font-size: 12px; color: var(--texto-2); }
+.etapa h3.estados { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 30px 0 0; }
+.estados-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 17px; margin-top: 18px; }
+.estados-grid .card { margin: 0; padding: 20px 20px 24px; }
+.estados-grid h4 { font-size: 16px; }
+.estados-grid p { font-size: 13px; color: var(--texto-2); margin-top: 12px; line-height: 1.5; }
+
+/* Ilustrações */
+.ilu-home img { width: 350px; height: 350px; }
+.hero img, .cta img { height: 100%; width: auto; }
+
+.lateral.admin .rodape { margin-top: 44px; }
+.hero > div:last-child { height: 205px !important; }
