@@ -28,3 +28,12 @@ Lista original da análise de requisitos.
 | E3 | O que o público externo recebe ao enviar a solicitação, antes da análise da equipe? | O fluxo emite comprovante e confirmação logo após o registro, mas a RN06 exige análise antes de confirmar. Depende da pendência 4. | RF09, RN06, fluxo passo 5 |
 | E4 | A confirmação por WhatsApp/e-mail entra no MVP? | O fluxo principal a inclui, mas o RF11 tem prioridade Média e o MVP cobre os requisitos Alta. | RF11, fluxo passo 5 |
 | E5 | A lista de instituições parceiras entra no MVP? | O perfil de instituição seleciona a instituição em uma lista, mas o RF20 tem prioridade Média. | RF07, RF20 |
+
+## Design no Framer
+
+> Encontrados ao recriar as telas do protótipo (14/11/2026). Ver [Design](09-design.md).
+
+| # | Ponto | Por que importa | Onde |
+|---|---|---|---|
+| D1 | A página `/admin` (Visão Geral) usa o template de layout **Navegação do profissional**, então o menu superior mostra Meu painel, Nova reserva, Minhas reservas e Histórico. As demais páginas `/admin/*` usam **Navegação da administração** (Visão geral, Prioridade, Reservas, Espaços, Relatórios, Configurações). | A equipe administrativa veria, na tela inicial dela, o menu do profissional. Provável descuido: basta trocar o template de layout da página `/admin` no Framer. | Framer → página `/admin` → Template → Layout |
+| D2 | A etapa 2 da reserva é uma página única (`/reservar/horario`) para os três espaços: Estação individual, Sala de podcast e Mesa colaborativa levam à mesma tela, com os mesmos horários. | Se os espaços tiverem regras diferentes (duração, mínimo de pessoas, horários), a etapa precisa mostrar o espaço escolhido e opções próprias. Depende das pendências 3 e 5. | Framer → `/reservas` → botões "Ver horários" |
