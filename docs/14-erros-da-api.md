@@ -34,6 +34,6 @@ como `Allow` em respostas 405. Falhas 5xx recebem mensagem genérica e são regi
 no log do servidor; detalhes internos permanecem fora da resposta.
 
 Exceções nos filtros do Spring Security são tratadas em `SecurityConfiguration`,
-antes da camada MVC. A configuração atual mantém somente a leitura da saúde pública.
+antes da camada MVC, com respostas `ProblemDetail` produzidas por `SecurityProblemWriter`.
 Falhas de inicialização, como conexão com banco e migrações, também ficam fora do
 escopo do advice.

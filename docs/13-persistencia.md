@@ -13,7 +13,7 @@ gerenciadas pelo Spring Boot. O PostgreSQL local e o dos testes usam a imagem 17
 ## Primeira migração
 
 `V1__create_user_accounts.sql` cria a tabela `user_accounts` com UUID, nome completo,
-e-mail de contato, hash de senha, perfil de acesso, indicador de conta ativa e data
+e-mail da conta, hash de senha, perfil de acesso, indicador de conta ativa e data
 de criação em UTC. O banco exige os campos obrigatórios e restringe os perfis válidos.
 
 `UserAccount` contém o mapeamento; `AccessRole` define os perfis e
@@ -21,20 +21,19 @@ de criação em UTC. O banco exige os campos obrigatórios e restringe os perfis
 
 | Perfil | Uso previsto |
 |---|---|
-| `REQUESTER` | Solicitante |
 | `ADMIN` | Administrador |
-| `OPERATOR` | Operador do Hub |
-| `BOARD` | Diretoria |
-| `STAFF` | Equipe administrativa |
+| `USER` | Conta de solicitante, reservada para a evolução com autenticação |
 
 Esses perfis representam acesso à aplicação. O vínculo de mutualista/profissional
 do Crea será tratado separadamente quando o cadastro do solicitante for implementado.
-As permissões de cada perfil serão aplicadas na etapa de autenticação/autorização.
+Nesta fase, a área administrativa é restrita a `ADMIN` e os solicitantes não precisam
+de conta para fazer suas solicitações.
 
-O e-mail de contato permite repetição, conforme o CTH-7. A definição do identificador
-de login e de sua unicidade ficará na etapa de autenticação. O campo `password_hash`
-recebe uma senha já transformada em hash; a geração desse hash virá com o cadastro.
-Nenhuma conta administrativa é criada automaticamente.
+V2 normaliza e torna único o e-mail da conta de acesso. Os dados de contato dos
+solicitantes serão independentes dessa tabela. V1 permanece preservada, com as
+roles originais convertidas por V2. O campo `password_hash` recebe a senha já
+transformada em hash. A criação do primeiro administrador exige ativação explícita
+do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 

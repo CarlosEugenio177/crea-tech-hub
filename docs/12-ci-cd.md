@@ -2,9 +2,15 @@
 
 ## Fluxo de branches
 
-As funcionalidades são desenvolvidas em branches próprias e enviadas em pull requests
-para `develop`. A promoção para `main` será feita por pull request quando houver uma
-versão pronta para entrega.
+`main` é a branch principal e representa a versão destinada à produção.
+`develop` reúne as entregas em desenvolvimento para integração e validação da equipe.
+
+Os desenvolvedores trabalham em branches próprias e enviam pull requests para
+`develop`. Depois da validação, a promoção de `develop` para `main` é feita por um
+pull request revisado e aprovado pelo responsável pelo projeto.
+
+Após a integração de uma entrega, a branch de trabalho pode ser removida. As branches
+permanentes são `main` e `develop`.
 
 ## CI no GitHub Actions
 

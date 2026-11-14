@@ -8,15 +8,13 @@
 
 ## Objetivo
 
-Restringir o painel administrativo à equipe autorizada, e liberar para cada perfil administrativo apenas o que ele pode fazer.
+Restringir o painel administrativo às contas `ADMIN` autorizadas. Os solicitantes usam o fluxo público sem conta nesta fase; a role `USER` fica reservada para a evolução com autenticação pelo Crea/Mútua.
 
 ## Quem usa
 
 | Perfil | O que faz |
 |---|---|
-| Diretoria | Acesso administrativo: reserva salas de reunião e mantém horários fixos travados |
-| Administrador / operador | Acesso administrativo: gerencia ambientes, regras, reservas, bloqueios e usuários |
-| Equipe administrativa da Mútua-PI | Confere cadastros e acompanha reservas |
+| Equipe autorizada da Mútua-PI (`ADMIN`) | Gerencia ambientes, regras, reservas, bloqueios e contas administrativas |
 
 ## Indicadores de sucesso (proposta da equipe)
 
@@ -28,7 +26,9 @@ Restringir o painel administrativo à equipe autorizada, e liberar para cada per
 
 ## Critérios de aceite
 
-- [ ] O painel administrativo usa **login padrão (CRUD)** com autenticação por usuário e senha; visitantes e solicitantes **não acessam** a área administrativa.
+- [ ] O painel administrativo usa autenticação por **e-mail único e senha**; somente contas `ADMIN` ativas entram na área administrativa.
+- [ ] As roles são `ADMIN` e `USER`; vínculo de mutualista/profissional do Crea e benefícios são tratados separadamente.
+- [ ] A primeira conta administrativa exige inicialização explícita e senha definida pelo responsável; não existe senha padrão nem cadastro administrativo público.
 - [ ] Suporte à **migração da base de usuários/dados** fornecida pela Mútua.
 - [ ] A **Diretoria** reserva salas de reunião e mantém os horários fixos de reunião (CTH-16).
 - [ ] O **Administrador / operador** gerencia ambientes, regras, reservas, bloqueios e usuários.

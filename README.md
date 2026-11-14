@@ -13,6 +13,7 @@ Consulte o README dessa pasta para executar e testar a fundação inicial.
 O fluxo de branches e a CI estão descritos em [CI/CD do backend](docs/12-ci-cd.md).
 O banco local e a primeira migração estão descritos em [Persistência](docs/13-persistencia.md).
 O tratamento centralizado de exceções está descrito em [Erros da API](docs/14-erros-da-api.md).
+O login exclusivo da administração está descrito em [Acesso administrativo](docs/15-autenticacao.md).
 As histórias em [`histories/`](histories/PLANO-DE-IMPLEMENTACAO.md) registram as decisões
 mais recentes de escopo; a documentação abaixo preserva o levantamento original.
 

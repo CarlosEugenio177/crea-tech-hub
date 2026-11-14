@@ -18,6 +18,14 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
   shutdown: graceful
+  servlet:
+    session:
+      timeout: 20m
+      tracking-modes: cookie
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:false}
   error:
     include-message: never
     include-stacktrace: never

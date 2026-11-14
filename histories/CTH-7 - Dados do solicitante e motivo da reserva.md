@@ -8,14 +8,14 @@
 
 ## Objetivo
 
-Permitir que o solicitante se cadastre e faça login no site, informando seus dados (incluindo o ID/cartãozinho da Mútua, quando aplicável) e o motivo quando exigido.
+Permitir que o solicitante informe seus dados na própria solicitação, sem criar conta nesta fase, incluindo o ID/cartãozinho da Mútua quando aplicável e o motivo quando exigido.
 
 ## Quem usa
 
 | Perfil | Como se identifica |
 |---|---|
-| Mutualista / profissional do Crea | Cadastro/login no site + nome completo, identificador/cartãozinho da Mútua (ou RNP), WhatsApp e e-mail |
-| Público externo | Cadastro/login no site + nome completo, WhatsApp, e-mail e motivo da reserva (obrigatório) |
+| Mutualista / profissional do Crea | Nome completo, identificador/cartãozinho da Mútua (ou RNP), WhatsApp e e-mail |
+| Público externo | Nome completo, WhatsApp, e-mail e motivo da reserva (obrigatório) |
 
 ## Indicadores de sucesso (proposta da equipe)
 
@@ -23,11 +23,13 @@ Permitir que o solicitante se cadastre e faça login no site, informando seus da
 
 ## História
 
-**Como** solicitante, **quero** me cadastrar/logar no site e informar meus dados e o motivo da reserva quando necessário, **para** acompanhar e gerenciar minhas reservas e permitir contato da equipe.
+**Como** solicitante, **quero** informar meus dados e o motivo quando necessário, **para** solicitar uma reserva e permitir contato da equipe sem criar conta nesta fase.
 
 ## Critérios de aceite
 
-- [ ] O usuário **se cadastra e faz login** no site (duplicação de dados cadastrais é permitida se ocorrer).
+- [ ] O solicitante **não precisa criar conta nem fazer login** nesta fase; informa os dados na própria solicitação.
+- [ ] Os dados do solicitante são independentes das contas de acesso administrativo e podem se repetir entre solicitações.
+- [ ] O acesso futuro de solicitantes deverá considerar a integração com Crea/Mútua; vínculo e benefícios são separados das roles `ADMIN` e `USER`.
 - [ ] O formulário coleta: **perfil**, **nome completo**, **ID/cartãozinho da Mútua** (quando aplicável), **WhatsApp**, **e-mail** e **observação opcional**.
 - [ ] Não há lista nem autenticação de instituições parceiras externas (o software é exclusivo da Mútua).
 - [ ] O **motivo da reserva é obrigatório** para o **público externo** e para **reservas em nome de terceiros** (ex.: reunião de trabalho com clientes).
