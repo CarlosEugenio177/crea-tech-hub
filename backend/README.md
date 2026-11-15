@@ -124,6 +124,7 @@ A hospedagem para deploy automático ainda será definida.
 - `br.com.mutua.createchhub`: aplicação Spring Boot.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `user`: conta de usuário, perfil de acesso e repositório JPA.
+- `space`: cadastro administrativo de salas, mesas compartilhadas e estações.
 - `shared.error`: tratamento centralizado de exceções e respostas de erro.
 - `src/main/resources/application.yml`: configuração comum; a porta aceita `SERVER_PORT`.
 - `src/test/java`: testes da aplicação.
@@ -148,10 +149,16 @@ na própria solicitação. O login de solicitantes via Crea/Mútua é uma evolu�
 ## Limite desta entrega
 
 Esta etapa inclui PostgreSQL, migrações, persistência de contas, login administrativo
-e restrição da área administrativa à role `ADMIN`. As roles são `ADMIN` e `USER`;
+e cadastro administrativo básico de espaços, restritos à role `ADMIN`.
+As roles são `ADMIN` e `USER`;
 somente administradores ativos usam o login local nesta fase.
 Gestão de contas por API, catálogo, reservas, aprovação, notificações e frontend
 serão implementados nas próximas etapas.
+
+O cadastro permite criar, editar, consultar com paginação e ativar/desativar espaços.
+O contrato está em [Cadastro administrativo de espaços](../docs/16-espacos.md).
+Fotos, recursos, funcionamento do Hub e estações no mapa completam o CTH-15 nas
+próximas entregas.
 
 Decisões de reserva já alinhadas para a implementação futura:
 

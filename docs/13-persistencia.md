@@ -37,9 +37,14 @@ do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 
+`V3__create_spaces.sql` cria `spaces` para salas, mesas compartilhadas e estações
+individuais, com capacidade, descrição opcional, situação ativa e data de criação.
+O banco restringe os tipos, exige capacidade positiva e limita estações individuais
+a uma pessoa. O cadastro administrativo está descrito em [Espaços](16-espacos.md).
+
 Após uma migração ser aplicada, mantenha o arquivo original e crie a próxima versão
 para novas alterações. Flyway é o responsável pela evolução do esquema; os testes
-também executam essas mesmas migrações. As futuras reservas, salas e estações terão
-migrações próprias quando suas funcionalidades forem iniciadas.
+também executam essas mesmas migrações. Reservas e demais evoluções terão migrações
+próprias quando suas funcionalidades forem iniciadas.
 
 Para iniciar o banco e executar a aplicação, siga o [README do backend](../backend/README.md).
