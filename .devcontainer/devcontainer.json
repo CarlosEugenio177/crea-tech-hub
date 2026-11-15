@@ -1,50 +1,17 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/java
 {
-    "name": "Java",
-    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-    "image": "mcr.microsoft.com/devcontainers/java:3-25-bookworm",
-
-    "features": {
-        "ghcr.io/devcontainers/features/java:1": {
-            "version": "none",
-            "installMaven": "false",
-            "installGradle": "false"
-        },
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-    },
-
-    "runArgs": [
-        "--add-host=host.docker.internal:host-gateway"
-    ],
-
-    "containerEnv": {
-        "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal"
-    },
-
-    // Use 'forwardPorts' to make a list of ports inside the container available locally.
-    "forwardPorts": [8080],
-
-    // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.m2 && cd backend && chmod +x mvnw && ./mvnw dependency:go-offline",
-
-    // Configure tool-specific properties.
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "vmware.vscode-boot-dev-pack"
-            ]
-        }
-    },
-
-    "mounts": [
-    {
-        "source": "creahub-m2-cache",
-        "target": "/home/vscode/.m2",
-        "type": "volume"
+  "name": "Crea Tech Hub",
+  "dockerComposeFile": ["../compose.yml", "compose.yml"],
+  "service": "backend",
+  "workspaceFolder": "/workspaces/crea-tech-hub",
+  "remoteUser": "vscode",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "forwardPorts": [8080],
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.m2 backend/target && cd backend && ./mvnw --batch-mode --no-transfer-progress dependency:go-offline",
+  "customizations": {
+    "vscode": {
+      "extensions": ["vmware.vscode-boot-dev-pack"]
     }
-    ]
-
-    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    // "remoteUser": "root"
+  }
 }

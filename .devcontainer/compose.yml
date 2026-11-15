@@ -1,0 +1,22 @@
+services:
+  backend:
+    image: mcr.microsoft.com/devcontainers/java:3-25-bookworm
+    command: sleep infinity
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/crea_tech_hub
+      DB_USERNAME: crea
+      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD para o banco local}
+      TESTCONTAINERS_HOST_OVERRIDE: host.docker.internal
+    volumes:
+      - .:/workspaces/crea-tech-hub:cached
+      - maven_cache:/home/vscode/.m2
+      - backend_target:/workspaces/crea-tech-hub/backend/target
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  maven_cache:
+  backend_target:

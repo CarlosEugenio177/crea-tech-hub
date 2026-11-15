@@ -9,6 +9,7 @@ Projeto do curso de Engenharia de Software do iCEV (Laboratório de Inovação),
 ## Desenvolvimento
 
 O backend está em [`backend/`](backend/README.md), com Java 25, Spring Boot e Maven Wrapper.
+As convenções de código e as decisões atuais estão em [`AGENTS.md`](AGENTS.md).
 Consulte o README dessa pasta para executar e testar a fundação inicial.
 O fluxo de branches e a CI estão descritos em [CI/CD do backend](docs/12-ci-cd.md).
 O banco local e a primeira migração estão descritos em [Persistência](docs/13-persistencia.md).

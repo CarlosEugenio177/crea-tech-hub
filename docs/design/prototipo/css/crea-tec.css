@@ -1,0 +1,236 @@
+/* Crea Tec HUB — recriação das telas do Framer (projeto "Functional Technology").
+   Valores extraídos camada a camada do painel Style do Framer (14/11/2026):
+   tamanhos, gaps, paddings, raios, preenchimentos e tipografia. */
+
+.nota-prototipo {
+  padding: 12px 24px;
+  background: #eef4ff;
+  color: #111827;
+  font: 14px/1.5 Arial, sans-serif;
+}
+
+:root {
+  /* Estilos de cor do Framer */
+  --azul: #2563eb;            /* Crea Tec — Azul elétrico */
+  --gelo: #f8f9fa;            /* Crea Tec — Gelo */
+  --preto: #0a0a0a;           /* Crea Tec — Preto profundo */
+  --texto: #111827;           /* Crea Tec — Texto */
+  --texto-2: #64748b;         /* Crea Tec — Texto secundário */
+  /* Cores locais usadas nas camadas */
+  --borda-card: #e1e7ee;
+  --borda-campo: #dce3ea;
+  --divisor: #e9eef3;
+  --azul-claro: #eef4ff;
+  --azul-18: rgba(37, 99, 235, 0.18);
+  --azul-12: rgba(37, 99, 235, 0.12);
+  --cinza-indicador: #677281;
+  --cinza-menu: #c3cbd6;
+  --cinza-rotulo: #98a2b3;
+  --cinza-org: #aab2bf;
+  --avatar: #202733;
+  --verde-bg: #ecfdf3;
+  --verde: #15803d;
+  --verde-ponto: #16a34a;
+  --vermelho: #dc2626;
+  --fundo-suave: #f8fafc;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: "Inter", system-ui, sans-serif; color: var(--texto); background: var(--gelo);
+  -webkit-font-smoothing: antialiased; }
+body { width: 1200px; min-height: 900px; display: flex; flex-direction: column; }
+img { display: block; }
+
+/* ---------- Template "Navegação do profissional" / "da administração" ---------- */
+.topnav { background: var(--preto); padding: 16px 24px; display: flex; flex-direction: column; gap: 10px; height: 89px; flex: none; }
+.topnav .marca { font: 600 14px/1.2 Inter, system-ui, sans-serif; color: #fff; }
+.topnav ul { list-style: none; display: flex; gap: 6px; height: 30px; }
+.topnav li { display: flex; align-items: center; justify-content: center; padding: 8px 10px; border-radius: 8px;
+  font: 500 12px/1.2 Inter, system-ui, sans-serif; color: #fff; }
+
+/* ---------- Estilo de texto "Crea Tec — Rótulo" e cabeçalho padrão ---------- */
+.eyebrow { font: 700 11px/1.5 Inter, system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-2); }
+.cab-padrao { display: flex; flex-direction: column; gap: 10px; padding: 8px; }
+.cab-padrao h1 { font: 700 36px/1.1 Inter, system-ui, sans-serif; letter-spacing: -0.03em; }
+.cab-padrao .sub { font: 400 16px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+
+/* ---------- Componentes ---------- */
+.card { background: #fff; border: 1px solid var(--borda-card); border-radius: 14px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; background: var(--azul); color: #fff;
+  border-radius: 8px; white-space: nowrap; }
+.btn.branco { background: #fff; color: var(--texto); }
+.cover { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- Home / cadastro ---------- */
+.home { width: 87%; margin: 0 auto; display: flex; gap: 48px; align-items: center; height: 588px; }
+.home .coluna { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+.home .cabecalho { display: flex; flex-direction: column; gap: 12px; padding: 8px; }
+.home .cabecalho .eyebrow { line-height: 1.2; }
+.home h1 { font: 700 36px/1.1 Inter, system-ui, sans-serif; letter-spacing: -0.03em; }
+.home .sub { font: 400 16px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.form { display: flex; flex-direction: column; gap: 18px; padding: 24px; border-radius: 16px; }
+.campo { display: flex; flex-direction: column; gap: 8px; }
+.campo label { font: 600 13px/1.5 Inter, system-ui, sans-serif; }
+.campo .input { height: 48px; padding: 12px; border-radius: 10px; background: #fff; border: 1px solid var(--borda-campo);
+  font: 400 14px/1.6 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.form .aviso { font: 400 12px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.form .btn { height: 48px; padding: 12px 20px; border-radius: 10px; font: 600 15px/1.5 Inter, system-ui, sans-serif; }
+.form .nota { font: 400 11px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.home .ilu { width: 350px; height: 350px; border-radius: 14px; overflow: hidden; flex: none; }
+
+/* ---------- /404 ---------- */
+.e404 { display: flex; align-items: center; justify-content: center; gap: 64px; padding: 32px; height: 484px; }
+.e404 .msg { flex: 1; display: flex; flex-direction: column; gap: 20px; padding: 24px; align-items: flex-start; }
+.e404 h1 { font: 700 48px/1.08 Inter, system-ui, sans-serif; }
+.e404 p { font: 400 17px/1.55 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.e404 .btn { height: 42px; padding: 12px 22px; border-radius: 10px; font: 600 15px/1.2 Inter, system-ui, sans-serif; }
+.e404 .ilu { width: 420px; height: 420px; border-radius: 24px; overflow: hidden; flex: none; }
+
+/* ---------- Páginas de conteúdo (maxW 1040, pad 24, gap 24) ---------- */
+.pagina { width: 100%; max-width: 1040px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+.apresentacao { display: flex; gap: 24px; align-items: center; height: 150px; }
+.apresentacao .cab-padrao { flex: 1; }
+.apresentacao .ilu { width: 190px; height: 150px; border-radius: 12px; overflow: hidden; flex: none; }
+.lista { display: flex; flex-direction: column; gap: 16px; }
+.lista .card { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+.lista h3 { font: 600 18px/1.5 Inter, system-ui, sans-serif; }
+.lista p { font: 400 14px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.lista li { list-style: none; font: 400 14px/1.5 Inter, system-ui, sans-serif; color: var(--texto); }
+
+/* /reservas — etapa 1 */
+.espacos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.espacos-grid .card { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+.espacos-grid .area { height: 180px; display: flex; align-items: center; justify-content: center; }
+.espacos-grid .area div { border-radius: 12px; overflow: hidden; }
+.espacos-grid h3 { font: 600 18px/1.5 Inter, system-ui, sans-serif; }
+.espacos-grid p { font: 400 14px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.espacos-grid .tag { font: 400 14px/1.5 Inter, system-ui, sans-serif; color: var(--texto); }
+.espacos-grid .btn { height: 40px; padding: 10px 16px; font: 600 13px/1.5 Inter, system-ui, sans-serif; }
+
+/* /reservar/horario e /reservar/revisao */
+.etapa .eyebrow { font-weight: 600; }
+.etapa h2 { font: 600 27px/1.2 Inter, system-ui, sans-serif; }
+.etapa.revisao h2 { line-height: 1.5; }
+.etapa.revisao { gap: 20px; }
+.etapa .sub { font: 400 14px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.etapa .card { display: flex; flex-direction: column; padding: 24px; }
+.etapa .selecao { gap: 16px; }
+.etapa .card h4 { font: 600 16px/1.5 Inter, system-ui, sans-serif; }
+.chips { display: flex; gap: 10px; }
+.chip { height: 40px; padding: 10px 16px; border-radius: 8px; background: var(--gelo); font: 600 13px/1.5 Inter, system-ui, sans-serif; color: var(--texto);
+  display: inline-flex; align-items: center; }
+.chips.horas .chip { height: 39px; }
+.chip.on { background: var(--azul); color: #fff; }
+.etapa .nota { font: 400 12px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.etapa .btn { height: 40px; padding: 10px 16px; font: 600 13px/1.5 Inter, system-ui, sans-serif; align-self: flex-start; }
+.etapa .btn.lg { height: 43px; padding: 12px 20px; }
+.etapa .resumo { gap: 12px; }
+.etapa .resumo p { font: 400 14px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.etapa .resumo small { font: 400 12px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.etapa h3.estados { font: 600 20px/1.2 Inter, system-ui, sans-serif; }
+.estados-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.etapa .estados-grid .card { gap: 10px; padding: 20px; border-radius: 12px; }
+.etapa .estados-grid h4 { font: 600 15px/1.2 Inter, system-ui, sans-serif; }
+.estados-grid p { font: 400 13px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); }
+
+/* ---------- Aplicação com barra lateral (/painel e /admin) ---------- */
+.app { flex: 1; display: flex; width: 100%; }
+.app.admin { max-width: 1600px; }
+.lateral { width: 248px; flex: none; background: var(--preto); padding: 24px 16px; display: flex; flex-direction: column; gap: 28px; }
+.identidade { display: flex; align-items: center; gap: 10px; height: 30px; }
+.identidade i { width: 30px; height: 30px; border-radius: 8px; background: var(--azul); }
+.identidade b { font: 600 14px/1 Inter, system-ui, sans-serif; color: #fff; }
+.rotulo-admin { font: 600 9px/1.2 Inter, system-ui, sans-serif; letter-spacing: 0.12em; color: var(--cinza-rotulo); text-transform: uppercase; }
+.menu { display: flex; flex-direction: column; gap: 6px; }
+.menu a { height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px;
+  font: 400 12px/1.2 Inter, system-ui, sans-serif; color: var(--cinza-menu); }
+.menu a i { width: 6px; height: 6px; border-radius: 50%; background: var(--cinza-indicador); }
+.menu a.on { background: var(--azul-18); color: #fff; font-weight: 600; }
+.menu a.on i { background: var(--azul); }
+.flex { flex: 1; }
+.conta { display: flex; align-items: center; gap: 10px; height: 46px; padding: 14px 4px 0; border-top: 1px solid var(--avatar); }
+.conta i { width: 32px; height: 32px; border-radius: 50%; background: var(--avatar); flex: none; }
+.conta div { display: flex; flex-direction: column; gap: 3px; }
+.conta b { font: 600 11px/1.2 Inter, system-ui, sans-serif; color: #fff; }
+.conta span { font: 400 10px/1.2 Inter, system-ui, sans-serif; color: var(--cinza-org); }
+
+/* /painel */
+.conteudo { flex: 1; display: flex; flex-direction: column; gap: 22px; padding: 30px 40px 48px; background: var(--gelo); }
+.cab-painel { display: flex; justify-content: space-between; align-items: center; height: 27px; }
+.cab-painel h2 { font: 600 22px/1.2 Inter, system-ui, sans-serif; }
+.cab-painel .data { font: 500 12px/1.3 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.boas-vindas { display: flex; align-items: center; gap: 24px; padding: 28px; height: 276px; }
+.boas-vindas .msg { flex: 1; display: flex; flex-direction: column; gap: 12px; justify-content: center; align-items: flex-start; }
+.boas-vindas .rotulo { font: 600 10px/1.2 Inter, system-ui, sans-serif; letter-spacing: 0.11em; color: var(--texto-2); text-transform: uppercase; }
+.boas-vindas h3 { font: 600 27px/1.18 Inter, system-ui, sans-serif; letter-spacing: -0.025em; max-width: 420px; }
+.boas-vindas p { font: 400 14px/1.55 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.boas-vindas .btn { height: 40px; padding: 12px 20px; font: 600 13px/1.2 Inter, system-ui, sans-serif; }
+.boas-vindas .ilu { width: 220px; height: 220px; border-radius: 10px; overflow: hidden; flex: none; }
+.linha { display: flex; gap: 16px; height: 359px; }
+.linha > .card { flex: 1; padding: 22px; display: flex; flex-direction: column; }
+.minhas { gap: 18px; }
+.minhas .cab { display: flex; justify-content: space-between; align-items: center; height: 22px; }
+.minhas .cab h4 { font: 600 16px/1.25 Inter, system-ui, sans-serif; }
+.badge { display: inline-flex; align-items: center; justify-content: center; padding: 6px 8px; border-radius: 20px;
+  background: var(--azul-claro); color: var(--azul); font: 600 10px/1 Inter, system-ui, sans-serif; }
+.proxima { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 10px; background: var(--fundo-suave);
+  border: 1px solid var(--borda-card); height: 90px; justify-content: center; }
+.proxima .rotulo { font: 600 10px/1.2 Inter, system-ui, sans-serif; letter-spacing: 0.08em; color: var(--texto-2); text-transform: uppercase; }
+.proxima .det { display: flex; justify-content: space-between; align-items: center; }
+.proxima .det div { display: flex; flex-direction: column; gap: 4px; }
+.proxima b { font: 600 14px/1.3 Inter, system-ui, sans-serif; }
+.proxima small { font: 400 11px/1.3 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.proxima strong { font: 600 12px/1.2 Inter, system-ui, sans-serif; }
+.disponiveis { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; height: 64px; border-top: 1px solid var(--divisor); }
+.disponiveis div { display: flex; flex-direction: column; gap: 4px; }
+.disponiveis b { font: 600 13px/1.25 Inter, system-ui, sans-serif; }
+.disponiveis small { font: 400 11px/1.4 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.disponiveis span { font: 600 11px/1 Inter, system-ui, sans-serif; color: var(--azul); }
+.link-hist { font: 600 11px/1.2 Inter, system-ui, sans-serif; color: var(--azul); padding: 9px 0; }
+.agendar { gap: 12px; align-items: center; justify-content: center; text-align: center; }
+.agendar .rotulo { font: 600 10px/1.2 Inter, system-ui, sans-serif; letter-spacing: 0.09em; color: var(--texto-2); text-transform: uppercase; }
+.agendar .ilu { width: 172px; height: 164px; }
+.agendar .ilu img { width: 100%; height: 100%; object-fit: cover; }
+.agendar h4 { font: 600 17px/1.25 Inter, system-ui, sans-serif; }
+.agendar p { font: 400 12px/1.5 Inter, system-ui, sans-serif; color: var(--texto-2); max-width: 300px; }
+.agendar .btn { height: 34px; padding: 11px 18px; font: 600 12px/1 Inter, system-ui, sans-serif; }
+
+/* /admin — visão geral */
+.conteudo.adm { gap: 20px; padding: 28px 34px 36px; max-width: 1400px; }
+.cab-painel .estado { display: flex; align-items: center; gap: 12px; }
+.cab-painel .estado .data { font: 500 11px/1.2 Inter, system-ui, sans-serif; }
+.pill-ok { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 7px 9px; border-radius: 20px;
+  background: var(--verde-bg); color: var(--verde); font: 600 10px/1 Inter, system-ui, sans-serif; }
+.pill-ok i { width: 6px; height: 6px; border-radius: 50%; background: var(--verde-ponto); }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpis .card { min-height: 122px; padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 11px; }
+.kpis small { font: 500 11px/1.35 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.kpis b { font: 600 27px/1 Inter, system-ui, sans-serif; letter-spacing: -0.03em; }
+.kpis span { font: 400 10px/1.25 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.kpis .vermelho { color: var(--vermelho); }
+.kpis .azul { color: var(--azul); }
+.agenda-prior { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+.agenda-prior > .card { padding: 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 16px; }
+.agenda .cab, .prior .cab { display: flex; justify-content: space-between; align-items: center; }
+.agenda .cab h4 { font: 600 15px/1.2 Inter, system-ui, sans-serif; }
+.agenda .cab span { font: 600 9px/1 Inter, system-ui, sans-serif; letter-spacing: 0.06em; color: var(--texto-2); }
+.agenda .desc { font: 400 11px/1.4 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.agenda .itens { display: flex; flex-direction: column; }
+.agenda .item { display: flex; flex-direction: column; gap: 9px; padding: 12px 0; border-top: 1px solid var(--divisor); align-items: flex-start; }
+.agenda .item .det { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.agenda .item .quem { display: flex; gap: 8px; align-items: baseline; }
+.agenda .item .quem b { font: 600 11px/1.2 Inter, system-ui, sans-serif; }
+.agenda .item .quem em { font: normal 600 10px/1.2 Inter, system-ui, sans-serif; color: var(--azul); }
+.agenda .item .rec { font: 400 10px/1.2 Inter, system-ui, sans-serif; color: var(--texto-2); }
+.agenda .item .status { padding: 4px 8px; border-radius: 20px; background: var(--azul-12); color: var(--azul); font: 600 11px/1.2 Inter, system-ui, sans-serif; }
+.agenda .item .btn { height: 28px; padding: 8px 16px; border-radius: 7px; font: 600 12px/1 Inter, system-ui, sans-serif; }
+.prior { min-height: 360px; }
+.prior .cab { gap: 12px; }
+.prior .cab h4 { font: 600 15px/1.3 Inter, system-ui, sans-serif; }
+.prior .cont { width: 23px; height: 23px; padding: 6px 9px; border-radius: 20px; background: var(--azul-claro);
+  color: var(--azul); font: 600 11px/1 Inter, system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; }
+.prior p { font: 500 12px/1.45 Inter, system-ui, sans-serif; color: var(--texto-2); text-align: center; max-width: 330px; margin: 0 auto; }
+.prior .caixa { height: 180px; padding: 14px; border-radius: 12px; border: 1.5px dashed var(--borda-campo);
+  display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.prior .caixa img { width: 100%; height: 100%; object-fit: cover; }
+.rodape-demo { font: 400 10px/1.3 Inter, system-ui, sans-serif; color: var(--texto-2); }
