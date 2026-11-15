@@ -5,7 +5,8 @@ O Maven Wrapper fixa a versão do Maven; não é necessário instalá-lo separad
 
 ## Executar
 
-Requisitos: JDK 25 no `PATH` ou em `JAVA_HOME` e Docker em execução.
+Para execução diretamente na máquina: JDK 25 no `PATH` ou em `JAVA_HOME` e Docker
+em execução. No devcontainer, basta o Docker e as ferramentas do VS Code abaixo.
 
 ### Usando o Dev Container
 
@@ -14,11 +15,35 @@ repositório no VS Code e selecione **Reopen in Container**. Para isso, é
 necessário ter o Docker (ou Docker Desktop), o VS Code e a extensão
 **Dev Containers** instalados.
 
-O container configura o Java, as extensões do VS Code e o acesso ao Docker
-usado pelo Testcontainers. Na primeira criação, a imagem e as dependências
-Maven serão baixadas; nas próximas execuções, o cache Maven persistirá em um
-volume do Docker. O código continua sendo o código do repositório aberto no
-VS Code, portanto ainda é necessário cloná-lo previamente.
+Antes de reabrir no container, copie `.env.example` para `.env` na raiz e preencha
+`DB_PASSWORD` com uma senha local escolhida por você. O arquivo `.env` é ignorado
+pelo Git e lido pelo Compose; não contém credenciais prontas no repositório.
+
+O devcontainer sobe o PostgreSQL junto com o Java e aguarda o banco ficar saudável.
+Os dois serviços compartilham a rede do Compose; o backend usa
+`jdbc:postgresql://postgres:5432/crea_tech_hub`, com a mesma senha do banco.
+O acesso ao Docker para Testcontainers também é configurado automaticamente.
+
+Dentro do terminal do container:
+
+```sh
+cd backend
+./mvnw spring-boot:run
+```
+
+Não é necessário subir outro banco nem configurar `DB_URL` manualmente.
+A porta `8080` é encaminhada ao computador. Na primeira criação, a imagem e as
+dependências Maven serão baixadas; nas próximas execuções, o cache Maven persistirá
+em um volume do Docker. O código é o mesmo repositório aberto no VS Code.
+O diretório `backend/target` do container também usa volume próprio: isso evita
+conflitos de permissões e artefatos entre builds no Windows e no Linux do container.
+Para executar o JAR produzido ali, use o terminal do próprio container.
+
+Se já existe um volume do PostgreSQL, use a senha escolhida na sua primeira
+inicialização. Alterar `.env` não altera a senha do banco existente. Não remova o
+volume para contornar esse problema: preserve os dados e ajuste a credencial.
+
+### Usando o JDK da máquina
 
 Na raiz do repositório, prepare o banco local no PowerShell:
 

@@ -8,8 +8,11 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-[*.{java,xml}]
+[*.xml]
 indent_style = tab
+indent_size = 4
+
+[*.py]
 indent_size = 4
 
 [*.md]
