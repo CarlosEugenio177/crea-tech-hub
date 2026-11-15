@@ -1,0 +1,12 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 12px 22px;
+  border-radius: var(--radius-button-large);
+  background: var(--color-primary);
+  color: var(--color-on-inverse);
+  font: var(--font-button);
+  text-decoration: none;
+}

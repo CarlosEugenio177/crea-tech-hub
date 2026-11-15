@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eyebrow {
+  font: var(--font-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  font: var(--font-title);
+  letter-spacing: var(--tracking-title);
+}
+
+.description {
+  color: var(--color-text-muted);
+}

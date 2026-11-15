@@ -1,0 +1,18 @@
+.header {
+  padding: 16px var(--page-padding);
+  background: var(--color-inverse);
+}
+
+.brand {
+  font: 600 0.875rem / 1.2 var(--font-family);
+  color: var(--color-on-inverse);
+  text-decoration: none;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--page-padding);
+}

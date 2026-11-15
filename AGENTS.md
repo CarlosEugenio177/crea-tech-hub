@@ -2,7 +2,7 @@
 
 ## Escopo e referências
 
-- Monorepo de uma aplicação web. O backend fica em `backend/`: Java 25, Spring Boot, Maven Wrapper, PostgreSQL, JPA e Flyway. Implementar em etapas pequenas.
+- Monorepo de uma aplicação web. O backend fica em `backend/`: Java 25, Spring Boot, Maven Wrapper, PostgreSQL, JPA e Flyway. O frontend fica em `frontend/`: React, TypeScript e Vite. Implementar em etapas pequenas.
 - Consultar `histories/PLANO-DE-IMPLEMENTACAO.md`, a história correspondente e `docs/12-ci-cd.md` a `docs/17-equipe-permissoes-recuperacao.md` antes de alterar comportamento.
 - As decisões mais recentes do responsável prevalecem sobre o levantamento original. Ao mudar uma regra, atualizar a história/documentação afetada.
 - O Framer orienta a identidade visual. Telas demonstrativas não definem regras de negócio nem comprovam funcionalidade implementada. Ver `docs/09-design.md`.
@@ -58,7 +58,8 @@
 
 ## Frontend
 
-- O frontend fica em `frontend/`: React com TypeScript em modo estrito. As regras de simplicidade, estilo, segurança e Git deste documento valem também para ele.
+- O frontend fica em `frontend/`: React com TypeScript em modo estrito, Vite, React Router e CSS Modules. As regras de simplicidade, estilo, segurança e Git deste documento valem também para ele.
+- Bibliotecas já aprovadas, adicionadas somente quando a primeira funcionalidade precisar delas: TanStack Query com `openapi-react-query` para dados do servidor, React Hook Form com Zod para formulários. Testes usam Vitest e Testing Library; lint usa Oxlint e a formatação, Prettier.
 - O contrato com a API vem do OpenAPI do backend: tipos gerados com `openapi-typescript` e chamadas feitas com `openapi-fetch`. Não escrever à mão tipos de requisição ou resposta, nem editar arquivos gerados; ao mudar a API, regenerar os tipos na mesma entrega.
 - Um único cliente HTTP compartilhado cuida de cookie de sessão, CSRF e leitura de `ProblemDetail`. Componentes não chamam `fetch` diretamente.
 - Organizar por funcionalidade, espelhando o backend: `src/features/<funcionalidade>/` reúne componentes, hooks e chamadas de API daquela funcionalidade. `src/shared/` recebe apenas o que for usado por mais de uma funcionalidade.
@@ -66,7 +67,7 @@
 - Separar lógica de apresentação: busca de dados, estado e regras ficam em hooks ou funções; componentes de tela compõem componentes menores e recebem dados por props.
 - Preferir estado local e composição. Não adicionar estado global, bibliotecas ou camadas de abstração sem uma necessidade concreta da entrega.
 - Não usar `any` nem silenciar o compilador ou o lint para fazer o código passar. Nomes claros dispensam comentários.
-- Cores, tipografia e raios vêm dos tokens de `docs/09-design.md`, definidos em um único lugar. Não espalhar valores visuais soltos pelos componentes.
+- Estilos em CSS Modules, um arquivo por componente. Cores, tipografia e raios vêm dos tokens de `docs/09-design.md`, definidos somente em `src/shared/styles/tokens.css`. Não espalhar valores visuais soltos pelos componentes.
 - Toda tela deve funcionar em celular e computador, com contraste adequado, navegação por teclado e textos alternativos, conforme CTH-21.
 - A interface pode ocultar o que a conta não pode fazer, mas a autorização é sempre do backend. Não guardar senhas ou tokens em `localStorage`, logs ou URLs.
 - Não deixar arquivos Markdown soltos pelo projeto. Documentação fica em `docs/`, diretrizes neste arquivo, e `frontend/README.md` explica apenas como executar e verificar.
@@ -80,7 +81,7 @@
   - Windows: `.\mvnw.cmd --batch-mode --no-transfer-progress clean verify`
   - Windows: `.\mvnw.cmd --batch-mode --no-transfer-progress compile spotbugs:spotbugs spotbugs:check -DskipTests`
   - Linux/devcontainer: substituir `.\mvnw.cmd` por `./mvnw`.
-- Na pasta `frontend`, executar lint, verificação de tipos, testes e build antes de abrir o PR, com os scripts definidos no `package.json`.
+- Na pasta `frontend`, executar `npm run check` antes de abrir o PR: formatação, lint, tipos, testes e build.
 - Para aplicar o formatador, usar `spotless:apply`. Não reduzir cobertura, desativar verificações ou ampliar exclusões para fazer a CI passar.
 - Validar alterações de Compose com `docker compose config --quiet`, sem imprimir credenciais. Mudanças em geradores de protótipo exigem regenerar e conferir os artefatos afetados.
 - Informar quais checks passaram e o que não pôde ser executado. Falha de faturamento do GitHub Actions exige ajuste da conta; não é corrigida alterando o código.
