@@ -25,9 +25,26 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("2");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("3");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(2);
+    assertThat(flyway.info().applied()).hasSize(3);
+  }
+
+  @Test
+  void addsSpacesToAnExistingDatabaseWithoutChangingAccounts() {
+    migrations("spaces_upgrade", "2").migrate();
+    insertLegacyAccount("spaces_upgrade", "admin@example.com", "ADMIN");
+
+    migrations("spaces_upgrade", "latest").migrate();
+
+    assertThat(jdbc.queryForObject("SELECT count(*) FROM spaces_upgrade.spaces", Integer.class))
+        .isZero();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT password_hash FROM spaces_upgrade.user_accounts WHERE email = ?",
+                String.class,
+                "admin@example.com"))
+        .isEqualTo("legacy-test-hash");
   }
 
   @Test

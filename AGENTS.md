@@ -3,7 +3,7 @@
 ## Escopo e referências
 
 - Monorepo de uma aplicação web. O backend fica em `backend/`: Java 25, Spring Boot, Maven Wrapper, PostgreSQL, JPA e Flyway. Implementar em etapas pequenas.
-- Consultar `histories/PLANO-DE-IMPLEMENTACAO.md`, a história correspondente e `docs/12-ci-cd.md` a `docs/15-autenticacao.md` antes de alterar comportamento.
+- Consultar `histories/PLANO-DE-IMPLEMENTACAO.md`, a história correspondente e `docs/12-ci-cd.md` a `docs/16-espacos.md` antes de alterar comportamento.
 - As decisões mais recentes do responsável prevalecem sobre o levantamento original. Ao mudar uma regra, atualizar a história/documentação afetada.
 - O Framer orienta a identidade visual. Telas demonstrativas não definem regras de negócio nem comprovam funcionalidade implementada. Ver `docs/09-design.md`.
 - Hospedagem e ambientes de deploy ainda estão a definir. Não inventar infraestrutura, CD ou integrações externas.

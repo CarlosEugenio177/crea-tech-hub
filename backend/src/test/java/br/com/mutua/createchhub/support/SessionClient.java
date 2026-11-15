@@ -1,4 +1,4 @@
-package br.com.mutua.createchhub.auth;
+package br.com.mutua.createchhub.support;
 
 import java.net.CookieManager;
 import java.net.URI;
@@ -13,22 +13,22 @@ import java.util.stream.Collectors;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-final class SessionClient implements AutoCloseable {
+public final class SessionClient implements AutoCloseable {
 
   private final int port;
   private final CookieManager cookies = new CookieManager();
   private final HttpClient client =
       HttpClient.newBuilder().cookieHandler(cookies).connectTimeout(Duration.ofSeconds(5)).build();
 
-  SessionClient(int port) {
+  public SessionClient(int port) {
     this.port = port;
   }
 
-  HttpResponse<String> get(String path) throws Exception {
+  public HttpResponse<String> get(String path) throws Exception {
     return client.send(request(path).GET().build(), HttpResponse.BodyHandlers.ofString());
   }
 
-  HttpResponse<String> post(String path, Map<String, String> fields, JsonNode csrf)
+  public HttpResponse<String> post(String path, Map<String, String> fields, JsonNode csrf)
       throws Exception {
     var form =
         fields.entrySet().stream()
@@ -44,11 +44,26 @@ final class SessionClient implements AutoCloseable {
     return client.send(request.build(), HttpResponse.BodyHandlers.ofString());
   }
 
-  JsonNode csrf() throws Exception {
+  public HttpResponse<String> json(String method, String path, Object body, JsonNode csrf)
+      throws Exception {
+    var request =
+        request(path)
+            .header("Content-Type", "application/json")
+            .method(
+                method,
+                HttpRequest.BodyPublishers.ofString(
+                    JsonMapper.builder().build().writeValueAsString(body)));
+    if (csrf != null) {
+      request.header(csrf.path("headerName").asString(), csrf.path("token").asString());
+    }
+    return client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+  }
+
+  public JsonNode csrf() throws Exception {
     return JsonMapper.builder().build().readTree(get("/api/v1/admin/auth/csrf").body());
   }
 
-  String sessionId() {
+  public String sessionId() {
     return cookies.getCookieStore().getCookies().stream()
         .filter(cookie -> cookie.getName().equals("JSESSIONID"))
         .findFirst()

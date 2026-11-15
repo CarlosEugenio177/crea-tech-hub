@@ -3,6 +3,7 @@ package br.com.mutua.createchhub.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import br.com.mutua.createchhub.support.PostgresTestConfiguration;
+import br.com.mutua.createchhub.support.SessionClient;
 import br.com.mutua.createchhub.user.AccessRole;
 import br.com.mutua.createchhub.user.UserAccount;
 import br.com.mutua.createchhub.user.UserAccountRepository;
