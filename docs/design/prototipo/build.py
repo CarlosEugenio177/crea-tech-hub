@@ -1,6 +1,6 @@
 """Gera as telas do Crea Tec HUB em HTML (uma página por tela).
 
-A estrutura segue as camadas do projeto no Framer (14/11/2026).
+A estrutura parte do Framer (14/11/2026), com ajustes ao fluxo público atual.
 Uso: python3 build.py  -> escreve os arquivos em telas/
 """
 from pathlib import Path
@@ -9,7 +9,7 @@ RAIZ = Path(__file__).parent
 SAIDA = RAIZ / "telas"
 SAIDA.mkdir(exist_ok=True)
 
-NAV_PROF = ["Meu painel", "Nova reserva", "Minhas reservas", "Histórico"]
+NAV_PROF = ["Espaços", "Nova solicitação", "Acompanhar pelo link individual"]
 NAV_ADMIN = ["Visão geral", "Prioridade", "Reservas", "Espaços", "Relatórios", "Configurações"]
 
 
@@ -23,10 +23,12 @@ def pagina(titulo, corpo):
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{titulo} — Crea Tec HUB</title>
 <link rel="stylesheet" href="../css/crea-tec.css">
 </head>
 <body>
+<div class="nota-prototipo">Referência visual estática. Nesta fase, a solicitação é sem conta e passa por análise manual. Painel pessoal, histórico e prioridade interna são referências futuras. Nenhuma ação desta página envia dados.</div>
 {corpo}
 </body>
 </html>
@@ -68,22 +70,22 @@ def simples(nav, titulo, sub, ilu, cards):
 
 TELAS = {}
 
-# Home — cadastro
-TELAS["01-home-cadastro"] = ("Cadastro", topnav(NAV_PROF) + f"""
+# O slug original é preservado para manter os links das referências visuais.
+TELAS["01-home-cadastro"] = ("Dados da solicitação", topnav(NAV_PROF) + f"""
 <main class="home">
   <div class="coluna">
     <div class="cabecalho">
       <div class="eyebrow">Crea Tec HUB</div>
       <h1>Seu acesso ao HUB começa aqui</h1>
-      <p class="sub">Cadastro rápido para profissionais: nome, telefone e registro CREA.</p>
+      <p class="sub">Solicite um espaço sem criar conta. Informe seus dados na própria solicitação.</p>
     </div>
     <form class="card form">
       <div class="campo"><label>Nome completo</label><div class="input">Seu nome</div></div>
       <div class="campo"><label>Telefone</label><div class="input">(00) 00000-0000</div></div>
-      <div class="campo"><label>Registro CREA</label><div class="input">Número do registro</div></div>
-      <p class="aviso">Usamos esses dados somente para identificar sua conta e validar seu acesso profissional.</p>
-      <div class="btn">Continuar para o painel</div>
-      <p class="nota">Protótipo de interface — o envio do cadastro e a validação CREA ainda não estão conectados.</p>
+      <div class="campo"><label>E-mail</label><div class="input">Seu e-mail de contato</div></div>
+      <p class="aviso">Estes dados identificam a solicitação. Não criam conta nem comprovam vínculo com Crea/Mútua.</p>
+      <div class="btn">Continuar a solicitação</div>
+      <p class="nota">Referência visual dos dados da reserva; envio ainda não implementado.</p>
     </form>
   </div>
   <div class="ilu">{img("mulher-mesa", "Profissional trabalhando em uma mesa")}</div>
@@ -154,13 +156,14 @@ TELAS["05-nova-reserva-etapa2-horario"] = ("Escolha uma data e um horário", top
 <main class="pagina etapa">
   <div class="eyebrow">Nova reserva · Etapa 2 de 3</div>
   <h2>Escolha uma data e um horário</h2>
-  <p class="sub">Prévia da experiência de reserva. Os horários abaixo são exemplos.</p>
+  <p class="sub">Exemplo: Estação individual 04. A disponibilidade deve considerar o espaço escolhido.</p>
   <section class="card selecao">
     <h4>Data</h4>
     <div class="chips"><span class="chip on">Seg · 09</span><span class="chip">Ter · 10</span><span class="chip">Qua · 11</span></div>
-    <h4>Horário</h4>
-    <div class="chips horas"><span class="chip">09:00</span><span class="chip">10:00</span><span class="chip">14:00</span><span class="chip">15:00</span></div>
-    <p class="nota">Seleção visual de exemplo — nenhuma reserva será criada.</p>
+    <h4>Início e fim</h4>
+    <div class="campo"><label for="inicio">Início</label><input class="input" id="inicio" type="time" step="60" value="09:15"></div>
+    <div class="campo"><label for="fim">Fim</label><input class="input" id="fim" type="time" step="60" value="10:45"></div>
+    <p class="nota">Informe início e fim com precisão de minutos, respeitando o funcionamento e os bloqueios do espaço. Nenhuma reserva será criada neste protótipo.</p>
   </section>
   <span class="btn branco">Voltar aos espaços</span>
   <span class="btn lg">Revisar reserva</span>
@@ -171,39 +174,39 @@ TELAS["06-nova-reserva-etapa3-revisao"] = ("Revise sua reserva", topnav(NAV_PROF
 <main class="pagina etapa revisao">
   <div class="eyebrow">Nova reserva · Etapa 3 de 3</div>
   <h2>Revise sua reserva</h2>
-  <p class="sub">Uma prévia do resumo antes de confirmar.</p>
+  <p class="sub">Confira os dados antes de enviar para análise da equipe.</p>
   <section class="card resumo">
     <h4>Detalhes da reserva</h4>
     <p>Espaço, data e horário aparecerão aqui após a seleção.</p>
     <small>A mesa colaborativa é destinada a grupos.</small>
   </section>
   <span class="btn branco">Voltar aos horários</span>
+  <span class="btn lg">Enviar solicitação para análise</span>
   <h3 class="estados">Estados do fluxo · exemplos</h3>
   <div class="estados-grid">
     <section class="card"><h4>Sem horários disponíveis</h4><p>Tente outra data ou escolha outro espaço.</p></section>
-    <section class="card"><h4>Reserva confirmada</h4><p>Os detalhes da reserva aparecerão em Minhas reservas.</p></section>
+    <section class="card"><h4>Solicitação recebida · pendente</h4><p>Aguarde a análise manual. O comprovante terá protocolo e link individual para acompanhar ou cancelar esta solicitação, sem login. O intervalo fica bloqueado enquanto estiver pendente.</p></section>
     <section class="card"><h4>Não foi possível concluir</h4><p>Revise as informações e tente novamente.</p></section>
   </div>
 </main>""")
 
-TELAS["07-minhas-reservas"] = ("Minhas reservas", simples(
-    NAV_PROF, "Minhas reservas", "Acompanhe seus próximos horários e os espaços que você reservou.", "calendario",
-    [("Próximo agendamento", "Sala de Reunião B · Hoje, 14h · Reserva confirmada.", []),
-     ("Gerencie seu tempo", "Confira o horário e o espaço antes de chegar. Se precisar, escolha outro horário disponível em Nova Reserva.", [])]))
+TELAS["07-minhas-reservas"] = ("Acompanhar solicitação", simples(
+    NAV_PROF, "Sua solicitação", "Acesso pelo link individual recebido no comprovante, sem conta.", "calendario",
+    [("Status de exemplo: pendente", "Sala de Reunião B · 09:15 às 10:45 · Aguardando análise da equipe.", []),
+     ("Acompanhamento e cancelamento", "O link individual autoriza acesso somente a esta solicitação. O protocolo sozinho não permite consultar dados ou cancelar. Não compartilhe o link.", [])]))
 TELAS["08-historico"] = ("Histórico", simples(
-    NAV_PROF, "Seu histórico", "Reservas anteriores do seu perfil.", "documento",
+    NAV_PROF, "Histórico · referência futura", "Tela de referência para uma fase com autenticação do solicitante.", "documento",
     [("Reservas recentes", "Aqui você poderá consultar os espaços utilizados e os detalhes de cada agendamento.",
       ["Estações de trabalho", "Sala de podcast", "Mesa colaborativa"]),
      ("Acesso em protótipo", "Os registros apresentados não estão conectados a uma conta real.", [])]))
 
-# /admin — visão geral. No Framer esta página usa o template "Navegação do profissional"
-# (ver docs/10-pendencias.md); a recriação mantém o que está no Framer.
+# O menu administrativo corrige a divergência D1 registrada no Framer.
 agenda = [("Marina Silva", "14:00", "Sala de Reunião B"), ("Lucas Azevedo", "14:30", "Estação PC 04"),
           ("Rafael Costa", "15:00", "Sala de podcast")]
 itens = "".join(
     f'<div class="item"><div class="det"><div class="quem"><b>{n}</b><em>{h}</em></div><span class="rec">{e}</span>'
     f'<span class="status">Confirmada</span></div><span class="btn">Ver reserva</span></div>' for n, h, e in agenda)
-TELAS["09-admin-visao-geral"] = ("Visão geral", topnav(NAV_PROF) + f"""
+TELAS["09-admin-visao-geral"] = ("Visão geral", topnav(NAV_ADMIN) + f"""
 <div class="app admin">
   {lateral(["Visão Geral", "Prioridade interna", "Reservas", "Espaços", "Relatórios", "Configurações"], "Visão Geral", admin=True)}
   <main class="conteudo adm">
@@ -213,7 +216,7 @@ TELAS["09-admin-visao-geral"] = ("Visão geral", topnav(NAV_PROF) + f"""
       <div class="card"><small>Salas ocupadas</small><b>8 / 10</b><span>Ocupação atual</span></div>
       <div class="card"><small>Estações reservadas</small><b>12 / 20</b><span>Estações individuais</span></div>
       <div class="card"><small>No-shows</small><b class="vermelho">2</b><span>Requerem acompanhamento</span></div>
-      <div class="card"><small>Conflitos de agenda</small><b class="azul">1</b><span>Prioridade interna aplicada</span></div>
+      <div class="card"><small>Solicitações pendentes</small><b class="azul">1</b><span>Aguardando decisão manual</span></div>
     </div>
     <div class="agenda-prior">
       <section class="card agenda">
@@ -222,8 +225,8 @@ TELAS["09-admin-visao-geral"] = ("Visão geral", topnav(NAV_PROF) + f"""
         <div class="itens">{itens}</div>
       </section>
       <section class="card prior">
-        <div class="cab"><h4>Prioridade de reserva</h4><span class="cont">1</span></div>
-        <p>A prioridade interna se aplica apenas quando há conflito de horário.</p>
+        <div class="cab"><h4>Análise de solicitações</h4><span class="cont">1</span></div>
+        <p>Solicitações pendentes bloqueiam o intervalo até a decisão manual da equipe.</p>
         <div class="caixa"><img src="../assets/grafico.svg" alt=""></div>
       </section>
     </div>
@@ -232,18 +235,18 @@ TELAS["09-admin-visao-geral"] = ("Visão geral", topnav(NAV_PROF) + f"""
 </div>""")
 
 admin = [
-    ("11-admin-prioridade", "Prioridade interna", "Reservas da equipe interna têm prioridade somente quando há conflito de horário.", "aperto-de-maos",
-     [("Regra de prioridade", "Sem conflito, as reservas seguem normalmente. Se houver sobreposição, o agendamento interno tem prioridade.", []),
-      ("Conflitos para análise", "A lista abaixo é demonstrativa. Em produção, cada conflito deve mostrar espaço, horário e responsáveis para a equipe decidir.", [])]),
+    ("11-admin-prioridade", "Prioridade interna · fase futura", "Referência visual fora do MVP; regras de prioridade ainda não são implementadas.", "aperto-de-maos",
+     [("Regra atual", "Reservas pendentes e confirmadas bloqueiam o espaço no intervalo solicitado. Uma nova reserva não substitui automaticamente outra.", []),
+      ("Evolução futura", "Qualquer política de prioridade depende de definição e de decisão explícita da equipe.", [])]),
     ("12-admin-reservas", "Reservas do HUB", "Visão de agenda para a recepção e gestão.", "calendario",
      [("Agenda de hoje", "Acompanhe os agendamentos por horário e tipo de espaço.",
        ["14:00 · Sala de reunião · Profissional", "14:30 · Estação individual · Profissional", "15:00 · Sala de podcast · Profissional"]),
-      ("Prioridade", "Reservas internas só substituem reservas de usuário final quando houver conflito.", [])]),
+      ("Análise manual", "Confirmar ou recusar solicitações pendentes. Não sobrepor reservas pendentes ou confirmadas nem substituí-las automaticamente.", [])]),
     ("13-admin-espacos", "Espaços disponíveis", "Gerencie as categorias e a capacidade dos espaços reserváveis.", "mulher-mesa",
      [("Estações individuais", "Até 20 posições com computador. Cada reserva ocupa uma estação individual.", []),
       ("Sala de podcast", "Sala exclusiva para gravação e produção de conteúdo.", []),
       ("Mesa colaborativa", "Reservada para grupos; não é indicada para uso individual.", [])]),
-    ("14-admin-relatorios", "Relatórios do HUB", "Indicadores para acompanhar ocupação e uso dos espaços.", "grafico",
+    ("14-admin-relatorios", "Relatórios · fase futura", "Referência visual de indicadores fora do MVP atual.", "grafico",
      [("Ocupação", "Acompanhe a utilização das salas e estações por período.", []),
       ("Reservas", "Consulte volume de agendamentos e conflitos de horário.", [])]),
     ("15-admin-configuracoes", "Configurações do HUB", "Preferências administrativas do sistema.", "documento",

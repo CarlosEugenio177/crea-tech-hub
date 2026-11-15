@@ -6,7 +6,10 @@ O design oficial do projeto está no Framer:
 
 ## Regras
 
-- O Framer é a fonte de verdade para telas, componentes e identidade visual aplicada.
+- O Framer é a referência visual para componentes e identidade aplicada.
+- Regras de negócio e escopo seguem as decisões atuais em `histories/` e em
+  [Acesso administrativo e fluxo público](15-autenticacao.md). Um fluxo antigo do
+  Framer não altera essas decisões.
 - O protótipo do MVP e as telas incluídas no PDF da análise de requisitos não são referência de design.
 - O acesso ao projeto depende de permissão no workspace do Framer.
 
@@ -16,39 +19,47 @@ Para quem não tem acesso ao Framer, as telas do protótipo foram recriadas em H
 partir do projeto no Framer (14/11/2026) e exportadas em PNG de alta resolução
 (1200px de largura em 2x, página inteira). Medidas, espaçamentos, raios, cores e
 tipografia foram lidos camada a camada no painel do Framer; as ilustrações são os SVGs
-originais do projeto. Em caso de divergência, vale o que está no Framer.
+originais do projeto. Em 15/11/2026, a cópia local recebeu ajustes ao escopo atual:
+solicitação sem conta, início e fim livres por minuto, análise manual, acompanhamento
+por link individual e menu administrativo. Os slugs originais foram preservados.
+Esses ajustes não alteram o projeto remoto no Framer.
+
+**São referências estáticas, sem integração com a API.** O painel pessoal e o histórico
+dependem de autenticação futura do solicitante; prioridade interna e relatórios estão
+fora do MVP. Nenhuma tela comprova que uma funcionalidade já foi implementada.
 
 ![Canvas com todas as telas](design/telas/00-canvas.png)
 
-### Fluxo do profissional
+### Fluxo público e referências futuras
 
 | Tela | Rota no Framer | Imagem |
 |---|---|---|
-| Cadastro | `/` (Home) | [01-home-cadastro](design/telas/01-home-cadastro.png) |
-| Meu painel | `/painel` | [02-meu-painel](design/telas/02-meu-painel.png) |
+| Dados da solicitação, sem conta | `/` (Home; originalmente cadastro) | [01-home-cadastro](design/telas/01-home-cadastro.png) |
+| Meu painel · referência futura | `/painel` | [02-meu-painel](design/telas/02-meu-painel.png) |
 | Nova reserva · etapa 1 (espaço) | `/reservas` | [04-nova-reserva-etapa1-espacos](design/telas/04-nova-reserva-etapa1-espacos.png) |
 | Nova reserva · etapa 2 (data e horário) | `/reservar/horario` | [05-nova-reserva-etapa2-horario](design/telas/05-nova-reserva-etapa2-horario.png) |
 | Nova reserva · etapa 3 (revisão) | `/reservar/revisao` | [06-nova-reserva-etapa3-revisao](design/telas/06-nova-reserva-etapa3-revisao.png) |
-| Minhas reservas | `/minhas-reservas` | [07-minhas-reservas](design/telas/07-minhas-reservas.png) |
-| Histórico | `/historico` | [08-historico](design/telas/08-historico.png) |
+| Acompanhamento de uma solicitação pelo link individual | `/minhas-reservas` (rota original do Framer) | [07-minhas-reservas](design/telas/07-minhas-reservas.png) |
+| Histórico · referência futura | `/historico` | [08-historico](design/telas/08-historico.png) |
 
-A etapa 2 é a mesma página para os três espaços (ver pendência D2 em
-[Pendências](10-pendencias.md)).
+A etapa 2 local mostra um espaço de exemplo e campos de início e fim com precisão
+de minutos. A implementação deverá carregar o recurso selecionado, seu funcionamento
+e seus bloqueios; não deve oferecer apenas os horários fixos do Framer. As rotas
+listadas acima são referências de design, não contratos HTTP definidos para o produto.
 
 ### Administração
 
 | Tela | Rota no Framer | Imagem |
 |---|---|---|
 | Visão geral | `/admin` | [09-admin-visao-geral](design/telas/09-admin-visao-geral.png) |
-| Prioridade interna | `/admin/prioridade` | [11-admin-prioridade](design/telas/11-admin-prioridade.png) |
+| Prioridade interna · fora do MVP | `/admin/prioridade` | [11-admin-prioridade](design/telas/11-admin-prioridade.png) |
 | Reservas | `/admin/reservas` | [12-admin-reservas](design/telas/12-admin-reservas.png) |
 | Espaços | `/admin/espacos` | [13-admin-espacos](design/telas/13-admin-espacos.png) |
-| Relatórios | `/admin/relatorios` | [14-admin-relatorios](design/telas/14-admin-relatorios.png) |
+| Relatórios · fora do MVP | `/admin/relatorios` | [14-admin-relatorios](design/telas/14-admin-relatorios.png) |
 | Configurações | `/admin/configuracoes` | [15-admin-configuracoes](design/telas/15-admin-configuracoes.png) |
 
-Na `/admin` o menu superior é o do profissional, diferente das demais páginas
-administrativas. A recriação mantém o que está no Framer; a correção está registrada
-como pendência D1 em [Pendências](10-pendencias.md).
+O menu de `/admin` foi corrigido na cópia local para usar a navegação administrativa.
+A divergência no Framer permanece registrada em D1 de [Pendências](10-pendencias.md).
 
 ### Outras páginas
 
@@ -73,8 +84,9 @@ como pendência D1 em [Pendências](10-pendencias.md).
 
 ### Código da recriação
 
-O HTML fica em [`design/prototipo/`](design/prototipo/) e pode servir de ponto de partida
-para o frontend:
+O HTML fica em [`design/prototipo/`](design/prototipo/) e serve de referência visual.
+O frontend funcional será construído em sua própria pasta; estas telas não têm
+validação de formulário, navegação funcional, persistência ou garantia de responsividade:
 
 - `css/crea-tec.css` — tokens e estilos, com os valores lidos no Framer.
 - `assets/` — as sete ilustrações SVG originais do projeto no Framer.
@@ -84,8 +96,17 @@ para o frontend:
 
 ```bash
 cd docs/design/prototipo
+python3 -m pip install -r requirements.txt
+python3 -m playwright install chromium
 python3 build.py && python3 render.py && python3 canvas.py
 ```
+
+No Windows, os mesmos scripts funcionam com `python` ou `python3`, conforme a
+instalação; execute cada comando em uma linha no Windows PowerShell 5.1.
+O canvas procura Inter, DejaVu Sans ou Arial em caminhos locais de Linux, Windows e
+macOS, com fallback do Pillow. Para usar sua instalação de Inter, defina
+`PROTOTYPE_FONT_DIR` apontando para a pasta dos arquivos `Inter-*.otf` ou `.ttf`.
+Fontes substitutas podem alterar a tipografia dos rótulos do canvas.
 
 ## Requisitos que o design precisa atender
 
