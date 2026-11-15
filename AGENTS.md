@@ -60,7 +60,7 @@
 
 - O frontend fica em `frontend/`: React com TypeScript em modo estrito, Vite, React Router e CSS Modules. As regras de simplicidade, estilo, segurança e Git deste documento valem também para ele.
 - Bibliotecas já aprovadas, adicionadas somente quando a primeira funcionalidade precisar delas: TanStack Query com `openapi-react-query` para dados do servidor, React Hook Form com Zod para formulários. Testes usam Vitest e Testing Library; lint usa Oxlint e a formatação, Prettier.
-- O contrato com a API vem do OpenAPI do backend: tipos gerados com `openapi-typescript` e chamadas feitas com `openapi-fetch`. Não escrever à mão tipos de requisição ou resposta, nem editar arquivos gerados; ao mudar a API, regenerar os tipos na mesma entrega.
+- O contrato com a API vem do OpenAPI do backend: tipos gerados com `openapi-typescript` e chamadas feitas com `openapi-fetch`. Não escrever à mão tipos de requisição ou resposta, nem editar arquivos gerados; ao mudar a API, regenerar os tipos na mesma entrega. Enquanto o backend não publicar o OpenAPI, a fonte é `frontend/openapi/admin-api.yaml`, transcrita dos controllers.
 - Um único cliente HTTP compartilhado cuida de cookie de sessão, CSRF e leitura de `ProblemDetail`. Componentes não chamam `fetch` diretamente.
 - Organizar por funcionalidade, espelhando o backend: `src/features/<funcionalidade>/` reúne componentes, hooks e chamadas de API daquela funcionalidade. `src/shared/` recebe apenas o que for usado por mais de uma funcionalidade.
 - Componentes pequenos, com uma responsabilidade e um componente por arquivo. Dividir o arquivo quando ele acumular responsabilidades; não criar arquivos monstruosos nem fragmentar sem motivo.

@@ -1,18 +1,9 @@
-import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router'
+import { screen } from '@testing-library/react'
 import { expect, test } from 'vitest'
-import { App } from './App.tsx'
-
-function renderAt(path: string) {
-  render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
-  )
-}
+import { renderApp } from '../test/renderApp.tsx'
 
 test('shows the home page at the root path', () => {
-  renderAt('/')
+  renderApp('/')
 
   expect(
     screen.getByRole('heading', { name: 'Seu acesso ao Hub começa aqui' }),
@@ -20,7 +11,7 @@ test('shows the home page at the root path', () => {
 })
 
 test('shows the not found page with a way back for unknown paths', () => {
-  renderAt('/endereco-inexistente')
+  renderApp('/endereco-inexistente')
 
   expect(
     screen.getByRole('heading', { name: 'Este espaço não está disponível.' }),

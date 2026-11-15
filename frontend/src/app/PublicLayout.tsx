@@ -1,7 +1,10 @@
+import type { ReactNode } from 'react'
 import { Link, Outlet } from 'react-router'
 import styles from './PublicLayout.module.css'
 
-export function PublicLayout() {
+type PublicLayoutProps = { children?: ReactNode }
+
+export function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <>
       <header className={styles.header}>
@@ -9,9 +12,7 @@ export function PublicLayout() {
           Mútua
         </Link>
       </header>
-      <main className={styles.main}>
-        <Outlet />
-      </main>
+      <main className={styles.main}>{children ?? <Outlet />}</main>
     </>
   )
 }

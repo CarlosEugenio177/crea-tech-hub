@@ -27,6 +27,16 @@ Executa, em ordem, formatação (`format:check`), lint (`lint`), tipos (`typeche
 testes (`test`) e build (`build`). Cada etapa também pode ser executada separadamente.
 Para aplicar a formatação, use `npm run format`.
 
+## Contrato com a API
+
+```sh
+npm run api:types
+```
+
+Gera `src/shared/api/schema.d.ts` a partir de `openapi/admin-api.yaml`. Esse documento é
+provisório, transcrito dos controllers do backend, e deve dar lugar ao OpenAPI publicado
+pelo backend. Ao mudar a API, atualize o documento e gere os tipos na mesma entrega.
+
 ## Estrutura
 
 - `src/app`: rotas, layouts e páginas que não pertencem a uma funcionalidade.
