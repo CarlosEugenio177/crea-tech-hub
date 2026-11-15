@@ -16,6 +16,7 @@ O banco local e a primeira migração estão descritos em [Persistência](docs/1
 O tratamento centralizado de exceções está descrito em [Erros da API](docs/14-erros-da-api.md).
 O login exclusivo da administração está descrito em [Acesso administrativo](docs/15-autenticacao.md).
 O cadastro administrativo básico de espaços está em [Espaços](docs/16-espacos.md).
+A gestão da equipe e a recuperação estão em [Permissões administrativas](docs/17-equipe-permissoes-recuperacao.md).
 As histórias em [`histories/`](histories/PLANO-DE-IMPLEMENTACAO.md) registram as decisões
 mais recentes de escopo; a documentação abaixo preserva o levantamento original.
 

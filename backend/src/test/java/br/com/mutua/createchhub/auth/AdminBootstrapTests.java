@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import br.com.mutua.createchhub.support.PostgresTestConfiguration;
 import br.com.mutua.createchhub.user.AccessRole;
+import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ class AdminBootstrapTests {
     var account =
         repository.findByEmailAndAccessRole("first@example.com", AccessRole.ADMIN).orElseThrow();
     var originalHash = account.getPasswordHash();
+    assertThat(account.getPermissions()).containsExactlyInAnyOrder(AdminPermission.values());
     assertThat(originalHash).startsWith("{pbkdf2-v1}").doesNotContain("Bootstrap-test-password");
     assertThat(passwords.matches("Bootstrap-test-password", originalHash)).isTrue();
 

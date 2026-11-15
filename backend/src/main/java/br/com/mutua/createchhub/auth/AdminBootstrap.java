@@ -1,8 +1,11 @@
 package br.com.mutua.createchhub.auth;
 
+import br.com.mutua.createchhub.access.AdminAccessGuard;
 import br.com.mutua.createchhub.user.AccessRole;
+import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccount;
 import br.com.mutua.createchhub.user.UserAccountRepository;
+import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -22,17 +25,23 @@ public class AdminBootstrap implements ApplicationRunner {
   private final UserAccountRepository repository;
   private final PasswordEncoder passwords;
   private final Environment environment;
+  private final AdminAccessGuard guard;
 
   public AdminBootstrap(
-      UserAccountRepository repository, PasswordEncoder passwords, Environment environment) {
+      UserAccountRepository repository,
+      PasswordEncoder passwords,
+      Environment environment,
+      AdminAccessGuard guard) {
     this.repository = repository;
     this.passwords = passwords;
     this.environment = environment;
+    this.guard = guard;
   }
 
   @Override
   @Transactional
   public void run(ApplicationArguments arguments) {
+    guard.lock();
     if (repository.existsByAccessRole(AccessRole.ADMIN)) {
       log.info("Inicialização administrativa ignorada: já existe administrador.");
       return;
@@ -42,12 +51,14 @@ public class AdminBootstrap implements ApplicationRunner {
       throw new IllegalStateException(
           "BOOTSTRAP_ADMIN_PASSWORD deve conter de 12 a 128 caracteres.");
     }
-    repository.saveAndFlush(
+    var account =
         new UserAccount(
             environment.getRequiredProperty("BOOTSTRAP_ADMIN_NAME"),
             environment.getRequiredProperty("BOOTSTRAP_ADMIN_EMAIL"),
             passwords.encode(password),
-            AccessRole.ADMIN));
+            AccessRole.ADMIN);
+    account.replacePermissions(EnumSet.allOf(AdminPermission.class));
+    repository.saveAndFlush(account);
     log.info("Conta administrativa inicial criada.");
   }
 }

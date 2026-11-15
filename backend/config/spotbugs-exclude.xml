@@ -4,4 +4,10 @@
 		<Class name="br.com.mutua.createchhub.shared.error.SecurityProblemWriter" />
 		<Bug pattern="EI_EXPOSE_REP2" />
 	</Match>
+	<!-- O filtro recebe o writer compartilhado do Spring, sem expor ou alterar seu estado. -->
+	<Match>
+		<Class name="br.com.mutua.createchhub.auth.AdminSessionFilter" />
+		<Field name="problems" />
+		<Bug pattern="EI_EXPOSE_REP2" />
+	</Match>
 </FindBugsFilter>

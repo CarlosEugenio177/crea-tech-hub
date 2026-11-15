@@ -1,13 +1,30 @@
 package br.com.mutua.createchhub.auth;
 
 import br.com.mutua.createchhub.user.AccessRole;
+import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccount;
+import java.util.Set;
 import java.util.UUID;
 
-public record AdminAccountResponse(UUID id, String fullName, String email, AccessRole role) {
+public record AdminAccountResponse(
+    UUID id,
+    String fullName,
+    String email,
+    AccessRole role,
+    Set<AdminPermission> permissions,
+    boolean passwordChangeRequired) {
+
+  public AdminAccountResponse {
+    permissions = Set.copyOf(permissions);
+  }
 
   static AdminAccountResponse from(UserAccount account) {
     return new AdminAccountResponse(
-        account.getId(), account.getFullName(), account.getEmail(), account.getAccessRole());
+        account.getId(),
+        account.getFullName(),
+        account.getEmail(),
+        account.getAccessRole(),
+        account.getPermissions(),
+        account.isPasswordChangeRequired());
   }
 }

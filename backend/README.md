@@ -125,6 +125,8 @@ A hospedagem para deploy automático ainda será definida.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `user`: conta de usuário, perfil de acesso e repositório JPA.
 - `space`: cadastro administrativo de salas, mesas compartilhadas e estações.
+- `access`: equipe, permissões e auditoria de acesso.
+- `recovery`: recuperação de senha por token e procedimento operacional.
 - `shared.error`: tratamento centralizado de exceções e respostas de erro.
 - `src/main/resources/application.yml`: configuração comum; a porta aceita `SERVER_PORT`.
 - `src/test/java`: testes da aplicação.
@@ -142,8 +144,10 @@ As rotas administrativas de autenticação estão descritas em
 [Acesso administrativo](../docs/15-autenticacao.md). Esse documento explica como
 criar o primeiro administrador, obter CSRF, entrar, consultar a sessão e sair.
 
-O acesso administrativo usa e-mail e senha com sessão por cookie. O fluxo de
-solicitação de reservas continuará público nesta fase, com os dados informados
+O acesso administrativo usa e-mail e senha com sessão por cookie. A gestão de equipe
+e a recuperação estão em [Equipe e permissões](../docs/17-equipe-permissoes-recuperacao.md).
+Cada ação administrativa também exige a permissão correspondente.
+O fluxo de solicitação de reservas continuará público nesta fase, com os dados informados
 na própria solicitação. O login de solicitantes via Crea/Mútua é uma evolução futura.
 
 ## Limite desta entrega

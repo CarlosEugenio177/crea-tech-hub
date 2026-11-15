@@ -8,6 +8,12 @@
 
 ## Objetivo
 
+**Evolução implementada no backend:** cadastro de funcionários por gestor, permissões
+independentes da role, promoção/revogação de gestão de acessos, auditoria, troca da
+senha inicial e recuperação por e-mail ou procedimento operacional. Superadministrador
+continua sendo `ADMIN`, distinguido por `MANAGE_ACCESS`. Ver o
+[contrato atualizado](../docs/17-equipe-permissoes-recuperacao.md).
+
 Restringir o painel administrativo às contas `ADMIN` autorizadas. Os solicitantes usam o fluxo público sem conta nesta fase; a role `USER` fica reservada para a evolução com autenticação pelo Crea/Mútua.
 
 ## Quem usa

@@ -22,6 +22,16 @@ spring:
         fail-on-numbers-for-enums: true
     mapper:
       allow-coercion-of-scalars: false
+  mail:
+    properties:
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+
+app:
+  recovery:
+    url: ${RECOVERY_URL:}
+    from: ${RECOVERY_MAIL_FROM:}
 
 server:
   port: ${SERVER_PORT:8080}

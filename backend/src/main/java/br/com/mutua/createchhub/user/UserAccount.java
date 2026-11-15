@@ -1,20 +1,26 @@
 package br.com.mutua.createchhub.user;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SourceType;
 
@@ -49,6 +55,21 @@ public class UserAccount {
 
   @Column(nullable = false)
   private boolean active = true;
+
+  @ElementCollection
+  @CollectionTable(
+      name = "user_account_permissions",
+      joinColumns = @JoinColumn(name = "account_id"))
+  @Enumerated(EnumType.STRING)
+  @Column(name = "permission", nullable = false, length = 64)
+  @BatchSize(size = 100)
+  private Set<AdminPermission> permissions = new HashSet<>();
+
+  @Column(name = "security_version", nullable = false)
+  private long securityVersion;
+
+  @Column(name = "password_change_required", nullable = false)
+  private boolean passwordChangeRequired;
 
   @CreationTimestamp(source = SourceType.DB)
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -88,7 +109,44 @@ public class UserAccount {
   }
 
   public void deactivate() {
-    active = false;
+    changeStatus(false);
+  }
+
+  public void changeStatus(boolean active) {
+    if (this.active != active) {
+      this.active = active;
+      securityVersion++;
+    }
+  }
+
+  public Set<AdminPermission> getPermissions() {
+    return Set.copyOf(permissions);
+  }
+
+  public void replacePermissions(Set<AdminPermission> permissions) {
+    if (!this.permissions.equals(permissions)) {
+      this.permissions.clear();
+      this.permissions.addAll(permissions);
+      securityVersion++;
+    }
+  }
+
+  public long getSecurityVersion() {
+    return securityVersion;
+  }
+
+  public boolean isPasswordChangeRequired() {
+    return passwordChangeRequired;
+  }
+
+  public void requirePasswordChange() {
+    passwordChangeRequired = true;
+  }
+
+  public void changePassword(String passwordHash) {
+    this.passwordHash = passwordHash;
+    passwordChangeRequired = false;
+    securityVersion++;
   }
 
   public Instant getCreatedAt() {

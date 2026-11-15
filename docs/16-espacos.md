@@ -1,7 +1,7 @@
 # Cadastro administrativo de espaços
 
 Primeira entrega do CTH-15: cadastro, edição, consulta paginada e ativação/desativação.
-Todos os endpoints exigem sessão de administrador ativo no login local. Escritas
+Todos os endpoints exigem sessão de administrador ativo com `MANAGE_SPACES`. Escritas
 também exigem o token CSRF, conforme [Acesso administrativo](15-autenticacao.md).
 
 ## Unidade cadastrada
