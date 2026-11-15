@@ -57,7 +57,8 @@ class AdminAuthenticationTests {
       var body = JsonMapper.builder().build().readTree(current.body());
       assertThat(body.path("id").asString()).isEqualTo(account.getId().toString());
       assertThat(body.path("role").asString()).isEqualTo("ADMIN");
-      assertThat(current.body()).doesNotContain("password", account.getPasswordHash());
+      assertThat(current.body())
+          .doesNotContain("\"password\":", "\"passwordHash\":", account.getPasswordHash());
 
       assertThat(client.post("/api/v1/admin/auth/logout", Map.of(), csrf).statusCode())
           .isEqualTo(403);

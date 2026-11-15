@@ -24,6 +24,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+  @ExceptionHandler(InvalidRequestException.class)
+  ProblemDetail handleInvalidRequest(InvalidRequestException exception) {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+  }
+
+  @ExceptionHandler(ServiceUnavailableException.class)
+  ProblemDetail handleUnavailable(ServiceUnavailableException exception) {
+    return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
+  }
+
   @ExceptionHandler(ResourceNotFoundException.class)
   ProblemDetail handleNotFound(ResourceNotFoundException exception) {
     return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());

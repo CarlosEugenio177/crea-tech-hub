@@ -13,6 +13,8 @@ no fluxo de reservas e poderão se repetir entre solicitações.
 As roles são `ADMIN` e `USER`. Somente contas `ADMIN` ativas podem entrar pela
 autenticação local nesta fase. O vínculo de mutualista/profissional do Crea e os
 benefícios exclusivos serão informações e regras independentes dessas roles.
+As ações administrativas também exigem suas permissões específicas. A gestão de
+equipe, o primeiro acesso e a recuperação estão em [Equipe e permissões](17-equipe-permissoes-recuperacao.md).
 
 ## Criar o primeiro administrador
 
@@ -61,6 +63,9 @@ e invalida a sessão ao sair. O cookie é HttpOnly, SameSite=Lax, e a sessão ex
 20 minutos de inatividade. Em HTTPS, configure `SESSION_COOKIE_SECURE=true`.
 
 Rotas sob `/api/v1/admin/**` exigem `ADMIN`, exceto obtenção de CSRF e envio de login.
+As operações públicas de recuperação de senha também são exceções explícitas,
+documentadas no contrato de equipe. `me` agora retorna `permissions` e
+`passwordChangeRequired`, permitindo ao frontend montar o menu e orientar o primeiro acesso.
 As rotas públicas de espaços e reservas serão liberadas explicitamente conforme
 forem implementadas. Falhas de autenticação usam mensagem uniforme e `ProblemDetail`.
 

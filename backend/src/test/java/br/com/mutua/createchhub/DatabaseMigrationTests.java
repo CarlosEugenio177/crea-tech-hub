@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("3");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("4");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(3);
+    assertThat(flyway.info().applied()).hasSize(4);
   }
 
   @Test
@@ -42,6 +42,35 @@ class DatabaseMigrationTests {
     assertThat(
             jdbc.queryForObject(
                 "SELECT password_hash FROM spaces_upgrade.user_accounts WHERE email = ?",
+                String.class,
+                "admin@example.com"))
+        .isEqualTo("legacy-test-hash");
+  }
+
+  @Test
+  void migratesExistingAdministrativePermissionsWithoutChangingRolesOrPasswords() {
+    migrations("permissions_upgrade", "3").migrate();
+    insertLegacyAccount("permissions_upgrade", "admin@example.com", "ADMIN");
+    insertLegacyAccount("permissions_upgrade", "user@example.com", "USER");
+
+    migrations("permissions_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForList(
+                "SELECT permission FROM permissions_upgrade.user_account_permissions p "
+                    + "JOIN permissions_upgrade.user_accounts a ON a.id = p.account_id WHERE a.email = ?",
+                String.class,
+                "admin@example.com"))
+        .containsExactlyInAnyOrder("MANAGE_ACCESS", "MANAGE_SPACES");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT count(*) FROM permissions_upgrade.user_account_permissions p "
+                    + "JOIN permissions_upgrade.user_accounts a ON a.id = p.account_id WHERE a.access_role = 'USER'",
+                Integer.class))
+        .isZero();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT password_hash FROM permissions_upgrade.user_accounts WHERE email = ?",
                 String.class,
                 "admin@example.com"))
         .isEqualTo("legacy-test-hash");

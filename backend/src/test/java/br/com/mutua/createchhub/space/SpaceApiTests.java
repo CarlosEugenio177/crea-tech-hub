@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import br.com.mutua.createchhub.support.PostgresTestConfiguration;
 import br.com.mutua.createchhub.support.SessionClient;
 import br.com.mutua.createchhub.user.AccessRole;
+import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccount;
 import br.com.mutua.createchhub.user.UserAccountRepository;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -41,12 +43,11 @@ class SpaceApiTests {
 
   @BeforeEach
   void createAdmin() {
-    accounts.saveAndFlush(
+    var account =
         new UserAccount(
-            "Admin de espaços",
-            "spaces@example.com",
-            passwords.encode(PASSWORD),
-            AccessRole.ADMIN));
+            "Admin de espaços", "spaces@example.com", passwords.encode(PASSWORD), AccessRole.ADMIN);
+    account.replacePermissions(Set.of(AdminPermission.MANAGE_SPACES));
+    accounts.saveAndFlush(account);
   }
 
   @AfterEach

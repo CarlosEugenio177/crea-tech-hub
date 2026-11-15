@@ -1,31 +1,47 @@
 package br.com.mutua.createchhub.config;
 
+import br.com.mutua.createchhub.auth.AdminSessionFilter;
+import br.com.mutua.createchhub.auth.AdminSessionValidator;
 import br.com.mutua.createchhub.auth.AdminUserDetailsService;
 import br.com.mutua.createchhub.shared.error.SecurityProblemWriter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
   @Bean
   SecurityFilterChain securityFilterChain(
-      HttpSecurity http, DaoAuthenticationProvider provider, SecurityProblemWriter problems)
+      HttpSecurity http,
+      DaoAuthenticationProvider provider,
+      SecurityProblemWriter problems,
+      AdminSessionFilter sessions)
       throws Exception {
     return http.authenticationProvider(provider)
+        .addFilterAfter(sessions, SecurityContextHolderFilter.class)
         .authorizeHttpRequests(
             authorize ->
                 authorize
                     .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/admin/auth/csrf")
                     .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/admin/auth/login")
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/v1/admin/auth/login",
+                        "/api/v1/admin/auth/password/forgot",
+                        "/api/v1/admin/auth/password/reset")
                     .permitAll()
                     .requestMatchers("/api/v1/admin/**")
                     .hasRole("ADMIN")
@@ -68,6 +84,20 @@ public class SecurityConfiguration {
                     .logoutSuccessHandler(
                         (request, response, authentication) -> response.setStatus(204)))
         .build();
+  }
+
+  @Bean
+  AdminSessionFilter adminSessionFilter(
+      AdminSessionValidator sessions, SecurityProblemWriter problems) {
+    return new AdminSessionFilter(sessions, problems);
+  }
+
+  @Bean
+  FilterRegistrationBean<AdminSessionFilter> adminSessionFilterRegistration(
+      AdminSessionFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
   }
 
   @Bean

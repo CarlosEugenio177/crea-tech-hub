@@ -3,7 +3,7 @@
 ## Escopo e referências
 
 - Monorepo de uma aplicação web. O backend fica em `backend/`: Java 25, Spring Boot, Maven Wrapper, PostgreSQL, JPA e Flyway. Implementar em etapas pequenas.
-- Consultar `histories/PLANO-DE-IMPLEMENTACAO.md`, a história correspondente e `docs/12-ci-cd.md` a `docs/16-espacos.md` antes de alterar comportamento.
+- Consultar `histories/PLANO-DE-IMPLEMENTACAO.md`, a história correspondente e `docs/12-ci-cd.md` a `docs/17-equipe-permissoes-recuperacao.md` antes de alterar comportamento.
 - As decisões mais recentes do responsável prevalecem sobre o levantamento original. Ao mudar uma regra, atualizar a história/documentação afetada.
 - O Framer orienta a identidade visual. Telas demonstrativas não definem regras de negócio nem comprovam funcionalidade implementada. Ver `docs/09-design.md`.
 - Hospedagem e ambientes de deploy ainda estão a definir. Não inventar infraestrutura, CD ou integrações externas.
@@ -34,6 +34,8 @@
 - Nesta fase, o solicitante usa o fluxo público sem criar conta. Seus dados pertencem à solicitação; não implementar cadastro obrigatório, CPF obrigatório ou validação Crea fictícia.
 - Login local exclusivo de administradores ativos, com e-mail único normalizado e senha. A autenticação futura do solicitante via Crea/Mútua ainda depende de definição.
 - As roles são `ADMIN` e `USER`. Mutualista, profissional do Crea e outros vínculos são informações independentes das permissões. Não conceder benefícios por vínculo autodeclarado.
+- Superadministrador é um `ADMIN` com `MANAGE_ACCESS`, sem nova role. Novas ações administrativas exigem permissão explícita no backend; não presumir acesso total pela role.
+- Gestão de equipe é restrita a `MANAGE_ACCESS`. Preservar a proteção do último gestor, a proibição de alterar o próprio acesso e o bloqueio transacional das mudanças. Mudanças de senha/permissões/situação devem invalidar sessões anteriores e ser auditadas sem segredos.
 - Toda solicitação passa por análise manual. `PENDING` e `CONFIRMED` bloqueiam o recurso no intervalo solicitado; pendências não expiram automaticamente.
 - O solicitante informa início e fim com precisão de minutos. Não impor slots fixos. Intervalos são `[início, fim)`: uma reserva pode começar quando a anterior termina.
 - Ao implementar reservas, garantir ausência de sobreposição também sob concorrência, com proteção transacional no PostgreSQL; uma consulta prévia isolada não basta.
