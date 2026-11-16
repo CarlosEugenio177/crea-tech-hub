@@ -11,6 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Obter CSRF */
         get: operations["getCsrfToken"];
         put?: never;
         post?: never;
@@ -29,6 +30,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Iniciar sessão administrativa */
         post: operations["login"];
         delete?: never;
         options?: never;
@@ -45,6 +47,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Encerrar sessão */
         post: operations["logout"];
         delete?: never;
         options?: never;
@@ -59,6 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Consultar a sessão */
         get: operations["getCurrentAdmin"];
         put?: never;
         post?: never;
@@ -77,6 +81,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Alterar a própria senha */
         post: operations["changePassword"];
         delete?: never;
         options?: never;
@@ -93,6 +98,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Solicitar recuperação de senha */
         post: operations["requestPasswordRecovery"];
         delete?: never;
         options?: never;
@@ -109,6 +115,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Redefinir senha por token */
         post: operations["resetPassword"];
         delete?: never;
         options?: never;
@@ -123,8 +130,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Listar espaços */
         get: operations["listSpaces"];
         put?: never;
+        /** Cadastrar espaço */
         post: operations["createSpace"];
         delete?: never;
         options?: never;
@@ -136,12 +145,12 @@ export interface paths {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: components["parameters"]["SpaceId"];
-            };
+            path?: never;
             cookie?: never;
         };
+        /** Consultar espaço */
         get: operations["getSpace"];
+        /** Editar espaço */
         put: operations["updateSpace"];
         post?: never;
         delete?: never;
@@ -154,9 +163,7 @@ export interface paths {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: components["parameters"]["SpaceId"];
-            };
+            path?: never;
             cookie?: never;
         };
         get?: never;
@@ -165,6 +172,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Ativar ou desativar espaço */
         patch: operations["changeSpaceStatus"];
         trace?: never;
     };
@@ -175,25 +183,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Listar equipe */
         get: operations["listTeam"];
         put?: never;
+        /** Cadastrar funcionário */
         post: operations["createTeamMember"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/team/permissions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listPermissionOptions"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -207,7 +201,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Consultar auditoria de acessos */
         get: operations["listAccessAudit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/team/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar permissões disponíveis */
+        get: operations["listPermissionOptions"];
         put?: never;
         post?: never;
         delete?: never;
@@ -220,11 +232,10 @@ export interface paths {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: components["parameters"]["AccountId"];
-            };
+            path?: never;
             cookie?: never;
         };
+        /** Consultar funcionário */
         get: operations["getTeamMember"];
         put?: never;
         post?: never;
@@ -238,12 +249,11 @@ export interface paths {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: components["parameters"]["AccountId"];
-            };
+            path?: never;
             cookie?: never;
         };
         get?: never;
+        /** Substituir permissões */
         put: operations["replaceTeamMemberPermissions"];
         post?: never;
         delete?: never;
@@ -256,9 +266,7 @@ export interface paths {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: components["parameters"]["AccountId"];
-            };
+            path?: never;
             cookie?: never;
         };
         get?: never;
@@ -267,6 +275,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Ativar ou desativar funcionário */
         patch: operations["changeTeamMemberStatus"];
         trace?: never;
     };
@@ -274,136 +283,155 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        CsrfToken: {
-            headerName: string;
-            parameterName: string;
-            token: string;
-        };
-        LoginRequest: {
-            email: string;
-            password: string;
-        };
-        AdminAccount: {
+        AccessAuditEvent: {
+            action: string;
             /** Format: uuid */
-            id: string;
-            fullName: string;
-            email: string;
-            /** @enum {string} */
-            role: "ADMIN" | "USER";
-            permissions: components["schemas"]["AdminPermission"][];
-            passwordChangeRequired: boolean;
-        };
-        PasswordChangeRequest: {
-            currentPassword: string;
-            newPassword: string;
-        };
-        ForgotPasswordRequest: {
-            /** Format: email */
-            email: string;
-        };
-        PasswordResetRequest: {
-            token: string;
-            newPassword: string;
-        };
-        /** @enum {string} */
-        AdminPermission: "MANAGE_ACCESS" | "MANAGE_SPACES";
-        PermissionOption: {
-            permission: components["schemas"]["AdminPermission"];
-            description: string;
-        };
-        AdminTeamMember: {
-            /** Format: uuid */
-            id: string;
-            fullName: string;
-            email: string;
-            /** @enum {string} */
-            role: "ADMIN" | "USER";
-            active: boolean;
-            permissions: components["schemas"]["AdminPermission"][];
-            passwordChangeRequired: boolean;
+            actorId?: string | null;
             /** Format: date-time */
             createdAt: string;
+            detail: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            targetId: string;
         };
-        AdminTeamPage: {
-            items: components["schemas"]["AdminTeamMember"][];
+        AdminAccount: {
+            email: string;
+            fullName: string;
+            /** Format: uuid */
+            id: string;
+            passwordChangeRequired: boolean;
+            permissions: components["schemas"]["AdminPermission"][];
+            /** @enum {string} */
+            role: "ADMIN" | "USER";
+        };
+        AdminAuditPage: {
+            items: components["schemas"]["AccessAuditEvent"][];
+            /** Format: int32 */
             page: number;
+            /** Format: int32 */
             size: number;
+            /** Format: int64 */
             totalElements: number;
+            /** Format: int32 */
             totalPages: number;
         };
         AdminCreateRequest: {
-            fullName: string;
             /** Format: email */
             email: string;
+            fullName: string;
             initialPassword: string;
             permissions: components["schemas"]["AdminPermission"][];
         };
+        /** @enum {string} */
+        AdminPermission: "MANAGE_ACCESS" | "MANAGE_SPACES";
         AdminPermissionsRequest: {
             permissions: components["schemas"]["AdminPermission"][];
         };
         AdminStatusRequest: {
             active: boolean;
         };
-        AccessAuditEvent: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            actorId?: string | null;
-            /** Format: uuid */
-            targetId: string;
-            action: string;
-            detail: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        AdminAuditPage: {
-            items: components["schemas"]["AccessAuditEvent"][];
-            page: number;
-            size: number;
-            totalElements: number;
-            totalPages: number;
-        };
-        /** @enum {string} */
-        SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
-        Space: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            type: components["schemas"]["SpaceType"];
-            capacity: number;
-            description?: string | null;
+        AdminTeamMember: {
             active: boolean;
             /** Format: date-time */
             createdAt: string;
+            email: string;
+            fullName: string;
+            /** Format: uuid */
+            id: string;
+            passwordChangeRequired: boolean;
+            permissions: components["schemas"]["AdminPermission"][];
+            /** @enum {string} */
+            role: "ADMIN" | "USER";
         };
-        SpaceRequest: {
-            name: string;
-            type: components["schemas"]["SpaceType"];
-            capacity: number;
-            description?: string | null;
-        };
-        SpaceStatusRequest: {
-            active: boolean;
-        };
-        SpacePage: {
-            items: components["schemas"]["Space"][];
+        AdminTeamPage: {
+            items: components["schemas"]["AdminTeamMember"][];
+            /** Format: int32 */
             page: number;
+            /** Format: int32 */
             size: number;
+            /** Format: int64 */
             totalElements: number;
+            /** Format: int32 */
             totalPages: number;
         };
-        ProblemDetail: {
-            type?: string;
-            title?: string;
-            status?: number;
-            detail?: string;
-            instance?: string;
-            errors?: components["schemas"]["FieldValidationError"][];
+        CsrfToken: {
+            headerName: string;
+            parameterName: string;
+            token: string;
         };
         FieldValidationError: {
             field: string;
             message: string;
         };
+        ForgotPasswordRequest: {
+            /** Format: email */
+            email: string;
+        };
+        LoginRequest: {
+            email: string;
+            /** Format: password */
+            password: string;
+        };
+        PasswordChangeRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        PasswordResetRequest: {
+            newPassword: string;
+            token: string;
+        };
+        PermissionOption: {
+            description: string;
+            permission: components["schemas"]["AdminPermission"];
+        };
+        ProblemDetail: {
+            detail?: string;
+            errors?: components["schemas"]["FieldValidationError"][];
+            instance?: string;
+            /** Format: int32 */
+            status?: number;
+            title?: string;
+            type?: string;
+        };
+        Space: {
+            active: boolean;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: date-time */
+            createdAt: string;
+            description?: string | null;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            type: components["schemas"]["SpaceType"];
+        };
+        SpacePage: {
+            items: components["schemas"]["Space"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        SpaceRequest: {
+            /**
+             * Format: int32
+             * @description Inteiro positivo; estações individuais exigem capacidade 1.
+             */
+            capacity: number;
+            description?: string | null;
+            name: string;
+            type: components["schemas"]["SpaceType"];
+        };
+        SpaceStatusRequest: {
+            active: boolean;
+        };
+        /** @enum {string} */
+        SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
     };
     responses: {
         /** @description Erro no formato ProblemDetail. */
@@ -416,12 +444,7 @@ export interface components {
             };
         };
     };
-    parameters: {
-        Page: number;
-        Size: number;
-        AccountId: string;
-        SpaceId: string;
-    };
+    parameters: never;
     requestBodies: never;
     headers: never;
     pathItems: never;
@@ -437,7 +460,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Token CSRF da sessão atual. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -462,7 +485,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Sessão iniciada. */
+            /** @description Sessão iniciada; obtenha um novo CSRF. */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -500,7 +523,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Conta administrativa autenticada. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -525,7 +548,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Senha alterada. As sessões anteriores são encerradas. */
+            /** @description No Content */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -548,7 +571,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Pedido aceito, exista ou não uma conta com o e-mail. */
+            /** @description Accepted */
             202: {
                 headers: {
                     [name: string]: unknown;
@@ -571,7 +594,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Senha redefinida. */
+            /** @description No Content */
             204: {
                 headers: {
                     [name: string]: unknown;
@@ -585,8 +608,8 @@ export interface operations {
         parameters: {
             query?: {
                 active?: boolean;
-                page?: components["parameters"]["Page"];
-                size?: components["parameters"]["Size"];
+                page?: number;
+                size?: number;
             };
             header?: never;
             path?: never;
@@ -594,7 +617,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Página de espaços, ordenada por nome. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -619,7 +642,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Espaço cadastrado como ativo. */
+            /** @description Created */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -636,13 +659,13 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: components["parameters"]["SpaceId"];
+                id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Cadastro do espaço, inclusive inativo. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -659,7 +682,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: components["parameters"]["SpaceId"];
+                id: string;
             };
             cookie?: never;
         };
@@ -669,7 +692,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Cadastro atualizado. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -686,7 +709,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: components["parameters"]["SpaceId"];
+                id: string;
             };
             cookie?: never;
         };
@@ -696,7 +719,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Cadastro com a situação atualizada. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -711,8 +734,8 @@ export interface operations {
     listTeam: {
         parameters: {
             query?: {
-                page?: components["parameters"]["Page"];
-                size?: components["parameters"]["Size"];
+                page?: number;
+                size?: number;
             };
             header?: never;
             path?: never;
@@ -720,7 +743,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Página de contas administrativas, ordenada por nome. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -745,13 +768,37 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Funcionário cadastrado, com troca de senha obrigatória. */
+            /** @description Created */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["AdminTeamMember"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listAccessAudit: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAuditPage"];
                 };
             };
             default: components["responses"]["Problem"];
@@ -766,7 +813,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Permissões disponíveis e suas descrições. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -778,42 +825,18 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
-    listAccessAudit: {
-        parameters: {
-            query?: {
-                page?: components["parameters"]["Page"];
-                size?: components["parameters"]["Size"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Alterações de acesso, da mais recente para a mais antiga. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminAuditPage"];
-                };
-            };
-            default: components["responses"]["Problem"];
-        };
-    };
     getTeamMember: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: components["parameters"]["AccountId"];
+                id: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Conta administrativa. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -830,7 +853,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: components["parameters"]["AccountId"];
+                id: string;
             };
             cookie?: never;
         };
@@ -840,7 +863,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Conta com as permissões substituídas. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -857,7 +880,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: components["parameters"]["AccountId"];
+                id: string;
             };
             cookie?: never;
         };
@@ -867,7 +890,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Conta com a situação atualizada. */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
