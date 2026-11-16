@@ -13,9 +13,11 @@
 }
 
 .illustration {
-  width: min(100%, 350px);
+  width: min(100%, 390px);
   align-self: center;
-  border-radius: var(--radius-card);
+  padding: 20px;
+  border-radius: var(--radius-form);
+  background: var(--color-info-background);
 }
 
 @media (min-width: 768px) {

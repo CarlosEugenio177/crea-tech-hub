@@ -1,18 +1,11 @@
 import { NavLink, Outlet } from 'react-router'
 import { useLogout } from '../features/admin-auth/adminAuthApi.ts'
-import {
-  ADMIN_HOME,
-  ADMIN_PASSWORD,
-} from '../features/admin-auth/adminRoutes.ts'
-import type { components } from '../shared/api/schema'
+import { ADMIN_HOME } from '../features/admin-auth/adminRoutes.ts'
+import { Brand } from '../shared/ui/Brand.tsx'
 import styles from './AdminLayout.module.css'
+import { adminMenuFor, type AdminAccount } from './adminMenu.ts'
 
-type AdminLayoutProps = { account: components['schemas']['AdminAccount'] }
-
-const MENU = [
-  { to: ADMIN_HOME, label: 'Visão geral' },
-  { to: ADMIN_PASSWORD, label: 'Alterar senha' },
-]
+type AdminLayoutProps = { account: AdminAccount }
 
 export function AdminLayout({ account }: AdminLayoutProps) {
   const logout = useLogout()
@@ -20,14 +13,14 @@ export function AdminLayout({ account }: AdminLayoutProps) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <p className={styles.brand}>Mútua</p>
+        <Brand to={ADMIN_HOME} />
         <nav className={styles.nav} aria-label="Administração">
           <p className={styles.navLabel}>Administração</p>
-          {MENU.map((item) => (
+          {adminMenuFor(account).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
-              end
+              end={item.to === ADMIN_HOME}
               className={({ isActive }) =>
                 isActive ? styles.activeItem : styles.item
               }

@@ -17,6 +17,19 @@
   background: var(--color-surface);
   color: var(--color-text);
   font: var(--font-field);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.input:hover {
+  border-color: var(--color-text-muted);
+}
+
+.input:focus-visible {
+  outline: 2px solid transparent;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
 .input::placeholder {

@@ -1,6 +1,8 @@
 /* Tokens de docs/09-design.md. Componentes usam estas variáveis, nunca valores soltos. */
 :root {
   --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-ring: rgba(37, 99, 235, 0.25);
   --color-background: #f8f9fa;
   --color-surface: #ffffff;
   --color-inverse: #0a0a0a;
@@ -36,6 +38,10 @@
   --radius-field: 10px;
   --radius-card: 14px;
   --radius-form: 16px;
+
+  --shadow-raised:
+    0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
+  --transition: 120ms ease;
 
   --page-max-width: 1040px;
   --page-padding: 24px;

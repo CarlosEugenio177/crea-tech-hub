@@ -11,11 +11,13 @@
 }
 
 .success {
+  border-left: 3px solid var(--color-success);
   background: var(--color-success-background);
   color: var(--color-success);
 }
 
 .info {
+  border-left: 3px solid var(--color-primary);
   background: var(--color-info-background);
   color: var(--color-text);
 }

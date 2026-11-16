@@ -1,7 +1,12 @@
 import { vi } from 'vitest'
 
 type Handler = () => Response
-type RecordedRequest = { route: string; headers: Headers; body: string }
+type RecordedRequest = {
+  route: string
+  search: string
+  headers: Headers
+  body: string
+}
 
 const CSRF_ROUTE = 'GET /api/v1/admin/auth/csrf'
 
@@ -39,9 +44,11 @@ export function fakeApi(handlers: Record<string, Handler>) {
   }
 
   vi.stubGlobal('fetch', async (request: Request) => {
-    const route = `${request.method} ${new URL(request.url).pathname}`
+    const url = new URL(request.url)
+    const route = `${request.method} ${url.pathname}`
     requests.push({
       route,
+      search: url.search,
       headers: request.headers,
       body: await request.text(),
     })

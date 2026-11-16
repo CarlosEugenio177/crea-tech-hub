@@ -116,6 +116,160 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/spaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listSpaces"];
+        put?: never;
+        post: operations["createSpace"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/spaces/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["SpaceId"];
+            };
+            cookie?: never;
+        };
+        get: operations["getSpace"];
+        put: operations["updateSpace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/spaces/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["SpaceId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeSpaceStatus"];
+        trace?: never;
+    };
+    "/api/v1/admin/team": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listTeam"];
+        put?: never;
+        post: operations["createTeamMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/team/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listPermissionOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/team/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listAccessAudit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/team/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["AccountId"];
+            };
+            cookie?: never;
+        };
+        get: operations["getTeamMember"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/team/{id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["AccountId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["replaceTeamMemberPermissions"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/team/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["AccountId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeTeamMemberStatus"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -136,7 +290,7 @@ export interface components {
             email: string;
             /** @enum {string} */
             role: "ADMIN" | "USER";
-            permissions: ("MANAGE_ACCESS" | "MANAGE_SPACES")[];
+            permissions: components["schemas"]["AdminPermission"][];
             passwordChangeRequired: boolean;
         };
         PasswordChangeRequest: {
@@ -150,6 +304,93 @@ export interface components {
         PasswordResetRequest: {
             token: string;
             newPassword: string;
+        };
+        /** @enum {string} */
+        AdminPermission: "MANAGE_ACCESS" | "MANAGE_SPACES";
+        PermissionOption: {
+            permission: components["schemas"]["AdminPermission"];
+            description: string;
+        };
+        AdminTeamMember: {
+            /** Format: uuid */
+            id: string;
+            fullName: string;
+            email: string;
+            /** @enum {string} */
+            role: "ADMIN" | "USER";
+            active: boolean;
+            permissions: components["schemas"]["AdminPermission"][];
+            passwordChangeRequired: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminTeamPage: {
+            items: components["schemas"]["AdminTeamMember"][];
+            page: number;
+            size: number;
+            totalElements: number;
+            totalPages: number;
+        };
+        AdminCreateRequest: {
+            fullName: string;
+            /** Format: email */
+            email: string;
+            initialPassword: string;
+            permissions: components["schemas"]["AdminPermission"][];
+        };
+        AdminPermissionsRequest: {
+            permissions: components["schemas"]["AdminPermission"][];
+        };
+        AdminStatusRequest: {
+            active: boolean;
+        };
+        AccessAuditEvent: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            actorId?: string | null;
+            /** Format: uuid */
+            targetId: string;
+            action: string;
+            detail: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminAuditPage: {
+            items: components["schemas"]["AccessAuditEvent"][];
+            page: number;
+            size: number;
+            totalElements: number;
+            totalPages: number;
+        };
+        /** @enum {string} */
+        SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
+        Space: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            type: components["schemas"]["SpaceType"];
+            capacity: number;
+            description?: string | null;
+            active: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SpaceRequest: {
+            name: string;
+            type: components["schemas"]["SpaceType"];
+            capacity: number;
+            description?: string | null;
+        };
+        SpaceStatusRequest: {
+            active: boolean;
+        };
+        SpacePage: {
+            items: components["schemas"]["Space"][];
+            page: number;
+            size: number;
+            totalElements: number;
+            totalPages: number;
         };
         ProblemDetail: {
             type?: string;
@@ -175,7 +416,12 @@ export interface components {
             };
         };
     };
-    parameters: never;
+    parameters: {
+        Page: number;
+        Size: number;
+        AccountId: string;
+        SpaceId: string;
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;
@@ -331,6 +577,304 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listSpaces: {
+        parameters: {
+            query?: {
+                active?: boolean;
+                page?: components["parameters"]["Page"];
+                size?: components["parameters"]["Size"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Página de espaços, ordenada por nome. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpacePage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    createSpace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpaceRequest"];
+            };
+        };
+        responses: {
+            /** @description Espaço cadastrado como ativo. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getSpace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["SpaceId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cadastro do espaço, inclusive inativo. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    updateSpace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["SpaceId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpaceRequest"];
+            };
+        };
+        responses: {
+            /** @description Cadastro atualizado. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    changeSpaceStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["SpaceId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpaceStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Cadastro com a situação atualizada. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listTeam: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["Page"];
+                size?: components["parameters"]["Size"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Página de contas administrativas, ordenada por nome. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTeamPage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    createTeamMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Funcionário cadastrado, com troca de senha obrigatória. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTeamMember"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listPermissionOptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Permissões disponíveis e suas descrições. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionOption"][];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listAccessAudit: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["Page"];
+                size?: components["parameters"]["Size"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Alterações de acesso, da mais recente para a mais antiga. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAuditPage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getTeamMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["AccountId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Conta administrativa. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTeamMember"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    replaceTeamMemberPermissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["AccountId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPermissionsRequest"];
+            };
+        };
+        responses: {
+            /** @description Conta com as permissões substituídas. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTeamMember"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    changeTeamMemberStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["AccountId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Conta com a situação atualizada. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminTeamMember"];
+                };
             };
             default: components["responses"]["Problem"];
         };

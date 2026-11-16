@@ -3,6 +3,7 @@ import styles from './Button.module.css'
 
 type ButtonProps = {
   type?: 'button' | 'submit'
+  variant?: 'primary' | 'secondary'
   disabled?: boolean
   onClick?: () => void
   children: ReactNode
@@ -10,6 +11,7 @@ type ButtonProps = {
 
 export function Button({
   type = 'button',
+  variant = 'primary',
   disabled,
   onClick,
   children,
@@ -17,7 +19,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={styles.button}
+      className={`${styles.button} ${styles[variant]}`}
       disabled={disabled}
       onClick={onClick}
     >

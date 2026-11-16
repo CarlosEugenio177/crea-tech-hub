@@ -91,7 +91,9 @@ test('requires a personal password before opening the admin area', async () => {
   expect(
     await screen.findByRole('heading', { name: 'Crie sua senha pessoal' }),
   ).toBeInTheDocument()
-  expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+  expect(
+    screen.queryByRole('navigation', { name: 'Administração' }),
+  ).not.toBeInTheDocument()
 })
 
 test('rejects a short new password without calling the API', async () => {

@@ -1,0 +1,11 @@
+/* Versão negativa da logomarca (texto branco), feita para as barras escuras. */
+.brand {
+  display: inline-flex;
+  align-self: flex-start;
+  border-radius: var(--radius-button);
+}
+
+.logo {
+  width: auto;
+  height: 40px;
+}

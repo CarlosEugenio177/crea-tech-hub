@@ -1,0 +1,42 @@
+.summary {
+  width: 100%;
+  max-width: 640px;
+  padding: 4px 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 0;
+}
+
+.row + .row {
+  border-top: 1px solid var(--color-border);
+}
+
+.term {
+  font: var(--font-label);
+  color: var(--color-text-muted);
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 560px) {
+  .row {
+    flex-direction: row;
+    gap: 24px;
+  }
+
+  .term {
+    flex: none;
+    width: 200px;
+  }
+}

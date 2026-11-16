@@ -1,0 +1,43 @@
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 640px;
+  list-style: none;
+}
+
+.reached,
+.pending {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 10px;
+  border-top: 4px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.reached {
+  border-top-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.number {
+  font: var(--font-eyebrow);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.reached .number {
+  color: var(--color-primary);
+}
+
+.label {
+  font: var(--font-label);
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+
+.reached[aria-current='step'] .label {
+  font-weight: 700;
+}

@@ -94,7 +94,239 @@ paths:
           description: Senha redefinida.
         default:
           $ref: '#/components/responses/Problem'
+  /api/v1/admin/spaces:
+    get:
+      operationId: listSpaces
+      parameters:
+        - name: active
+          in: query
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de espaços, ordenada por nome.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpacePage'
+        default:
+          $ref: '#/components/responses/Problem'
+    post:
+      operationId: createSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceRequest'
+      responses:
+        '201':
+          description: Espaço cadastrado como ativo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Space'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/spaces/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SpaceId'
+    get:
+      operationId: getSpace
+      responses:
+        '200':
+          description: Cadastro do espaço, inclusive inativo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Space'
+        default:
+          $ref: '#/components/responses/Problem'
+    put:
+      operationId: updateSpace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceRequest'
+      responses:
+        '200':
+          description: Cadastro atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Space'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/spaces/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/SpaceId'
+    patch:
+      operationId: changeSpaceStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceStatusRequest'
+      responses:
+        '200':
+          description: Cadastro com a situação atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Space'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/team:
+    get:
+      operationId: listTeam
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de contas administrativas, ordenada por nome.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamPage'
+        default:
+          $ref: '#/components/responses/Problem'
+    post:
+      operationId: createTeamMember
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCreateRequest'
+      responses:
+        '201':
+          description: Funcionário cadastrado, com troca de senha obrigatória.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamMember'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/team/permissions:
+    get:
+      operationId: listPermissionOptions
+      responses:
+        '200':
+          description: Permissões disponíveis e suas descrições.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PermissionOption'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/team/audit:
+    get:
+      operationId: listAccessAudit
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Alterações de acesso, da mais recente para a mais antiga.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAuditPage'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/team/{id}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      operationId: getTeamMember
+      responses:
+        '200':
+          description: Conta administrativa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamMember'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/team/{id}/permissions:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    put:
+      operationId: replaceTeamMemberPermissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminPermissionsRequest'
+      responses:
+        '200':
+          description: Conta com as permissões substituídas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamMember'
+        default:
+          $ref: '#/components/responses/Problem'
+  /api/v1/admin/team/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    patch:
+      operationId: changeTeamMemberStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminStatusRequest'
+      responses:
+        '200':
+          description: Conta com a situação atualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminTeamMember'
+        default:
+          $ref: '#/components/responses/Problem'
 components:
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    AccountId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SpaceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   responses:
     Problem:
       description: Erro no formato ProblemDetail.
@@ -138,8 +370,7 @@ components:
         permissions:
           type: array
           items:
-            type: string
-            enum: [MANAGE_ACCESS, MANAGE_SPACES]
+            $ref: '#/components/schemas/AdminPermission'
         passwordChangeRequired:
           type: boolean
     PasswordChangeRequest:
@@ -172,6 +403,197 @@ components:
           type: string
           minLength: 12
           maxLength: 128
+    AdminPermission:
+      type: string
+      enum: [MANAGE_ACCESS, MANAGE_SPACES]
+    PermissionOption:
+      type: object
+      required: [permission, description]
+      properties:
+        permission:
+          $ref: '#/components/schemas/AdminPermission'
+        description:
+          type: string
+    AdminTeamMember:
+      type: object
+      required:
+        [
+          id,
+          fullName,
+          email,
+          role,
+          active,
+          permissions,
+          passwordChangeRequired,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, USER]
+        active:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminPermission'
+        passwordChangeRequired:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    AdminTeamPage:
+      type: object
+      required: [items, page, size, totalElements, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminTeamMember'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+    AdminCreateRequest:
+      type: object
+      required: [fullName, email, initialPassword, permissions]
+      properties:
+        fullName:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        initialPassword:
+          type: string
+          minLength: 12
+          maxLength: 128
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminPermission'
+    AdminPermissionsRequest:
+      type: object
+      required: [permissions]
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminPermission'
+    AdminStatusRequest:
+      type: object
+      required: [active]
+      properties:
+        active:
+          type: boolean
+    AccessAuditEvent:
+      type: object
+      required: [id, targetId, action, detail, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        actorId:
+          type: [string, 'null']
+          format: uuid
+        targetId:
+          type: string
+          format: uuid
+        action:
+          type: string
+        detail:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AdminAuditPage:
+      type: object
+      required: [items, page, size, totalElements, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessAuditEvent'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+    SpaceType:
+      type: string
+      enum: [ROOM, SHARED_TABLE, WORKSTATION]
+    Space:
+      type: object
+      required: [id, name, type, capacity, active, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/SpaceType'
+        capacity:
+          type: integer
+        description:
+          type: [string, 'null']
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    SpaceRequest:
+      type: object
+      required: [name, type, capacity]
+      properties:
+        name:
+          type: string
+          maxLength: 150
+        type:
+          $ref: '#/components/schemas/SpaceType'
+        capacity:
+          type: integer
+          minimum: 1
+        description:
+          type: [string, 'null']
+          maxLength: 2000
+    SpaceStatusRequest:
+      type: object
+      required: [active]
+      properties:
+        active:
+          type: boolean
+    SpacePage:
+      type: object
+      required: [items, page, size, totalElements, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Space'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
     ProblemDetail:
       type: object
       properties:

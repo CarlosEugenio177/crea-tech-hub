@@ -13,10 +13,6 @@
   color: var(--color-on-inverse);
 }
 
-.brand {
-  font: var(--font-button);
-}
-
 .nav {
   display: flex;
   flex-wrap: wrap;
@@ -44,9 +40,24 @@
   text-decoration: none;
 }
 
+.item,
+.activeItem,
+.logout {
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.item:hover,
+.logout:hover {
+  background: var(--color-divider-inverse);
+  color: var(--color-on-inverse);
+}
+
 .activeItem {
   background: var(--color-menu-active);
   color: var(--color-on-inverse);
+  box-shadow: inset 3px 0 0 var(--color-primary);
 }
 
 .account {
@@ -82,6 +93,7 @@
 
 .content {
   flex: 1;
+  min-width: 0;
   padding: var(--page-padding);
 }
 

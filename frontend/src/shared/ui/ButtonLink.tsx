@@ -4,12 +4,17 @@ import styles from './Button.module.css'
 
 type ButtonLinkProps = {
   to: string
+  variant?: 'primary' | 'secondary'
   children: ReactNode
 }
 
-export function ButtonLink({ to, children }: ButtonLinkProps) {
+export function ButtonLink({
+  to,
+  variant = 'primary',
+  children,
+}: ButtonLinkProps) {
   return (
-    <Link to={to} className={styles.button}>
+    <Link to={to} className={`${styles.button} ${styles[variant]}`}>
       {children}
     </Link>
   )

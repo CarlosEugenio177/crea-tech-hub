@@ -8,7 +8,7 @@
   font: var(--font-eyebrow);
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-primary);
 }
 
 .title {
@@ -17,5 +17,6 @@
 }
 
 .description {
+  max-width: 60ch;
   color: var(--color-text-muted);
 }
