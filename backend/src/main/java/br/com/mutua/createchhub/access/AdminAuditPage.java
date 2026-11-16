@@ -1,10 +1,14 @@
 package br.com.mutua.createchhub.access;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 
+@Schema(
+    name = "AdminAuditPage",
+    requiredProperties = {"items", "page", "size", "totalElements", "totalPages"})
 public record AdminAuditPage(
     List<Event> items, int page, int size, long totalElements, int totalPages) {
   public AdminAuditPage {
@@ -32,6 +36,17 @@ public record AdminAuditPage(
         result.getTotalPages());
   }
 
+  @Schema(
+      name = "AccessAuditEvent",
+      requiredProperties = {"id", "targetId", "action", "detail", "createdAt"})
   public record Event(
-      UUID id, UUID actorId, UUID targetId, String action, String detail, Instant createdAt) {}
+      UUID id,
+      @Schema(
+              types = {"string", "null"},
+              format = "uuid")
+          UUID actorId,
+      UUID targetId,
+      String action,
+      String detail,
+      Instant createdAt) {}
 }

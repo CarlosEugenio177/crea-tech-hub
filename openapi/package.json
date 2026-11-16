@@ -1,0 +1,12 @@
+{
+  "name": "crea-tech-hub-api-contract",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "generate": "openapi-typescript admin-api.json -o schema.d.ts",
+    "check": "openapi-typescript admin-api.json -o schema.d.ts --check"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0"
+  }
+}

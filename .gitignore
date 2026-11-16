@@ -12,4 +12,5 @@ Thumbs.db
 
 # Saídas locais
 **/target/
+**/node_modules/
 *.log

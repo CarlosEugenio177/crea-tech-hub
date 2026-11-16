@@ -2,6 +2,7 @@ package br.com.mutua.createchhub.access;
 
 import br.com.mutua.createchhub.auth.AdminPrincipal;
 import br.com.mutua.createchhub.user.AdminPermission;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -33,6 +34,7 @@ public class AdminTeamController {
     this.team = team;
   }
 
+  @Operation(operationId = "listTeam", summary = "Listar equipe")
   @GetMapping
   public AdminTeamPage list(
       @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -40,6 +42,7 @@ public class AdminTeamController {
     return team.list(page, size);
   }
 
+  @Operation(operationId = "listPermissionOptions", summary = "Consultar permissões disponíveis")
   @GetMapping("/permissions")
   public List<PermissionOption> permissions() {
     return Arrays.stream(AdminPermission.values())
@@ -47,6 +50,7 @@ public class AdminTeamController {
         .toList();
   }
 
+  @Operation(operationId = "listAccessAudit", summary = "Consultar auditoria de acessos")
   @GetMapping("/audit")
   public AdminAuditPage audit(
       @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -54,12 +58,16 @@ public class AdminTeamController {
     return team.audit(page, size);
   }
 
+  @Operation(operationId = "getTeamMember", summary = "Consultar funcionário")
   @GetMapping("/{id}")
   public AdminTeamResponse find(@PathVariable UUID id) {
     return team.find(id);
   }
 
+  @Operation(operationId = "createTeamMember", summary = "Cadastrar funcionário")
   @PostMapping
+  @org.springframework.web.bind.annotation.ResponseStatus(
+      org.springframework.http.HttpStatus.CREATED)
   public ResponseEntity<AdminTeamResponse> create(
       @AuthenticationPrincipal AdminPrincipal actor,
       @Valid @RequestBody AdminCreateRequest request) {
@@ -67,6 +75,7 @@ public class AdminTeamController {
     return ResponseEntity.created(URI.create("/api/v1/admin/team/" + account.id())).body(account);
   }
 
+  @Operation(operationId = "replaceTeamMemberPermissions", summary = "Substituir permissões")
   @PutMapping("/{id}/permissions")
   public AdminTeamResponse permissions(
       @AuthenticationPrincipal AdminPrincipal actor,
@@ -75,6 +84,7 @@ public class AdminTeamController {
     return team.permissions(actor.getAccountId(), id, request.permissions());
   }
 
+  @Operation(operationId = "changeTeamMemberStatus", summary = "Ativar ou desativar funcionário")
   @PatchMapping("/{id}/status")
   public AdminTeamResponse status(
       @AuthenticationPrincipal AdminPrincipal actor,
@@ -83,5 +93,6 @@ public class AdminTeamController {
     return team.status(actor.getAccountId(), id, request.active());
   }
 
+  @io.swagger.v3.oas.annotations.media.Schema(requiredProperties = {"permission", "description"})
   public record PermissionOption(AdminPermission permission, String description) {}
 }

@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.space;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -28,6 +29,7 @@ public class SpaceController {
     this.spaces = spaces;
   }
 
+  @Operation(operationId = "listSpaces", summary = "Listar espaços")
   @GetMapping
   public SpacePageResponse list(
       @RequestParam(required = false) Boolean active,
@@ -36,12 +38,16 @@ public class SpaceController {
     return SpacePageResponse.from(spaces.list(active, page, size));
   }
 
+  @Operation(operationId = "getSpace", summary = "Consultar espaço")
   @GetMapping("/{id}")
   public SpaceResponse find(@PathVariable UUID id) {
     return spaces.find(id);
   }
 
+  @Operation(operationId = "createSpace", summary = "Cadastrar espaço")
   @PostMapping
+  @org.springframework.web.bind.annotation.ResponseStatus(
+      org.springframework.http.HttpStatus.CREATED)
   public ResponseEntity<SpaceResponse> create(@Valid @RequestBody SpaceRequest request) {
     var space = spaces.create(request);
     var location =
@@ -52,11 +58,13 @@ public class SpaceController {
     return ResponseEntity.created(location).body(space);
   }
 
+  @Operation(operationId = "updateSpace", summary = "Editar espaço")
   @PutMapping("/{id}")
   public SpaceResponse update(@PathVariable UUID id, @Valid @RequestBody SpaceRequest request) {
     return spaces.update(id, request);
   }
 
+  @Operation(operationId = "changeSpaceStatus", summary = "Ativar ou desativar espaço")
   @PatchMapping("/{id}/status")
   public SpaceResponse changeStatus(
       @PathVariable UUID id, @Valid @RequestBody SpaceStatusRequest request) {

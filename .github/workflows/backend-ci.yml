@@ -93,6 +93,28 @@ jobs:
       - name: Run tests and verify coverage
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
 
+      - name: Set up Node.js for API contract checks
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: openapi/package-lock.json
+
+      - name: Verify generated OpenAPI types
+        working-directory: openapi
+        run: |
+          npm ci --ignore-scripts
+          npm run check
+
+      - name: Validate frontend against the API contract
+        if: ${{ hashFiles('frontend/package-lock.json') != '' }}
+        working-directory: frontend
+        run: |
+          npm ci
+          node -e "require('node:fs').copyFileSync('../openapi/schema.d.ts', 'src/shared/api/schema.d.ts')"
+          npm run typecheck
+          git diff --exit-code -- src/shared/api/schema.d.ts
+
       - name: Upload test reports
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
