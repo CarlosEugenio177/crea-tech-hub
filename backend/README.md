@@ -138,6 +138,9 @@ de negócio seguirão o prefixo `/api/v1`.
 
 O contrato de erros, com `ProblemDetail`, está descrito em
 [Erros da API](../docs/14-erros-da-api.md).
+O contrato OpenAPI gerado, sua atualização e o uso pelo frontend estão em
+[OpenAPI](../docs/18-openapi.md). A documentação HTTP é habilitada com `OPENAPI_ENABLED=true`;
+os arquivos versionados ficam em `../openapi/`.
 
 Nesta etapa, a leitura da saúde e os endpoints necessários para entrar são públicos.
 As rotas administrativas de autenticação estão descritas em

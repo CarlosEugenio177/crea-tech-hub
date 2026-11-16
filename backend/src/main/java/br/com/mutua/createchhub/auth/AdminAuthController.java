@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.auth;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,8 +19,10 @@ public class AdminAuthController {
     this.accounts = accounts;
   }
 
+  @Operation(operationId = "getCsrfToken", summary = "Obter CSRF")
   @GetMapping("/csrf")
-  public ResponseEntity<CsrfTokenResponse> csrf(CsrfToken token) {
+  public ResponseEntity<CsrfTokenResponse> csrf(
+      @io.swagger.v3.oas.annotations.Parameter(hidden = true) CsrfToken token) {
     return ResponseEntity.ok()
         .cacheControl(CacheControl.noStore())
         .body(
@@ -27,6 +30,7 @@ public class AdminAuthController {
                 token.getHeaderName(), token.getParameterName(), token.getToken()));
   }
 
+  @Operation(operationId = "getCurrentAdmin", summary = "Consultar a sessão")
   @GetMapping("/me")
   public ResponseEntity<AdminAccountResponse> current(Authentication authentication) {
     return ResponseEntity.ok()

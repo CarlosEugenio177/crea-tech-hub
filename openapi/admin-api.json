@@ -1,0 +1,1140 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "description" : "Sessão por cookie. Obtenha CSRF antes das escritas e renove o token após o login. Permissões são verificadas no backend.",
+    "title" : "Crea Tech Hub — API administrativa",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "paths" : {
+    "/api/v1/admin/auth/csrf" : {
+      "get" : {
+        "operationId" : "getCsrfToken",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CsrfToken"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Obter CSRF",
+        "tags" : [ "admin-auth-controller" ]
+      }
+    },
+    "/api/v1/admin/auth/login" : {
+      "post" : {
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "type" : "object",
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "Sessão iniciada; obtenha um novo CSRF."
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ]
+        } ],
+        "summary" : "Iniciar sessão administrativa",
+        "tags" : [ "Autenticação" ]
+      }
+    },
+    "/api/v1/admin/auth/logout" : {
+      "post" : {
+        "operationId" : "logout",
+        "responses" : {
+          "204" : {
+            "description" : "Sessão encerrada."
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Encerrar sessão",
+        "tags" : [ "Autenticação" ]
+      }
+    },
+    "/api/v1/admin/auth/me" : {
+      "get" : {
+        "operationId" : "getCurrentAdmin",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminAccount"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar a sessão",
+        "tags" : [ "admin-auth-controller" ]
+      }
+    },
+    "/api/v1/admin/auth/password" : {
+      "post" : {
+        "operationId" : "changePassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PasswordChangeRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Alterar a própria senha",
+        "tags" : [ "password-recovery-controller" ]
+      }
+    },
+    "/api/v1/admin/auth/password/forgot" : {
+      "post" : {
+        "operationId" : "requestPasswordRecovery",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "202" : {
+            "description" : "Accepted"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ]
+        } ],
+        "summary" : "Solicitar recuperação de senha",
+        "tags" : [ "password-recovery-controller" ]
+      }
+    },
+    "/api/v1/admin/auth/password/reset" : {
+      "post" : {
+        "operationId" : "resetPassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PasswordResetRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ]
+        } ],
+        "summary" : "Redefinir senha por token",
+        "tags" : [ "password-recovery-controller" ]
+      }
+    },
+    "/api/v1/admin/spaces" : {
+      "get" : {
+        "operationId" : "listSpaces",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "active",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SpacePage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Listar espaços",
+        "tags" : [ "space-controller" ]
+      },
+      "post" : {
+        "operationId" : "createSpace",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SpaceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Cadastrar espaço",
+        "tags" : [ "space-controller" ]
+      }
+    },
+    "/api/v1/admin/spaces/{id}" : {
+      "get" : {
+        "operationId" : "getSpace",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar espaço",
+        "tags" : [ "space-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateSpace",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SpaceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Editar espaço",
+        "tags" : [ "space-controller" ]
+      }
+    },
+    "/api/v1/admin/spaces/{id}/status" : {
+      "patch" : {
+        "operationId" : "changeSpaceStatus",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SpaceStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Ativar ou desativar espaço",
+        "tags" : [ "space-controller" ]
+      }
+    },
+    "/api/v1/admin/team" : {
+      "get" : {
+        "operationId" : "listTeam",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminTeamPage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Listar equipe",
+        "tags" : [ "admin-team-controller" ]
+      },
+      "post" : {
+        "operationId" : "createTeamMember",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminCreateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminTeamMember"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Cadastrar funcionário",
+        "tags" : [ "admin-team-controller" ]
+      }
+    },
+    "/api/v1/admin/team/audit" : {
+      "get" : {
+        "operationId" : "listAccessAudit",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminAuditPage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar auditoria de acessos",
+        "tags" : [ "admin-team-controller" ]
+      }
+    },
+    "/api/v1/admin/team/permissions" : {
+      "get" : {
+        "operationId" : "listPermissionOptions",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PermissionOption"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar permissões disponíveis",
+        "tags" : [ "admin-team-controller" ]
+      }
+    },
+    "/api/v1/admin/team/{id}" : {
+      "get" : {
+        "operationId" : "getTeamMember",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminTeamMember"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar funcionário",
+        "tags" : [ "admin-team-controller" ]
+      }
+    },
+    "/api/v1/admin/team/{id}/permissions" : {
+      "put" : {
+        "operationId" : "replaceTeamMemberPermissions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminPermissionsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminTeamMember"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Substituir permissões",
+        "tags" : [ "admin-team-controller" ]
+      }
+    },
+    "/api/v1/admin/team/{id}/status" : {
+      "patch" : {
+        "operationId" : "changeTeamMemberStatus",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminStatusRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminTeamMember"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Ativar ou desativar funcionário",
+        "tags" : [ "admin-team-controller" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "Problem" : {
+        "content" : {
+          "application/problem+json" : {
+            "schema" : {
+              "type" : "object",
+              "$ref" : "#/components/schemas/ProblemDetail"
+            }
+          }
+        },
+        "description" : "Erro no formato ProblemDetail."
+      }
+    },
+    "schemas" : {
+      "AccessAuditEvent" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string"
+          },
+          "actorId" : {
+            "type" : [ "string", "null" ],
+            "format" : "uuid"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "targetId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "action", "createdAt", "detail", "id", "targetId" ]
+      },
+      "AdminAccount" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "fullName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "passwordChangeRequired" : {
+            "type" : "boolean"
+          },
+          "permissions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminPermission"
+            },
+            "uniqueItems" : true
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "ADMIN", "USER" ]
+          }
+        },
+        "required" : [ "email", "fullName", "id", "passwordChangeRequired", "permissions", "role" ]
+      },
+      "AdminAuditPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AccessAuditEvent"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
+      },
+      "AdminCreateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          },
+          "fullName" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "initialPassword" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 12
+          },
+          "permissions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminPermission"
+            },
+            "uniqueItems" : true
+          }
+        },
+        "required" : [ "email", "fullName", "initialPassword", "permissions" ]
+      },
+      "AdminPermission" : {
+        "type" : "string",
+        "enum" : [ "MANAGE_ACCESS", "MANAGE_SPACES" ]
+      },
+      "AdminPermissionsRequest" : {
+        "type" : "object",
+        "properties" : {
+          "permissions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminPermission"
+            },
+            "uniqueItems" : true
+          }
+        },
+        "required" : [ "permissions" ]
+      },
+      "AdminStatusRequest" : {
+        "type" : "object",
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "active" ]
+      },
+      "AdminTeamMember" : {
+        "type" : "object",
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "fullName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "passwordChangeRequired" : {
+            "type" : "boolean"
+          },
+          "permissions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminPermission"
+            },
+            "uniqueItems" : true
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "ADMIN", "USER" ]
+          }
+        },
+        "required" : [ "active", "createdAt", "email", "fullName", "id", "passwordChangeRequired", "permissions", "role" ]
+      },
+      "AdminTeamPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminTeamMember"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
+      },
+      "CsrfToken" : {
+        "type" : "object",
+        "properties" : {
+          "headerName" : {
+            "type" : "string"
+          },
+          "parameterName" : {
+            "type" : "string"
+          },
+          "token" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "headerName", "parameterName", "token" ]
+      },
+      "FieldValidationError" : {
+        "type" : "object",
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "field", "message" ]
+      },
+      "ForgotPasswordRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "email" ]
+      },
+      "LoginRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string",
+            "format" : "password",
+            "writeOnly" : true
+          }
+        },
+        "required" : [ "email", "password" ]
+      },
+      "PasswordChangeRequest" : {
+        "type" : "object",
+        "properties" : {
+          "currentPassword" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 0
+          },
+          "newPassword" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 12
+          }
+        },
+        "required" : [ "currentPassword", "newPassword" ]
+      },
+      "PasswordResetRequest" : {
+        "type" : "object",
+        "properties" : {
+          "newPassword" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 12
+          },
+          "token" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "[A-Za-z0-9_-]{43}"
+          }
+        },
+        "required" : [ "newPassword", "token" ]
+      },
+      "PermissionOption" : {
+        "type" : "object",
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "permission" : {
+            "$ref" : "#/components/schemas/AdminPermission"
+          }
+        },
+        "required" : [ "description", "permission" ]
+      },
+      "ProblemDetail" : {
+        "type" : "object",
+        "properties" : {
+          "detail" : {
+            "type" : "string"
+          },
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "$ref" : "#/components/schemas/FieldValidationError"
+            }
+          },
+          "instance" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Space" : {
+        "type" : "object",
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          },
+          "capacity" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/SpaceType"
+          }
+        },
+        "required" : [ "active", "capacity", "createdAt", "id", "name", "type" ]
+      },
+      "SpacePage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Space"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
+      },
+      "SpaceRequest" : {
+        "type" : "object",
+        "properties" : {
+          "capacity" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Inteiro positivo; estações individuais exigem capacidade 1.",
+            "exclusiveMinimum" : 0
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 2000,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/SpaceType"
+          }
+        },
+        "required" : [ "capacity", "name", "type" ]
+      },
+      "SpaceStatusRequest" : {
+        "type" : "object",
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "active" ]
+      },
+      "SpaceType" : {
+        "type" : "string",
+        "enum" : [ "ROOM", "SHARED_TABLE", "WORKSTATION" ]
+      }
+    },
+    "securitySchemes" : {
+      "csrf" : {
+        "in" : "header",
+        "name" : "X-CSRF-TOKEN",
+        "type" : "apiKey"
+      },
+      "sessionAuth" : {
+        "in" : "cookie",
+        "name" : "JSESSIONID",
+        "type" : "apiKey"
+      }
+    }
+  }
+}

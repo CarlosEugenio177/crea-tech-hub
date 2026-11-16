@@ -60,6 +60,7 @@
 
 - O frontend fica em `frontend/`: React com TypeScript em modo estrito. As regras de simplicidade, estilo, segurança e Git deste documento valem também para ele.
 - O contrato com a API vem do OpenAPI do backend: tipos gerados com `openapi-typescript` e chamadas feitas com `openapi-fetch`. Não escrever à mão tipos de requisição ou resposta, nem editar arquivos gerados; ao mudar a API, regenerar os tipos na mesma entrega.
+- O contrato oficial fica em `openapi/admin-api.json`, gerado do backend, e seus tipos em `openapi/schema.d.ts`. Seguir `docs/18-openapi.md`; não manter YAML provisório como fonte paralela. Novas operações precisam de `operationId` estável, tipos anuláveis corretos, status e segurança documentados.
 - Um único cliente HTTP compartilhado cuida de cookie de sessão, CSRF e leitura de `ProblemDetail`. Componentes não chamam `fetch` diretamente.
 - Organizar por funcionalidade, espelhando o backend: `src/features/<funcionalidade>/` reúne componentes, hooks e chamadas de API daquela funcionalidade. `src/shared/` recebe apenas o que for usado por mais de uma funcionalidade.
 - Componentes pequenos, com uma responsabilidade e um componente por arquivo. Dividir o arquivo quando ele acumular responsabilidades; não criar arquivos monstruosos nem fragmentar sem motivo.
