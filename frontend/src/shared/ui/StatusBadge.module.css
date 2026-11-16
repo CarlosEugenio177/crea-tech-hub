@@ -1,0 +1,28 @@
+.active,
+.inactive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: var(--radius-button);
+  font: var(--font-label);
+}
+
+.active {
+  background: var(--color-success-background);
+  color: var(--color-success);
+}
+
+.inactive {
+  background: var(--color-background);
+  color: var(--color-text-muted);
+}
+
+.active::before,
+.inactive::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}

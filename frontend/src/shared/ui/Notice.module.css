@@ -1,0 +1,23 @@
+.notice {
+  padding: 12px;
+  border-radius: var(--radius-button);
+  font: var(--font-small);
+}
+
+.error {
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.success {
+  border-left: 3px solid var(--color-success);
+  background: var(--color-success-background);
+  color: var(--color-success);
+}
+
+.info {
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-info-background);
+  color: var(--color-text);
+}

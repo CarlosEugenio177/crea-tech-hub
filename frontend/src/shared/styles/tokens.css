@@ -1,0 +1,48 @@
+/* Tokens de docs/09-design.md. Componentes usam estas variáveis, nunca valores soltos. */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-ring: rgba(37, 99, 235, 0.25);
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-inverse: #0a0a0a;
+  --color-on-inverse: #ffffff;
+  --color-text: #111827;
+  --color-text-muted: #64748b;
+  --color-border: #e1e7ee;
+  --color-border-field: #dce3ea;
+  --color-divider-inverse: #202733;
+  --color-menu: #c3cbd6;
+  --color-menu-label: #98a2b3;
+  --color-menu-active: rgba(37, 99, 235, 0.18);
+  --color-danger: #dc2626;
+  --color-success: #15803d;
+  --color-success-background: #ecfdf3;
+  --color-info-background: #eef4ff;
+
+  --font-family: 'Inter Variable', system-ui, sans-serif;
+  --font-eyebrow: 700 0.6875rem / 1.5 var(--font-family);
+  --font-title: 700 clamp(1.75rem, 5vw, 2.25rem) / 1.1 var(--font-family);
+  --font-body: 400 1rem / 1.5 var(--font-family);
+  --font-button: 600 0.9375rem / 1.2 var(--font-family);
+  --font-label: 600 0.8125rem / 1.5 var(--font-family);
+  --font-field: 400 1rem / 1.5 var(--font-family);
+  --font-small: 400 0.8125rem / 1.5 var(--font-family);
+  --font-section-title: 600 1.375rem / 1.2 var(--font-family);
+  --font-menu: 500 0.8125rem / 1.2 var(--font-family);
+  --tracking-eyebrow: 0.08em;
+  --tracking-title: -0.03em;
+
+  --radius-button: 8px;
+  --radius-button-large: 10px;
+  --radius-field: 10px;
+  --radius-card: 14px;
+  --radius-form: 16px;
+
+  --shadow-raised:
+    0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
+  --transition: 120ms ease;
+
+  --page-max-width: 1040px;
+  --page-padding: 24px;
+}

@@ -112,7 +112,7 @@ jobs:
         run: |
           npm ci
           node -e "require('node:fs').copyFileSync('../openapi/schema.d.ts', 'src/shared/api/schema.d.ts')"
-          npm run typecheck
+          npm run check
           git diff --exit-code -- src/shared/api/schema.d.ts
 
       - name: Upload test reports

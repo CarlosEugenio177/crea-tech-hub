@@ -82,6 +82,16 @@ A divergência no Framer permanece registrada em D1 de [Pendências](10-pendenci
 | Título de página | Inter Bold 36px, altura 1,1, espaçamento −0,03em | cabeçalhos |
 | Raios | cartões 14px (formulário 16px, admin 12px), botões 8px (10px nos grandes) | camadas |
 
+Os tokens ficam em `frontend/src/shared/styles/tokens.css`. Para estados de interação, o
+frontend deriva três valores do azul e do texto do Framer, que não existem como estilos no
+projeto: azul de hover `#1D4ED8`, anel de foco `rgba(37, 99, 235, 0.25)` e uma sombra leve
+para superfícies elevadas (formulários e resumo da solicitação).
+
+A logomarca oficial está em [`design/logo/logo-mutua.png`](design/logo/logo-mutua.png). Nas
+barras pretas o frontend usa a versão negativa (texto branco, como no rodapé do site da
+Mútua), gerada a partir desse arquivo em `frontend/src/shared/assets/logo-mutua-negativa.png`.
+O ícone da aba (`frontend/public/favicon.png`) é o emblema recortado da mesma imagem.
+
 ### Código da recriação
 
 O HTML fica em [`design/prototipo/`](design/prototipo/) e serve de referência visual.

@@ -1,0 +1,135 @@
+.shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px var(--page-padding);
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.navLabel {
+  display: none;
+  font: var(--font-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-menu-label);
+}
+
+.item,
+.activeItem {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: var(--radius-button);
+  color: var(--color-menu);
+  font: var(--font-menu);
+  text-decoration: none;
+}
+
+.item,
+.activeItem,
+.logout {
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.item:hover,
+.logout:hover {
+  background: var(--color-divider-inverse);
+  color: var(--color-on-inverse);
+}
+
+.activeItem {
+  background: var(--color-menu-active);
+  color: var(--color-on-inverse);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.account {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-divider-inverse);
+}
+
+.accountName {
+  font: var(--font-label);
+}
+
+.accountEmail {
+  font: var(--font-small);
+  color: var(--color-menu);
+  overflow-wrap: anywhere;
+}
+
+.logout {
+  min-height: 40px;
+  padding: 0 10px;
+  margin-left: auto;
+  border: 1px solid var(--color-divider-inverse);
+  border-radius: var(--radius-button);
+  background: none;
+  color: var(--color-on-inverse);
+  font: var(--font-menu);
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--page-padding);
+}
+
+@media (min-width: 900px) {
+  .shell {
+    flex-direction: row;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 248px;
+    gap: 28px;
+    padding: 24px 16px;
+  }
+
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1;
+  }
+
+  .navLabel {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .account {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logout {
+    margin: 8px 0 0;
+  }
+
+  .content {
+    padding: 28px 34px 36px;
+  }
+}

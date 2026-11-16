@@ -177,7 +177,7 @@ Decisões de reserva já alinhadas para a implementação futura:
 - A antecedência mínima para solicitar ainda será definida.
 
 As histórias em `../histories/` e seu plano de implementação são a referência atual
-do escopo. O frontend ocupará uma pasta própria no monorepo quando seu trabalho começar.
+do escopo. O frontend fica em [`../frontend/`](../frontend/README.md).
 
 Referências técnicas: [Spring Boot](https://docs.spring.io/spring-boot/),
 [Actuator](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html) e

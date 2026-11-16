@@ -1,0 +1,34 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-block: 24px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.illustration {
+  width: min(100%, 390px);
+  align-self: center;
+  padding: 20px;
+  border-radius: var(--radius-form);
+  background: var(--color-info-background);
+}
+
+@media (min-width: 768px) {
+  .page {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+  }
+
+  .illustration {
+    flex: none;
+  }
+}

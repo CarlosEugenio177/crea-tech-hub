@@ -1,0 +1,81 @@
+.header {
+  background: var(--color-inverse);
+}
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 16px var(--page-padding);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.item,
+.activeItem {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: var(--radius-button);
+  color: var(--color-menu);
+  font: var(--font-menu);
+  text-decoration: none;
+}
+
+.item {
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.item:hover {
+  background: var(--color-divider-inverse);
+  color: var(--color-on-inverse);
+}
+
+.activeItem {
+  background: var(--color-menu-active);
+  color: var(--color-on-inverse);
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: var(--page-padding);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 20px var(--page-padding);
+  border-top: 1px solid var(--color-border);
+  font: var(--font-small);
+  color: var(--color-text-muted);
+}
+
+.footerLink {
+  color: var(--color-primary);
+}
+
+@media (min-width: 700px) {
+  .bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

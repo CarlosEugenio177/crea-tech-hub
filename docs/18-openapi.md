@@ -60,15 +60,18 @@ A comparação usa a estrutura JSON, sem depender de finais de linha do sistema.
 - `openapi-fetch` usa esses tipos nas requisições.
 - `openapi-react-query` integra o cliente ao React Query.
 
-O contrato provisório da branch do frontend, `frontend/openapi/admin-api.yaml`, deve
-ser substituído pelo arquivo oficial acima quando aquela entrega for integrada.
-O script `api:types` do frontend deve apontar para ele:
+O frontend consome o arquivo oficial acima. Instale primeiro as dependências isoladas
+do gerador e depois gere/verifique os tipos, a partir da pasta `frontend`:
 
-```json
-{
-  "api:types": "npx --yes openapi-typescript@7.13.0 ../openapi/admin-api.json -o src/shared/api/schema.d.ts"
-}
+```sh
+npm --prefix ../openapi ci --ignore-scripts
+npm run api:types
+npm run api:check
 ```
+
+O antigo `frontend/openapi/admin-api.yaml` foi removido. O gerador permanece em
+`openapi/`, separado do frontend: seu peer TypeScript 5 não limita a aplicação em
+TypeScript 7. Não instalar com `--force` ou `--legacy-peer-deps` para contornar isso.
 
 Alternativamente, copie `openapi/schema.d.ts` para `frontend/src/shared/api/schema.d.ts`:
 os dois arquivos são a mesma saída gerada. Não mantenha um contrato transcrito à mão.
@@ -98,8 +101,9 @@ Alterações incompatíveis precisam ser coordenadas com os consumidores antes d
 
 O job de testes verifica o contrato gerado e a sincronização dos tipos TypeScript,
 usando a versão fixada e o lockfile de `openapi/`. Quando `frontend/package-lock.json`
-estiver presente, também instala o frontend, aplica os tipos oficiais, executa a checagem
-TypeScript e exige que o arquivo gerado já esteja versionado corretamente. Isso impede
+estiver presente, também instala o frontend, aplica os tipos oficiais, executa contrato,
+formatação, lint, TypeScript, testes e build e exige que o arquivo gerado já esteja
+versionado corretamente. Isso impede
 integrar uma API com tipos ou consumidores desatualizados.
 
 Referências: [Springdoc](https://springdoc.org/),
