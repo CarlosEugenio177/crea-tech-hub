@@ -55,6 +55,7 @@
 - Preservar as proteções de sessão, CSRF e autorização existentes. Liberar novas rotas públicas explicitamente conforme a funcionalidade for entregue.
 - Não criar senha padrão, administrador automático no perfil normal ou credenciais versionadas. O primeiro administrador usa somente o bootstrap explícito documentado.
 - Configuração vem de variáveis de ambiente. `.env` é local e ignorado; `.env.example` documenta nomes sem segredos. HTTPS deve usar cookie seguro.
+- Antes de executar **Reopen in Container**, copiar `.env.example` para `.env` e substituir `DB_PASSWORD` por uma senha local não vazia. Nunca versionar o `.env`.
 
 ## Frontend
 
