@@ -43,6 +43,9 @@ class BackendFoundationTests {
         "/actuator/env",
         "/actuator",
         "/login",
+        "/v3/api-docs",
+        "/v3/api-docs.yaml",
+        "/swagger-ui/index.html",
         "/actuator/health/liveness",
         "/actuator/health/readiness"
       })

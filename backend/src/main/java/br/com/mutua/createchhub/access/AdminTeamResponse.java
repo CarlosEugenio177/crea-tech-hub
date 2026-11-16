@@ -3,10 +3,23 @@ package br.com.mutua.createchhub.access;
 import br.com.mutua.createchhub.user.AccessRole;
 import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccount;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
+@Schema(
+    name = "AdminTeamMember",
+    requiredProperties = {
+      "id",
+      "fullName",
+      "email",
+      "role",
+      "active",
+      "permissions",
+      "passwordChangeRequired",
+      "createdAt"
+    })
 public record AdminTeamResponse(
     UUID id,
     String fullName,

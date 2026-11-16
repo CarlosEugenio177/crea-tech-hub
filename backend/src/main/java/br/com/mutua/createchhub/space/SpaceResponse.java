@@ -1,14 +1,18 @@
 package br.com.mutua.createchhub.space;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
 
+@Schema(
+    name = "Space",
+    requiredProperties = {"id", "name", "type", "capacity", "active", "createdAt"})
 public record SpaceResponse(
     UUID id,
     String name,
     SpaceType type,
     int capacity,
-    String description,
+    @Schema(types = {"string", "null"}) String description,
     boolean active,
     Instant createdAt) {
 

@@ -4,6 +4,7 @@ import br.com.mutua.createchhub.auth.AdminSessionFilter;
 import br.com.mutua.createchhub.auth.AdminSessionValidator;
 import br.com.mutua.createchhub.auth.AdminUserDetailsService;
 import br.com.mutua.createchhub.shared.error.SecurityProblemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -28,25 +29,38 @@ public class SecurityConfiguration {
       HttpSecurity http,
       DaoAuthenticationProvider provider,
       SecurityProblemWriter problems,
-      AdminSessionFilter sessions)
+      AdminSessionFilter sessions,
+      @Value("${springdoc.api-docs.enabled:false}") boolean openApiEnabled)
       throws Exception {
     return http.authenticationProvider(provider)
         .addFilterAfter(sessions, SecurityContextHolderFilter.class)
         .authorizeHttpRequests(
-            authorize ->
+            authorize -> {
+              if (openApiEnabled) {
                 authorize
-                    .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/admin/auth/csrf")
-                    .permitAll()
                     .requestMatchers(
-                        HttpMethod.POST,
-                        "/api/v1/admin/auth/login",
-                        "/api/v1/admin/auth/password/forgot",
-                        "/api/v1/admin/auth/password/reset")
-                    .permitAll()
-                    .requestMatchers("/api/v1/admin/**")
-                    .hasRole("ADMIN")
-                    .anyRequest()
-                    .denyAll())
+                        HttpMethod.GET,
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**")
+                    .permitAll();
+              }
+              authorize
+                  .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/admin/auth/csrf")
+                  .permitAll()
+                  .requestMatchers(
+                      HttpMethod.POST,
+                      "/api/v1/admin/auth/login",
+                      "/api/v1/admin/auth/password/forgot",
+                      "/api/v1/admin/auth/password/reset")
+                  .permitAll()
+                  .requestMatchers("/api/v1/admin/**")
+                  .hasRole("ADMIN")
+                  .anyRequest()
+                  .denyAll();
+            })
         .exceptionHandling(
             exceptions ->
                 exceptions

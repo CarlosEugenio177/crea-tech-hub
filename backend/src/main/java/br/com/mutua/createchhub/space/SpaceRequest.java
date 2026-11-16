@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.space;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,10 +14,14 @@ public record SpaceRequest(
     @NotNull(message = "Informe o tipo do espaço.") SpaceType type,
     @NotNull(message = "Informe a capacidade do espaço.")
         @Positive(message = "A capacidade deve ser maior que zero.")
+        @Schema(description = "Inteiro positivo; estações individuais exigem capacidade 1.")
         Integer capacity,
-    @Size(max = 2000, message = "A descrição deve ter até 2000 caracteres.") String description) {
+    @Schema(types = {"string", "null"})
+        @Size(max = 2000, message = "A descrição deve ter até 2000 caracteres.")
+        String description) {
 
   @AssertTrue(message = "Uma estação individual deve ter capacidade para uma pessoa.")
+  @Schema(hidden = true)
   public boolean isCapacityCompatible() {
     return type != SpaceType.WORKSTATION || capacity == null || capacity == 1;
   }
