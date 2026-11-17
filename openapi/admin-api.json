@@ -190,6 +190,65 @@
         "tags" : [ "password-recovery-controller" ]
       }
     },
+    "/api/v1/admin/hub/operating-hours" : {
+      "get" : {
+        "operationId" : "getAdminOperatingHours",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OperatingHours"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar funcionamento do Hub",
+        "tags" : [ "operating-hours-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateOperatingHours",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OperatingHoursRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OperatingHours"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Atualizar dias e horários de funcionamento do Hub",
+        "tags" : [ "operating-hours-controller" ]
+      }
+    },
     "/api/v1/admin/spaces" : {
       "get" : {
         "operationId" : "listSpaces",
@@ -679,6 +738,29 @@
         "summary" : "Ativar ou desativar funcionário",
         "tags" : [ "admin-team-controller" ]
       }
+    },
+    "/api/v1/hub/operating-hours" : {
+      "get" : {
+        "operationId" : "getOperatingHours",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OperatingHours"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Consultar funcionamento público do Hub",
+        "tags" : [ "public-operating-hours-controller" ]
+      }
     }
   },
   "components" : {
@@ -954,6 +1036,52 @@
           }
         },
         "required" : [ "email", "password" ]
+      },
+      "OperatingHours" : {
+        "type" : "object",
+        "properties" : {
+          "closingTime" : {
+            "type" : "string"
+          },
+          "daysOfWeek" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
+            }
+          },
+          "openingTime" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "closingTime", "daysOfWeek", "openingTime" ]
+      },
+      "OperatingHoursRequest" : {
+        "type" : "object",
+        "properties" : {
+          "closingTime" : {
+            "type" : "string",
+            "example" : "18:00",
+            "minLength" : 1,
+            "pattern" : "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "daysOfWeek" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
+            },
+            "minItems" : 1,
+            "uniqueItems" : true
+          },
+          "openingTime" : {
+            "type" : "string",
+            "example" : "08:00",
+            "minLength" : 1,
+            "pattern" : "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          }
+        },
+        "required" : [ "closingTime", "daysOfWeek", "openingTime" ]
       },
       "PasswordChangeRequest" : {
         "type" : "object",

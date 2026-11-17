@@ -36,7 +36,7 @@ completos, incluindo foto, recursos, mapa, funcionamento e integração pública
 - [ ] Cada cadastro tem **nome**, **foto**, **capacidade**, **recursos** e um **campo opcional** para listar os **equipamentos disponíveis** na sala.
 - [ ] Trava de **mínimo de pessoas**, **máximo de horas** e textos específicos por sala não são obrigatórios por enquanto.
 - [ ] Para salas com estações (sala de estudos, coworking), cadastro as **estações numeradas** e a posição delas no **mapa** (conforme Framer).
-- [ ] Posso configurar o **horário de funcionamento do Hub** (padrão **8h às 18h**) e os **dias da semana de funcionamento** (padrão **segunda a sexta**), alteráveis quando necessário.
+- [ ] Posso configurar o **horário de funcionamento do Hub** (padrão **8h às 18h**) e os **dias da semana de funcionamento** (padrão **segunda a sexta**), alteráveis quando necessário. **Backend implementado:** consulta e edição por API; tela administrativa pendente. Ver [Funcionamento do Hub](../docs/19-funcionamento-do-hub.md).
 - [ ] Posso tornar um ambiente **disponível ou indisponível ao público** (ex.: salas da diretoria).
 - [ ] Ambientes indisponíveis **somem do catálogo e da reserva pública** (CTH-1, CTH-2), sem apagar o histórico de reservas.
 - [ ] As alterações valem para **novas reservas**; reservas já feitas não mudam sem decisão da equipe.

@@ -19,6 +19,7 @@ O login exclusivo da administração está descrito em [Acesso administrativo](d
 O cadastro administrativo básico de espaços está em [Espaços](docs/16-espacos.md).
 A gestão da equipe e a recuperação estão em [Permissões administrativas](docs/17-equipe-permissoes-recuperacao.md).
 O contrato oficial e a geração de tipos estão em [OpenAPI](docs/18-openapi.md).
+Os dias e horários configuráveis estão em [Funcionamento do Hub](docs/19-funcionamento-do-hub.md).
 As histórias em [`histories/`](histories/PLANO-DE-IMPLEMENTACAO.md) registram as decisões
 mais recentes de escopo; a documentação abaixo preserva o levantamento original.
 

@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("4");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("5");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(4);
+    assertThat(flyway.info().applied()).hasSize(5);
   }
 
   @Test
@@ -71,6 +71,35 @@ class DatabaseMigrationTests {
     assertThat(
             jdbc.queryForObject(
                 "SELECT password_hash FROM permissions_upgrade.user_accounts WHERE email = ?",
+                String.class,
+                "admin@example.com"))
+        .isEqualTo("legacy-test-hash");
+  }
+
+  @Test
+  void initializesHubHoursWhenUpgradingWithoutChangingExistingAccounts() {
+    migrations("hours_upgrade", "4").migrate();
+    insertLegacyAccount("hours_upgrade", "admin@example.com", "ADMIN");
+
+    migrations("hours_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT opening_time::text FROM hours_upgrade.hub_operating_hours WHERE id = 1",
+                String.class))
+        .isEqualTo("08:00:00");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT closing_time::text FROM hours_upgrade.hub_operating_hours WHERE id = 1",
+                String.class))
+        .isEqualTo("18:00:00");
+    assertThat(
+            jdbc.queryForList(
+                "SELECT day_of_week FROM hours_upgrade.hub_operating_days", String.class))
+        .containsExactlyInAnyOrder("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT password_hash FROM hours_upgrade.user_accounts WHERE email = ?",
                 String.class,
                 "admin@example.com"))
         .isEqualTo("legacy-test-hash");

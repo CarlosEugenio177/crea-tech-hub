@@ -125,6 +125,7 @@ A hospedagem para deploy automático ainda será definida.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `user`: conta de usuário, perfil de acesso e repositório JPA.
 - `space`: cadastro administrativo de salas, mesas compartilhadas e estações.
+- `operatinghours`: consulta pública e configuração administrativa do funcionamento do Hub.
 - `access`: equipe, permissões e auditoria de acesso.
 - `recovery`: recuperação de senha por token e procedimento operacional.
 - `shared.error`: tratamento centralizado de exceções e respostas de erro.
@@ -164,8 +165,11 @@ serão implementados nas próximas etapas.
 
 O cadastro permite criar, editar, consultar com paginação e ativar/desativar espaços.
 O contrato está em [Cadastro administrativo de espaços](../docs/16-espacos.md).
-Fotos, recursos, funcionamento do Hub e estações no mapa completam o CTH-15 nas
+Fotos, recursos e estações no mapa completam o CTH-15 nas
 próximas entregas.
+O funcionamento já está disponível por API, com dias e horários configuráveis;
+consulte [Funcionamento do Hub](../docs/19-funcionamento-do-hub.md). Sua tela de edição
+e a aplicação dessas regras nas futuras reservas ficam para as próximas partes.
 
 Decisões de reserva já alinhadas para a implementação futura:
 

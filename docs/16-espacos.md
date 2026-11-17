@@ -83,5 +83,8 @@ automaticamente; nomes e capacidades serão informados pela administração.
 
 O CTH-15 permanece parcialmente implementado. As próximas partes incluem foto,
 recursos/equipamentos descritos na sala, regras e avisos, organização das estações no
-mapa, funcionamento do Hub e controle de visibilidade pública. Catálogo público,
+mapa e controle de visibilidade pública. Catálogo público,
 disponibilidade por data e reservas pertencem às etapas seguintes.
+
+O funcionamento do Hub já tem APIs próprias, descritas em
+[Funcionamento do Hub](19-funcionamento-do-hub.md); sua tela de edição ainda será entregue.
