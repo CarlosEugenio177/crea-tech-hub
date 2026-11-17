@@ -4,17 +4,13 @@ import { ListPage } from '../../shared/ui/ListPage.tsx'
 import { PagedList } from '../../shared/ui/PagedList.tsx'
 import { RecordCard } from '../../shared/ui/RecordCard.tsx'
 import { auditActionLabel, auditDate, auditDetail } from './auditLabels.ts'
-import { useAudit, useTeam } from './teamApi.ts'
+import { useAudit, useMemberName } from './teamApi.ts'
 import { ADMIN_TEAM } from './teamRoutes.ts'
-
-const NAMES_PAGE_SIZE = 100
 
 export function AuditPage() {
   const [page, setPage] = useState(0)
   const audit = useAudit(page)
-  const team = useTeam(0, NAMES_PAGE_SIZE)
-  const nameOf = (id: string) =>
-    team.data?.items.find((member) => member.id === id)?.fullName ?? id
+  const nameOf = useMemberName()
 
   return (
     <ListPage

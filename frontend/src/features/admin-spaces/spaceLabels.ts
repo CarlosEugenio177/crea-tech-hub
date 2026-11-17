@@ -7,7 +7,3 @@ export const SPACE_TYPE_LABELS: Record<SpaceType, string> = {
   SHARED_TABLE: 'Mesa compartilhada',
   WORKSTATION: 'Estação individual',
 }
-
-export function capacityLabel(capacity: number) {
-  return `${capacity} ${capacity === 1 ? 'pessoa' : 'pessoas'}`
-}

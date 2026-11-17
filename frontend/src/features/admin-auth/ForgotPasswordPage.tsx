@@ -2,11 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PageHeader } from '../../shared/ui/PageHeader.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
 import { useRequestPasswordRecovery } from './adminAuthApi.ts'
 import { ADMIN_LOGIN } from './adminRoutes.ts'
@@ -27,16 +27,14 @@ export function ForgotPasswordPage() {
         title="Recuperar acesso"
         description="Informe o e-mail da sua conta para receber o link de redefinição de senha."
       />
-      <FormCard onSubmit={handleSubmit((body) => recovery.mutate({ body }))}>
+      <FormCard onSubmit={handleSubmit(recovery.submit)}>
         {recovery.isSuccess && (
           <Notice tone="success">
             Se houver uma conta ativa com este e-mail, o link de redefinição
             chegará em instantes.
           </Notice>
         )}
-        {recovery.error && (
-          <Notice tone="error">{problemMessage(recovery.error)}</Notice>
-        )}
+        <ProblemNotice error={recovery.error} />
         <TextField
           label="E-mail"
           type="email"

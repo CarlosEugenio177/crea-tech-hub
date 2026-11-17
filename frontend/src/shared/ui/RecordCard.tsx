@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
-import { problemMessage } from '../api/problem'
-import { Notice } from './Notice.tsx'
+import { ProblemNotice } from './ProblemNotice.tsx'
 import styles from './RecordCard.module.css'
 import { StatusBadge } from './StatusBadge.tsx'
 
@@ -29,7 +28,7 @@ export function RecordCard({
         {children}
       </div>
       {actions && <div className={styles.actions}>{actions}</div>}
-      {Boolean(error) && <Notice tone="error">{problemMessage(error)}</Notice>}
+      <ProblemNotice error={error} />
     </li>
   )
 }

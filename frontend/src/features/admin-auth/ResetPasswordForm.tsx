@@ -2,10 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { z } from 'zod'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
 import { useResetPassword } from './adminAuthApi.ts'
 import { goToLoginWithNotice } from './adminRoutes.ts'
@@ -24,29 +23,20 @@ type ResetPasswordFormProps = { token: string }
 
 export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const navigate = useNavigate()
-  const reset = useResetPassword()
+  const reset = useResetPassword(() =>
+    goToLoginWithNotice(navigate, 'Senha redefinida. Entre com a nova senha.'),
+  )
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
   })
 
   const submit = handleSubmit(({ newPassword }) =>
-    reset.mutate(
-      { body: { token, newPassword } },
-      {
-        onSuccess: () =>
-          goToLoginWithNotice(
-            navigate,
-            'Senha redefinida. Entre com a nova senha.',
-          ),
-      },
-    ),
+    reset.submit({ token, newPassword }),
   )
 
   return (
     <FormCard onSubmit={submit}>
-      {reset.error && (
-        <Notice tone="error">{problemMessage(reset.error)}</Notice>
-      )}
+      <ProblemNotice error={reset.error} />
       <TextField
         label="Nova senha"
         type="password"
