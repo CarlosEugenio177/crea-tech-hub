@@ -4,24 +4,43 @@ import { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
-import { today } from './reservationDates.ts'
+import { maskDate, maskTime, withMask } from './inputMasks.ts'
+import {
+  BRAZILIAN_DATE,
+  isCalendarDate,
+  TIME_24H,
+  toBrazilianDate,
+  toIsoDate,
+  today,
+} from './reservationDates.ts'
 import type { ReservationPeriod } from './reservationDraft.ts'
 import { RESERVE } from './reservationRoutes.ts'
 import { StepActions } from './StepActions.tsx'
 
+function time(required: string) {
+  return z
+    .string()
+    .min(1, required)
+    .regex(TIME_24H, 'Informe o horário no formato hh:mm, de 00:00 a 23:59.')
+}
+
 const schema = z
   .object({
-    date: z.string().min(1, 'Informe a data.'),
-    start: z.string().min(1, 'Informe o início.'),
-    end: z.string().min(1, 'Informe o fim.'),
-  })
-  .refine((period) => period.date === '' || period.date >= today(), {
-    path: ['date'],
-    message: 'Escolha uma data a partir de hoje.',
+    date: z
+      .string()
+      .min(1, 'Informe a data.')
+      .regex(BRAZILIAN_DATE, 'Informe a data no formato dd/mm/aaaa.')
+      .transform(toIsoDate)
+      .refine(isCalendarDate, 'Informe uma data válida.')
+      .refine((date) => date >= today(), 'Escolha uma data a partir de hoje.'),
+    start: time('Informe o início.'),
+    end: time('Informe o fim.'),
   })
   .refine(
     (period) =>
-      period.start === '' || period.end === '' || period.end > period.start,
+      !TIME_24H.test(period.start) ||
+      !TIME_24H.test(period.end) ||
+      period.end > period.start,
     { path: ['end'], message: 'O fim deve ser depois do início.' },
   )
 
@@ -33,30 +52,40 @@ type PeriodFormProps = {
 export function PeriodForm({ period, onSubmit }: PeriodFormProps) {
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: period,
+    defaultValues: period && { ...period, date: toBrazilianDate(period.date) },
   })
 
   return (
     <FormCard onSubmit={handleSubmit(onSubmit)}>
       <TextField
         label="Data"
-        type="date"
-        min={today()}
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="dd/mm/aaaa"
+        maxLength={10}
+        hint="Dia, mês e ano, por exemplo 10/03/2027."
         error={formState.errors.date?.message}
-        {...register('date')}
+        {...withMask(register('date'), maskDate)}
       />
       <TextField
         label="Início"
-        type="time"
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="hh:mm"
+        maxLength={5}
+        hint="Horário de 24 horas, por exemplo 14:30."
         error={formState.errors.start?.message}
-        {...register('start')}
+        {...withMask(register('start'), maskTime)}
       />
       <TextField
         label="Fim"
-        type="time"
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="hh:mm"
+        maxLength={5}
         hint="Funcionamento padrão: segunda a sexta, das 8h às 18h. A equipe confere a disponibilidade."
         error={formState.errors.end?.message}
-        {...register('end')}
+        {...withMask(register('end'), maskTime)}
       />
       <StepActions backTo={RESERVE} backLabel="Voltar aos espaços">
         <Button type="submit">Continuar</Button>

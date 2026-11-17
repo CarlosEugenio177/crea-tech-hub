@@ -10,7 +10,7 @@ import { StepPage } from './StepPage.tsx'
 export function ReviewPage() {
   const { draft } = useReservationDraft()
 
-  if (!draft.spaceId || !draft.spaceName || !draft.period || !draft.requester) {
+  if (!draft.space || !draft.period || !draft.requester) {
     return <Navigate to={RESERVE} replace />
   }
 
@@ -21,7 +21,7 @@ export function ReviewPage() {
       description="Confira os dados antes de enviar para a análise da equipe."
     >
       <ReservationSummary
-        spaceName={draft.spaceName}
+        spaceName={draft.space.name}
         period={draft.period}
         requester={draft.requester}
       />

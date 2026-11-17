@@ -1,4 +1,5 @@
 import workstation from '../../shared/assets/mulher-mesa.svg'
+import { capacityLabel } from '../../shared/format/capacityLabel.ts'
 import sharedTable from './assets/aperto-de-maos.svg'
 import podcast from './assets/podcast.svg'
 import type { PublicSpace } from './publicSpacesApi.ts'
@@ -35,13 +36,12 @@ const presentationByType = {
 
 export function toSpaceOption(space: PublicSpace): SpaceOption {
   const presentation = presentationByType[space.type]
-  const capacity = `${space.capacity} ${space.capacity === 1 ? 'pessoa' : 'pessoas'}`
 
   return {
     id: space.id,
     name: space.name,
     description: space.description ?? 'Espaço disponível para solicitação.',
-    tag: `${presentation.tag} · ${capacity}`,
+    tag: `${presentation.tag} · ${capacityLabel(space.capacity)}`,
     illustration: presentation.illustration,
     illustrationAlt: presentation.illustrationAlt,
   }
