@@ -6,6 +6,7 @@ import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccount;
 import br.com.mutua.createchhub.user.UserAccountRepository;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
@@ -103,6 +104,10 @@ public class AdminTeamService {
   }
 
   private String permissionNames(Set<AdminPermission> permissions) {
-    return permissions.stream().map(Enum::name).sorted().toList().toString();
+    return permissions.stream()
+        .map(permission -> Objects.requireNonNull(permission).name())
+        .sorted()
+        .toList()
+        .toString();
   }
 }

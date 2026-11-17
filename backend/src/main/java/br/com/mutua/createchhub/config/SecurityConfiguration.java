@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -82,7 +81,7 @@ public class SecurityConfiguration {
                         (request, response, exception) ->
                             problems.write(
                                 request, response, HttpStatus.FORBIDDEN, "Acesso não permitido.")))
-        .requestCache(AbstractHttpConfigurer::disable)
+        .requestCache(configurer -> configurer.disable())
         .formLogin(
             form ->
                 form.loginPage("/api/v1/admin/auth/login")
@@ -96,7 +95,7 @@ public class SecurityConfiguration {
                                 response,
                                 HttpStatus.UNAUTHORIZED,
                                 "E-mail ou senha inválidos.")))
-        .httpBasic(AbstractHttpConfigurer::disable)
+        .httpBasic(configurer -> configurer.disable())
         .logout(
             logout ->
                 logout

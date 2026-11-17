@@ -312,7 +312,7 @@ class SpaceApiTests {
       assertThat(body.path("totalElements").asLong()).isEqualTo(1);
       assertThat(body.path("items").path(0).path("id").asString())
           .isEqualTo(active.getId().toString());
-      assertThat(body.path("items").path(0).path("description").asText()).isEqualTo("Projetor");
+      assertThat(body.path("items").path(0).path("description").asString()).isEqualTo("Projetor");
       assertThat(body.path("items").path(0).has("active")).isFalse();
       assertThat(spaces.count()).isEqualTo(2);
     }
