@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { problemStatus } from '../../shared/api/problem.ts'
-import { api } from '../../shared/api/client.ts'
+import { adminSessionEvents, api } from '../../shared/api/client.ts'
 import type { components } from '../../shared/api/schema'
 
 type LoginRequest = components['schemas']['LoginRequest']
@@ -18,27 +18,40 @@ function useSessionCache() {
 
   return {
     refresh: () => queryClient.invalidateQueries({ queryKey }),
-    clear: () => void queryClient.resetQueries({ queryKey }),
+    clear: () => {
+      queryClient.removeQueries({
+        predicate: (query) => query.queryKey[1] !== SESSION_PATH,
+      })
+      return queryClient.resetQueries({ queryKey })
+    },
     // Remove sem buscar de novo: quem chamou navega para o login em seguida.
-    forget: () => queryClient.removeQueries({ queryKey }),
+    forget: () => queryClient.clear(),
   }
 }
 
 export function useAdminSession() {
   const queryClient = useQueryClient()
+  const [expired, setExpired] = useState(false)
   const session = api.useQuery('get', SESSION_PATH, {}, { retry: false })
-  const unauthorized = problemStatus(session.error) === 401
+  const unauthorized = expired || problemStatus(session.error) === 401
   const revoked = unauthorized && session.data !== undefined
 
-  // Uma nova busca com 401 mantém o último `data` no cache; a sessão revogada
-  // não pode continuar exibindo o painel nem os dados privados já carregados.
   useEffect(() => {
-    if (revoked) queryClient.removeQueries()
+    if (revoked) queryClient.clear()
   }, [revoked, queryClient])
+
+  useEffect(() => {
+    const expire = () => {
+      setExpired(true)
+      queryClient.clear()
+    }
+    adminSessionEvents.addEventListener('expired', expire)
+    return () => adminSessionEvents.removeEventListener('expired', expire)
+  }, [queryClient])
 
   return {
     data: unauthorized ? undefined : session.data,
-    error: session.error,
+    error: expired ? { status: 401 } : session.error,
     isPending: session.isPending,
   }
 }

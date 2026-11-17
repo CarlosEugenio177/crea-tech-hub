@@ -63,6 +63,111 @@ test('leaves the admin area when the session is revoked', async () => {
   ).not.toBeInTheDocument()
 })
 
+test('leaves the panel when a private query returns 401 without a focus change', async () => {
+  const api = fakeApi({ [SESSION]: () => account() })
+  api.routes['GET /api/v1/admin/team'] = () => {
+    api.routes[SESSION] = unauthenticated
+    return unauthenticated()
+  }
+  api.routes['GET /api/v1/admin/team/permissions'] = () => json([])
+  renderApp('/admin/equipe')
+
+  expect(
+    await screen.findByRole('heading', { name: 'Acesso da equipe' }),
+  ).toBeInTheDocument()
+  expect(
+    screen.queryByRole('navigation', { name: 'Administração' }),
+  ).not.toBeInTheDocument()
+})
+
+test('leaves the panel when a private write returns 401', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi({ [SESSION]: () => account(true) })
+  api.routes[PASSWORD] = () => {
+    api.routes[SESSION] = unauthenticated
+    return unauthenticated()
+  }
+  renderApp('/admin')
+  await user.type(await screen.findByLabelText('Senha atual'), 'senha-inicial')
+  await user.type(screen.getByLabelText('Nova senha'), 'nova-senha-pessoal')
+  await user.type(
+    screen.getByLabelText('Confirmar nova senha'),
+    'nova-senha-pessoal',
+  )
+  await user.click(screen.getByRole('button', { name: 'Alterar senha' }))
+  expect(
+    await screen.findByRole('heading', { name: 'Acesso da equipe' }),
+  ).toBeInTheDocument()
+})
+
+test('does not show the previous account private cache after logout and another login', async () => {
+  const user = userEvent.setup()
+  const team = 'GET /api/v1/admin/team'
+  const api = fakeApi({
+    [SESSION]: () => account(),
+    [team]: () =>
+      json({
+        items: [
+          {
+            id: '1cf5f375-ef2a-4203-b236-a033c95bb92c',
+            fullName: 'Registro privado anterior',
+            email: 'privado@example.com',
+            role: 'ADMIN',
+            active: true,
+            permissions: [],
+            passwordChangeRequired: false,
+            createdAt: '2026-11-15T12:00:00Z',
+          },
+        ],
+        page: 0,
+        size: 20,
+        totalElements: 1,
+        totalPages: 1,
+      }),
+    'GET /api/v1/admin/team/permissions': () => json([]),
+  })
+  api.routes['POST /api/v1/admin/auth/logout'] = () => {
+    api.routes[SESSION] = unauthenticated
+    return noContent()
+  }
+  renderApp('/admin/equipe')
+  expect(
+    await screen.findByText('Registro privado anterior'),
+  ).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Sair' }))
+  expect(
+    await screen.findByRole('heading', { name: 'Acesso da equipe' }),
+  ).toBeInTheDocument()
+
+  api.routes[LOGIN] = () => {
+    api.routes[SESSION] = () =>
+      json({
+        id: 'a6d245c4-5952-4544-864a-c9ad140d11b9',
+        fullName: 'Outro gestor',
+        email: 'outro@example.com',
+        role: 'ADMIN',
+        permissions: ['MANAGE_ACCESS'],
+        passwordChangeRequired: false,
+      })
+    return noContent()
+  }
+  api.routes[team] = () =>
+    problem(503, 'Consulta temporariamente indisponível.')
+  await user.type(screen.getByLabelText('E-mail'), 'outro@example.com')
+  await user.type(screen.getByLabelText('Senha'), 'outra-senha-segura')
+  await user.click(screen.getByRole('button', { name: 'Entrar' }))
+  expect(
+    await screen.findByRole('heading', { name: 'Visão geral' }),
+  ).toBeInTheDocument()
+  await user.click(screen.getByRole('link', { name: 'Equipe' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Consulta temporariamente indisponível.',
+  )
+  expect(
+    screen.queryByText('Registro privado anterior'),
+  ).not.toBeInTheDocument()
+})
+
 test('logs in with form-encoded credentials and the CSRF token', async () => {
   const user = userEvent.setup()
   const api = fakeApi({ [SESSION]: unauthenticated })

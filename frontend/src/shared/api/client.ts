@@ -4,6 +4,8 @@ import type { paths } from './schema'
 
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
+export const adminSessionEvents = new EventTarget()
+
 export const apiClient = createFetchClient<paths>({
   baseUrl: window.location.origin,
   credentials: 'same-origin',
@@ -21,6 +23,21 @@ const csrf: Middleware = {
   },
 }
 
-apiClient.use(csrf)
+const sessionGuard: Middleware = {
+  onResponse({ request, response }) {
+    const path = new URL(request.url).pathname
+    if (
+      response.status === 401 &&
+      path.startsWith('/api/v1/admin/') &&
+      path !== '/api/v1/admin/auth/login' &&
+      path !== '/api/v1/admin/auth/me'
+    ) {
+      adminSessionEvents.dispatchEvent(new Event('expired'))
+    }
+    return response
+  },
+}
+
+apiClient.use(csrf, sessionGuard)
 
 export const api = createQueryHooks(apiClient)
