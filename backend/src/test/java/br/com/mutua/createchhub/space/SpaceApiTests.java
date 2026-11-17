@@ -288,7 +288,12 @@ class SpaceApiTests {
   }
 
   @Test
-  void requiresAuthenticationAndKeepsThePublicCatalogClosed() throws Exception {
+  void listsOnlyActiveSpacesInThePublicCatalogWithoutAuthentication() throws Exception {
+    var active = spaces.saveAndFlush(new Space("Sala aberta", SpaceType.ROOM, 8, "Projetor"));
+    var inactive = new Space("Sala fechada", SpaceType.ROOM, 4, null);
+    inactive.changeStatus(false);
+    spaces.saveAndFlush(inactive);
+
     try (var client = new SessionClient(port)) {
       assertThat(client.get(PATH).statusCode()).isEqualTo(401);
       assertThat(client.get(PATH + "/" + UUID.randomUUID()).statusCode()).isEqualTo(401);
@@ -301,8 +306,42 @@ class SpaceApiTests {
                       client.csrf())
                   .statusCode())
           .isEqualTo(401);
-      assertThat(client.get("/api/v1/spaces").statusCode()).isEqualTo(401);
-      assertThat(spaces.count()).isZero();
+      var catalog = client.get("/api/v1/spaces?page=0&size=20");
+      assertThat(catalog.statusCode()).isEqualTo(200);
+      var body = json.readTree(catalog.body());
+      assertThat(body.path("totalElements").asLong()).isEqualTo(1);
+      assertThat(body.path("items").path(0).path("id").asString())
+          .isEqualTo(active.getId().toString());
+      assertThat(body.path("items").path(0).path("description").asText()).isEqualTo("Projetor");
+      assertThat(body.path("items").path(0).has("active")).isFalse();
+      assertThat(spaces.count()).isEqualTo(2);
+    }
+  }
+
+  @Test
+  void paginatesThePublicCatalogInStableNameOrder() throws Exception {
+    spaces.saveAndFlush(new Space("Sala B", SpaceType.ROOM, 4, null));
+    spaces.saveAndFlush(new Space("Sala A", SpaceType.ROOM, 8, null));
+    var inactive = new Space("Sala C", SpaceType.ROOM, 6, null);
+    inactive.changeStatus(false);
+    spaces.saveAndFlush(inactive);
+
+    try (var client = new SessionClient(port)) {
+      var first = json.readTree(client.get("/api/v1/spaces?page=0&size=1").body());
+      var second = json.readTree(client.get("/api/v1/spaces?page=1&size=1").body());
+
+      assertThat(first.path("items").path(0).path("name").asString()).isEqualTo("Sala A");
+      assertThat(second.path("items").path(0).path("name").asString()).isEqualTo("Sala B");
+      assertThat(first.path("totalElements").asLong()).isEqualTo(2);
+      assertThat(first.path("totalPages").asInt()).isEqualTo(2);
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"page=-1", "size=0", "size=101", "page=abc"})
+  void rejectsInvalidPublicCatalogPagination(String query) throws Exception {
+    try (var client = new SessionClient(port)) {
+      assertThat(client.get("/api/v1/spaces?" + query).statusCode()).isEqualTo(400);
     }
   }
 
