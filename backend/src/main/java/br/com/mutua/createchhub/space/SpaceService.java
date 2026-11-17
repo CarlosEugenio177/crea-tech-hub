@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.space;
 
+import br.com.mutua.createchhub.shared.error.ResourceConflictException;
 import br.com.mutua.createchhub.shared.error.ResourceNotFoundException;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -26,7 +27,7 @@ public class SpaceService {
 
   public Page<PublicSpaceResponse> listPublic(int page, int size) {
     var pageable = PageRequest.of(page, size, Sort.by("name", "id"));
-    return spaces.findByActive(true, pageable).map(PublicSpaceResponse::from);
+    return spaces.findPublic(pageable).map(PublicSpaceResponse::from);
   }
 
   public SpaceResponse find(UUID id) {
@@ -42,14 +43,18 @@ public class SpaceService {
 
   @Transactional
   public SpaceResponse update(UUID id, SpaceRequest request) {
-    var space = findSpace(id);
+    var space = findForUpdate(id);
+    if (space.getType() != request.type() && spaces.existsByRoomId(id)) {
+      throw new ResourceConflictException(
+          "Uma sala com estações vinculadas não pode mudar de tipo.");
+    }
     space.update(request.name(), request.type(), request.capacity(), request.description());
     return SpaceResponse.from(space);
   }
 
   @Transactional
   public SpaceResponse changeStatus(UUID id, boolean active) {
-    var space = findSpace(id);
+    var space = findForUpdate(id);
     space.changeStatus(active);
     return SpaceResponse.from(space);
   }
@@ -57,6 +62,12 @@ public class SpaceService {
   private Space findSpace(UUID id) {
     return spaces
         .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Espaço não encontrado."));
+  }
+
+  private Space findForUpdate(UUID id) {
+    return spaces
+        .findForUpdate(id)
         .orElseThrow(() -> new ResourceNotFoundException("Espaço não encontrado."));
   }
 }

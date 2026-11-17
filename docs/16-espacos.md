@@ -9,8 +9,8 @@ também exigem o token CSRF, conforme [Acesso administrativo](15-autenticacao.md
 Cada registro representa uma sala, mesa compartilhada ou estação individual,
 identificado por UUID. Salas diferentes podem ter o mesmo nome: a identificação é
 feita pelo UUID. Cada estação pode ser cadastrada separadamente, por exemplo
-`Estação 01`; vínculo à sala, numeração estruturada e posição no mapa ainda serão
-entregues em outra parte do CTH-15.
+`Estação 01`. Vínculo à sala, numeração e posição no mapa usam as APIs descritas em
+[Estações e mapa](20-estacoes-e-mapa.md).
 
 | Campo | Regra |
 |---|---|
@@ -20,6 +20,7 @@ entregues em outra parte do CTH-15.
 | `description` | Opcional, até 2000 caracteres; espaços nas extremidades são removidos |
 | `active` | Começa como `true`; alterado por endpoint próprio |
 | `id`, `createdAt` | Gerados pelo backend; a data é retornada como instante em UTC |
+| `stationPlacement` | Posição estruturada da estação; ausente quando não configurada; alterada por API própria |
 
 `active` indica se o cadastro está habilitado para uso nas próximas etapas de catálogo
 e reservas. Não representa disponibilidade de horário. Desativar preserva o registro,
@@ -37,7 +38,8 @@ seu UUID e seus dados; não há exclusão física pela API.
 | GET | `/api/v1/spaces` | Catálogo público, sem autenticação: somente espaços ativos, ordenados por nome |
 
 O catálogo público aceita apenas leitura e expõe `id`, `name`, `type`, `capacity` e
-`description`; não inclui a situação nem dados internos. Aceita `page` e `size` com
+`description`; não inclui a situação nem dados internos. Estações vinculadas a uma
+sala inativa também ficam ocultas. Aceita `page` e `size` com
 os mesmos limites da lista administrativa, sem o filtro `active`. O fluxo público de
 solicitação usa esse endpoint na escolha do espaço. Casos de teste manuais estão em
 [`postman/public-space-catalog.postman_collection.json`](postman/public-space-catalog.postman_collection.json).
@@ -54,7 +56,8 @@ Corpo de criação/edição:
 ```
 
 Na edição, omitir `description` ou enviar `null` limpa a descrição. Os demais campos
-desse corpo são obrigatórios. Para desativar:
+desse corpo são obrigatórios. A edição preserva `stationPlacement`. Salas com estações
+vinculadas e estações posicionadas não podem mudar de tipo (409). Para desativar:
 
 ```json
 {"active": false}
@@ -89,6 +92,10 @@ ordenação. V1 e V2 permanecem preservadas. Esta entrega não cadastra espaços
 automaticamente; nomes e capacidades serão informados pela administração.
 
 O CTH-15 permanece parcialmente implementado. As próximas partes incluem foto,
-recursos/equipamentos descritos na sala, regras e avisos, organização das estações no
-mapa, funcionamento do Hub e controle de visibilidade pública. Catálogo público,
-disponibilidade por data e reservas pertencem às etapas seguintes.
+recursos/equipamentos descritos na sala, regras e avisos, a interface do mapa e controle
+de visibilidade pública. O catálogo público já está integrado; disponibilidade por
+data e reservas pertencem às etapas seguintes.
+
+O funcionamento do Hub já tem APIs próprias, descritas em
+[Funcionamento do Hub](19-funcionamento-do-hub.md); sua tela de edição ainda será entregue.
+As APIs de organização e consulta pública das estações estão em [Estações e mapa](20-estacoes-e-mapa.md).

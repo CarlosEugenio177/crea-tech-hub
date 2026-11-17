@@ -38,6 +38,8 @@
 - Gestão de equipe é restrita a `MANAGE_ACCESS`. Preservar a proteção do último gestor, a proibição de alterar o próprio acesso e o bloqueio transacional das mudanças. Mudanças de senha/permissões/situação devem invalidar sessões anteriores e ser auditadas sem segredos.
 - Toda solicitação passa por análise manual. `PENDING` e `CONFIRMED` bloqueiam o recurso no intervalo solicitado; pendências não expiram automaticamente.
 - O solicitante informa início e fim com precisão de minutos. Não impor slots fixos. Intervalos são `[início, fim)`: uma reserva pode começar quando a anterior termina.
+- O funcionamento do Hub é configurável por API, com padrão segunda a sexta, 08:00–18:00. Somente `MANAGE_SPACES` permite editar; a leitura pública fica em `/api/v1/hub/operating-hours`. Consultar `docs/19-funcionamento-do-hub.md` antes de implementar disponibilidade e reservas.
+- Estações continuam sendo espaços `WORKSTATION` vinculados a uma sala `ROOM`, com número único na sala e coordenadas percentuais. Consultar `docs/20-estacoes-e-mapa.md`; a consulta do mapa público não representa disponibilidade de horário. Não duplicar estações em outra entidade nem inventar o layout físico.
 - Ao implementar reservas, garantir ausência de sobreposição também sob concorrência, com proteção transacional no PostgreSQL; uma consulta prévia isolada não basta.
 - O envio gera comprovante de solicitação pendente. Confirmar somente após decisão administrativa; nunca substituir automaticamente uma reserva por prioridade interna.
 - Acompanhamento e cancelamento públicos usarão link individual imprevisível. O protocolo sozinho não autoriza acesso. Não expor listagem pública de reservas ou dados pessoais.

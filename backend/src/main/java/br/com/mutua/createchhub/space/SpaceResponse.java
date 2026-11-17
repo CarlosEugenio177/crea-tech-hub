@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.space;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;
@@ -14,7 +15,8 @@ public record SpaceResponse(
     int capacity,
     @Schema(types = {"string", "null"}) String description,
     boolean active,
-    Instant createdAt) {
+    Instant createdAt,
+    @JsonInclude(JsonInclude.Include.NON_NULL) StationPlacementResponse stationPlacement) {
 
   static SpaceResponse from(Space space) {
     return new SpaceResponse(
@@ -24,6 +26,7 @@ public record SpaceResponse(
         space.getCapacity(),
         space.getDescription(),
         space.isActive(),
-        space.getCreatedAt());
+        space.getCreatedAt(),
+        StationPlacementResponse.from(space));
   }
 }

@@ -37,6 +37,12 @@ do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 
+V6 acrescenta vínculo à sala, número e coordenadas às estações em `spaces`, sem alterar
+seus UUIDs ou atribuir posições aos cadastros antigos. Consulte [Estações e mapa](20-estacoes-e-mapa.md).
+
+V5 cria a configuração única de funcionamento do Hub e seus dias da semana, com
+padrão segunda a sexta, 08:00–18:00. Consulte [Funcionamento do Hub](19-funcionamento-do-hub.md).
+
 `V3__create_spaces.sql` cria `spaces` para salas, mesas compartilhadas e estações
 individuais, com capacidade, descrição opcional, situação ativa e data de criação.
 O banco restringe os tipos, exige capacidade positiva e limita estações individuais

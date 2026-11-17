@@ -123,6 +123,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/hub/operating-hours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar funcionamento do Hub */
+        get: operations["getAdminOperatingHours"];
+        /** Atualizar dias e horários de funcionamento do Hub */
+        put: operations["updateOperatingHours"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces": {
         parameters: {
             query?: never;
@@ -159,6 +177,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/spaces/{id}/station-placement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Vincular e posicionar estação no mapa de uma sala */
+        put: operations["placeStation"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces/{id}/status": {
         parameters: {
             query?: never;
@@ -174,6 +209,23 @@ export interface paths {
         head?: never;
         /** Ativar ou desativar espaço */
         patch: operations["changeSpaceStatus"];
+        trace?: never;
+    };
+    "/api/v1/admin/spaces/{roomId}/stations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar estações de uma sala */
+        get: operations["listAdminRoomStations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/team": {
@@ -279,6 +331,23 @@ export interface paths {
         patch: operations["changeTeamMemberStatus"];
         trace?: never;
     };
+    "/api/v1/hub/operating-hours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar funcionamento público do Hub */
+        get: operations["getOperatingHours"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces": {
         parameters: {
             query?: never;
@@ -288,6 +357,23 @@ export interface paths {
         };
         /** Listar espaços disponíveis */
         get: operations["listPublicSpaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/spaces/{roomId}/stations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar estações públicas de uma sala */
+        get: operations["listRoomStations"];
         put?: never;
         post?: never;
         delete?: never;
@@ -390,6 +476,18 @@ export interface components {
             /** Format: password */
             password: string;
         };
+        OperatingHours: {
+            closingTime: string;
+            daysOfWeek: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+            openingTime: string;
+        };
+        OperatingHoursRequest: {
+            /** @example 18:00 */
+            closingTime: string;
+            daysOfWeek: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+            /** @example 08:00 */
+            openingTime: string;
+        };
         PasswordChangeRequest: {
             currentPassword: string;
             newPassword: string;
@@ -441,6 +539,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            stationPlacement?: components["schemas"]["StationPlacement"];
             type: components["schemas"]["SpaceType"];
         };
         SpacePage: {
@@ -469,6 +568,30 @@ export interface components {
         };
         /** @enum {string} */
         SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
+        StationPlacement: {
+            /** Format: int32 */
+            number: number;
+            /** Format: uuid */
+            roomId: string;
+            x: number;
+            y: number;
+        };
+        StationPlacementRequest: {
+            /** Format: int32 */
+            number: number;
+            /** Format: uuid */
+            roomId: string;
+            /**
+             * @description Posição horizontal em porcentagem, a partir da esquerda.
+             * @example 25.5
+             */
+            x: number;
+            /**
+             * @description Posição vertical em porcentagem, a partir do topo.
+             * @example 40
+             */
+            y: number;
+        };
     };
     responses: {
         /** @description Erro no formato ProblemDetail. */
@@ -641,6 +764,52 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    getAdminOperatingHours: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    updateOperatingHours: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperatingHoursRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     listSpaces: {
         parameters: {
             query?: {
@@ -741,6 +910,33 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    placeStation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StationPlacementRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     changeSpaceStatus: {
         parameters: {
             query?: never;
@@ -763,6 +959,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listAdminRoomStations: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpacePage"];
                 };
             };
             default: components["responses"]["Problem"];
@@ -939,6 +1161,27 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    getOperatingHours: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     listPublicSpaces: {
         parameters: {
             query?: {
@@ -958,6 +1201,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicSpacePage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listRoomStations: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpacePage"];
                 };
             };
             default: components["responses"]["Problem"];

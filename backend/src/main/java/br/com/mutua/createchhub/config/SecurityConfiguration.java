@@ -48,7 +48,12 @@ public class SecurityConfiguration {
                     .permitAll();
               }
               authorize
-                  .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/admin/auth/csrf")
+                  .requestMatchers(
+                      HttpMethod.GET,
+                      "/actuator/health",
+                      "/api/v1/admin/auth/csrf",
+                      "/api/v1/hub/operating-hours",
+                      "/api/v1/spaces/*/stations")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/spaces")
                   .permitAll()

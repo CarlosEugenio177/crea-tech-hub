@@ -190,6 +190,65 @@
         "tags" : [ "password-recovery-controller" ]
       }
     },
+    "/api/v1/admin/hub/operating-hours" : {
+      "get" : {
+        "operationId" : "getAdminOperatingHours",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OperatingHours"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar funcionamento do Hub",
+        "tags" : [ "operating-hours-controller" ]
+      },
+      "put" : {
+        "operationId" : "updateOperatingHours",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OperatingHoursRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OperatingHours"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Atualizar dias e horários de funcionamento do Hub",
+        "tags" : [ "operating-hours-controller" ]
+      }
+    },
     "/api/v1/admin/spaces" : {
       "get" : {
         "operationId" : "listSpaces",
@@ -355,6 +414,51 @@
         "tags" : [ "space-controller" ]
       }
     },
+    "/api/v1/admin/spaces/{id}/station-placement" : {
+      "put" : {
+        "operationId" : "placeStation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StationPlacementRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Vincular e posicionar estação no mapa de uma sala",
+        "tags" : [ "station-layout-controller" ]
+      }
+    },
     "/api/v1/admin/spaces/{id}/status" : {
       "patch" : {
         "operationId" : "changeSpaceStatus",
@@ -398,6 +502,61 @@
         } ],
         "summary" : "Ativar ou desativar espaço",
         "tags" : [ "space-controller" ]
+      }
+    },
+    "/api/v1/admin/spaces/{roomId}/stations" : {
+      "get" : {
+        "operationId" : "listAdminRoomStations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SpacePage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Listar estações de uma sala",
+        "tags" : [ "station-layout-controller" ]
       }
     },
     "/api/v1/admin/team" : {
@@ -680,6 +839,29 @@
         "tags" : [ "admin-team-controller" ]
       }
     },
+    "/api/v1/hub/operating-hours" : {
+      "get" : {
+        "operationId" : "getOperatingHours",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OperatingHours"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Consultar funcionamento público do Hub",
+        "tags" : [ "public-operating-hours-controller" ]
+      }
+    },
     "/api/v1/spaces" : {
       "get" : {
         "operationId" : "listPublicSpaces",
@@ -723,6 +905,59 @@
         "security" : [ ],
         "summary" : "Listar espaços disponíveis",
         "tags" : [ "public-space-controller" ]
+      }
+    },
+    "/api/v1/spaces/{roomId}/stations" : {
+      "get" : {
+        "operationId" : "listRoomStations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SpacePage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Consultar estações públicas de uma sala",
+        "tags" : [ "public-station-layout-controller" ]
       }
     }
   },
@@ -1000,6 +1235,52 @@
         },
         "required" : [ "email", "password" ]
       },
+      "OperatingHours" : {
+        "type" : "object",
+        "properties" : {
+          "closingTime" : {
+            "type" : "string"
+          },
+          "daysOfWeek" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
+            }
+          },
+          "openingTime" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "closingTime", "daysOfWeek", "openingTime" ]
+      },
+      "OperatingHoursRequest" : {
+        "type" : "object",
+        "properties" : {
+          "closingTime" : {
+            "type" : "string",
+            "example" : "18:00",
+            "minLength" : 1,
+            "pattern" : "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "daysOfWeek" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
+            },
+            "minItems" : 1,
+            "uniqueItems" : true
+          },
+          "openingTime" : {
+            "type" : "string",
+            "example" : "08:00",
+            "minLength" : 1,
+            "pattern" : "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          }
+        },
+        "required" : [ "closingTime", "daysOfWeek", "openingTime" ]
+      },
       "PasswordChangeRequest" : {
         "type" : "object",
         "properties" : {
@@ -1147,6 +1428,9 @@
           "name" : {
             "type" : "string"
           },
+          "stationPlacement" : {
+            "$ref" : "#/components/schemas/StationPlacement"
+          },
           "type" : {
             "$ref" : "#/components/schemas/SpaceType"
           }
@@ -1218,6 +1502,57 @@
       "SpaceType" : {
         "type" : "string",
         "enum" : [ "ROOM", "SHARED_TABLE", "WORKSTATION" ]
+      },
+      "StationPlacement" : {
+        "type" : "object",
+        "properties" : {
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "roomId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "x" : {
+            "type" : "number"
+          },
+          "y" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "number", "roomId", "x", "y" ]
+      },
+      "StationPlacementRequest" : {
+        "type" : "object",
+        "properties" : {
+          "number" : {
+            "type" : "integer",
+            "format" : "int32",
+            "exclusiveMinimum" : 0
+          },
+          "roomId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "x" : {
+            "type" : "number",
+            "description" : "Posição horizontal em porcentagem, a partir da esquerda.",
+            "example" : 25.5,
+            "maximum" : 100,
+            "minimum" : 0,
+            "multipleOf" : 0.01
+          },
+          "y" : {
+            "type" : "number",
+            "description" : "Posição vertical em porcentagem, a partir do topo.",
+            "example" : 40.0,
+            "maximum" : 100,
+            "minimum" : 0,
+            "multipleOf" : 0.01
+          }
+        },
+        "required" : [ "number", "roomId", "x", "y" ]
       }
     },
     "securitySchemes" : {

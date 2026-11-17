@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("4");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("6");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(4);
+    assertThat(flyway.info().applied()).hasSize(6);
   }
 
   @Test
@@ -74,6 +74,62 @@ class DatabaseMigrationTests {
                 String.class,
                 "admin@example.com"))
         .isEqualTo("legacy-test-hash");
+  }
+
+  @Test
+  void initializesHubHoursWhenUpgradingWithoutChangingExistingAccounts() {
+    migrations("hours_upgrade", "4").migrate();
+    insertLegacyAccount("hours_upgrade", "admin@example.com", "ADMIN");
+
+    migrations("hours_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT opening_time::text FROM hours_upgrade.hub_operating_hours WHERE id = 1",
+                String.class))
+        .isEqualTo("08:00:00");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT closing_time::text FROM hours_upgrade.hub_operating_hours WHERE id = 1",
+                String.class))
+        .isEqualTo("18:00:00");
+    assertThat(
+            jdbc.queryForList(
+                "SELECT day_of_week FROM hours_upgrade.hub_operating_days", String.class))
+        .containsExactlyInAnyOrder("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT password_hash FROM hours_upgrade.user_accounts WHERE email = ?",
+                String.class,
+                "admin@example.com"))
+        .isEqualTo("legacy-test-hash");
+  }
+
+  @Test
+  void preservesExistingSpacesWithoutInventingStationPositions() {
+    migrations("layout_upgrade", "5").migrate();
+    var id = UUID.randomUUID();
+    jdbc.update(
+        "INSERT INTO layout_upgrade.spaces (id, name, type, capacity, active) VALUES (?, 'Legada', 'WORKSTATION', 1, false)",
+        id);
+
+    migrations("layout_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForMap(
+                "SELECT name, type, capacity, active FROM layout_upgrade.spaces WHERE id = ?", id))
+        .containsEntry("name", "Legada")
+        .containsEntry("type", "WORKSTATION")
+        .containsEntry("capacity", 1)
+        .containsEntry("active", false);
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT room_id FROM layout_upgrade.spaces WHERE id = ?", UUID.class, id))
+        .isNull();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT station_number FROM layout_upgrade.spaces WHERE id = ?", Integer.class, id))
+        .isNull();
   }
 
   @Test
