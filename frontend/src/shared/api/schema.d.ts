@@ -177,6 +177,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/spaces/{id}/station-placement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Vincular e posicionar estação no mapa de uma sala */
+        put: operations["placeStation"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces/{id}/status": {
         parameters: {
             query?: never;
@@ -192,6 +209,23 @@ export interface paths {
         head?: never;
         /** Ativar ou desativar espaço */
         patch: operations["changeSpaceStatus"];
+        trace?: never;
+    };
+    "/api/v1/admin/spaces/{roomId}/stations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar estações de uma sala */
+        get: operations["listAdminRoomStations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/team": {
@@ -306,6 +340,23 @@ export interface paths {
         };
         /** Consultar funcionamento público do Hub */
         get: operations["getOperatingHours"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/spaces/{roomId}/stations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar estações públicas de uma sala */
+        get: operations["listRoomStations"];
         put?: never;
         post?: never;
         delete?: never;
@@ -451,6 +502,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            stationPlacement?: components["schemas"]["StationPlacement"];
             type: components["schemas"]["SpaceType"];
         };
         SpacePage: {
@@ -479,6 +531,30 @@ export interface components {
         };
         /** @enum {string} */
         SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
+        StationPlacement: {
+            /** Format: int32 */
+            number: number;
+            /** Format: uuid */
+            roomId: string;
+            x: number;
+            y: number;
+        };
+        StationPlacementRequest: {
+            /** Format: int32 */
+            number: number;
+            /** Format: uuid */
+            roomId: string;
+            /**
+             * @description Posição horizontal em porcentagem, a partir da esquerda.
+             * @example 25.5
+             */
+            x: number;
+            /**
+             * @description Posição vertical em porcentagem, a partir do topo.
+             * @example 40
+             */
+            y: number;
+        };
     };
     responses: {
         /** @description Erro no formato ProblemDetail. */
@@ -797,6 +873,33 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    placeStation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StationPlacementRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     changeSpaceStatus: {
         parameters: {
             query?: never;
@@ -819,6 +922,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listAdminRoomStations: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpacePage"];
                 };
             };
             default: components["responses"]["Problem"];
@@ -1011,6 +1140,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listRoomStations: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpacePage"];
                 };
             };
             default: components["responses"]["Problem"];

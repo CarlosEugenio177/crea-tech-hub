@@ -37,6 +37,9 @@ do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 
+V6 acrescenta vínculo à sala, número e coordenadas às estações em `spaces`, sem alterar
+seus UUIDs ou atribuir posições aos cadastros antigos. Consulte [Estações e mapa](20-estacoes-e-mapa.md).
+
 V5 cria a configuração única de funcionamento do Hub e seus dias da semana, com
 padrão segunda a sexta, 08:00–18:00. Consulte [Funcionamento do Hub](19-funcionamento-do-hub.md).
 

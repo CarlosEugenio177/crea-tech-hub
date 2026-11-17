@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("5");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("6");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(5);
+    assertThat(flyway.info().applied()).hasSize(6);
   }
 
   @Test
@@ -103,6 +103,33 @@ class DatabaseMigrationTests {
                 String.class,
                 "admin@example.com"))
         .isEqualTo("legacy-test-hash");
+  }
+
+  @Test
+  void preservesExistingSpacesWithoutInventingStationPositions() {
+    migrations("layout_upgrade", "5").migrate();
+    var id = UUID.randomUUID();
+    jdbc.update(
+        "INSERT INTO layout_upgrade.spaces (id, name, type, capacity, active) VALUES (?, 'Legada', 'WORKSTATION', 1, false)",
+        id);
+
+    migrations("layout_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForMap(
+                "SELECT name, type, capacity, active FROM layout_upgrade.spaces WHERE id = ?", id))
+        .containsEntry("name", "Legada")
+        .containsEntry("type", "WORKSTATION")
+        .containsEntry("capacity", 1)
+        .containsEntry("active", false);
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT room_id FROM layout_upgrade.spaces WHERE id = ?", UUID.class, id))
+        .isNull();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT station_number FROM layout_upgrade.spaces WHERE id = ?", Integer.class, id))
+        .isNull();
   }
 
   @Test
