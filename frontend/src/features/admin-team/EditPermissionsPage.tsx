@@ -1,21 +1,18 @@
-import { useNavigate, useOutletContext, useParams } from 'react-router'
-import { problemMessage } from '../../shared/api/problem'
-import type { components } from '../../shared/api/schema'
+import { useNavigate, useParams } from 'react-router'
 import { FormPage } from '../../shared/ui/FormPage.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
+import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
+import { useAdminAccount } from '../admin-auth/adminAccount.ts'
 import { PermissionsForm } from './PermissionsForm.tsx'
 import { usePermissionOptions, useTeamMember } from './teamApi.ts'
 import { ADMIN_TEAM } from './teamRoutes.ts'
 
-type AdminAccount = components['schemas']['AdminAccount']
-
 export function EditPermissionsPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
-  const account = useOutletContext<AdminAccount>()
+  const account = useAdminAccount()
   const member = useTeamMember(id)
   const options = usePermissionOptions()
-  const error = member.error ?? options.error
 
   return (
     <FormPage
@@ -29,8 +26,6 @@ export function EditPermissionsPage() {
         <Notice tone="info">
           Você não pode alterar o próprio acesso. Peça a outro gestor.
         </Notice>
-      ) : error ? (
-        <Notice tone="error">{problemMessage(error)}</Notice>
       ) : member.data && options.data ? (
         <PermissionsForm
           member={member.data}
@@ -38,7 +33,7 @@ export function EditPermissionsPage() {
           onSaved={() => void navigate(ADMIN_TEAM)}
         />
       ) : (
-        <Notice tone="info">Carregando…</Notice>
+        <QueryStatus error={member.error ?? options.error} />
       )}
     </FormPage>
   )

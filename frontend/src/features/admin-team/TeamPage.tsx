@@ -1,17 +1,14 @@
 import { useState } from 'react'
-import { useOutletContext } from 'react-router'
-import type { components } from '../../shared/api/schema'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { ListPage } from '../../shared/ui/ListPage.tsx'
 import { PagedList } from '../../shared/ui/PagedList.tsx'
+import { useAdminAccount } from '../admin-auth/adminAccount.ts'
 import { usePermissionOptions, useTeam } from './teamApi.ts'
 import { TeamListItem } from './TeamListItem.tsx'
 import { ADMIN_TEAM_AUDIT, ADMIN_TEAM_NEW } from './teamRoutes.ts'
 
-type AdminAccount = components['schemas']['AdminAccount']
-
 export function TeamPage() {
-  const account = useOutletContext<AdminAccount>()
+  const account = useAdminAccount()
   const [page, setPage] = useState(0)
   const team = useTeam(page)
   const options = usePermissionOptions()

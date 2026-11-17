@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router'
-import { problemMessage } from '../../shared/api/problem'
 import { FormPage } from '../../shared/ui/FormPage.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
 import { MemberForm } from './MemberForm.tsx'
 import { usePermissionOptions } from './teamApi.ts'
 import { ADMIN_TEAM } from './teamRoutes.ts'
@@ -23,10 +22,8 @@ export function NewMemberPage() {
           options={options.data}
           onSaved={() => void navigate(ADMIN_TEAM)}
         />
-      ) : options.isPending ? (
-        <Notice tone="info">Carregando…</Notice>
       ) : (
-        <Notice tone="error">{problemMessage(options.error)}</Notice>
+        <QueryStatus error={options.error} />
       )}
     </FormPage>
   )

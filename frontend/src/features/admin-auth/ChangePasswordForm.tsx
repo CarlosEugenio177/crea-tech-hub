@@ -2,10 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { z } from 'zod'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
 import { useChangePassword } from './adminAuthApi.ts'
 import { goToLoginWithNotice } from './adminRoutes.ts'
@@ -36,14 +35,12 @@ export function ChangePasswordForm() {
   })
 
   const submit = handleSubmit(({ currentPassword, newPassword }) =>
-    change.mutate({ body: { currentPassword, newPassword } }),
+    change.submit({ currentPassword, newPassword }),
   )
 
   return (
     <FormCard onSubmit={submit}>
-      {change.error && (
-        <Notice tone="error">{problemMessage(change.error)}</Notice>
-      )}
+      <ProblemNotice error={change.error} />
       <TextField
         label="Senha atual"
         type="password"
