@@ -32,6 +32,7 @@ A gestão da equipe e a recuperação estão em [Permissões administrativas](do
 O contrato oficial e a geração de tipos estão em [OpenAPI](docs/18-openapi.md).
 Os dias e horários configuráveis estão em [Funcionamento do Hub](docs/19-funcionamento-do-hub.md).
 O vínculo das estações às salas e suas posições está em [Estações e mapa](docs/20-estacoes-e-mapa.md).
+Os impedimentos definidos pela equipe estão em [Bloqueios de horário](docs/21-bloqueios-de-horario.md).
 As histórias em [`histories/`](histories/PLANO-DE-IMPLEMENTACAO.md) registram as decisões
 mais recentes de escopo; a documentação abaixo preserva o levantamento original.
 

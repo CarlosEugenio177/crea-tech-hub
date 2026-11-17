@@ -55,6 +55,9 @@ Vite, React Router e as bibliotecas já aprovadas; preservar KISS e YAGNI.
   não devem simular sucesso, envio de mensagens ou persistência.
 - Seguir tokens visuais existentes, acessibilidade, navegação por teclado e layouts
   responsivos. Não adicionar dependências ou trocar a arquitetura sem necessidade.
+- Usar textos curtos e concretos, ligados à ação ou ao estado da tela. Rótulos como
+  "Bloquear horário" e "Cancelar bloqueio" devem dizer o que acontece. Evitar slogans,
+  adjetivos vazios e explicações repetidas nos formulários e avisos.
 
 ## Verificação e entrega
 

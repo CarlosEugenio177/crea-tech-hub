@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("6");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("7");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(6);
+    assertThat(flyway.info().applied()).hasSize(7);
   }
 
   @Test
@@ -130,6 +130,32 @@ class DatabaseMigrationTests {
             jdbc.queryForObject(
                 "SELECT station_number FROM layout_upgrade.spaces WHERE id = ?", Integer.class, id))
         .isNull();
+  }
+
+  @Test
+  void addsBlocksWithoutChangingExistingSpacesOrAccounts() {
+    migrations("blocks_upgrade", "6").migrate();
+    insertLegacyAccount("blocks_upgrade", "admin@example.com", "ADMIN");
+    var id = UUID.randomUUID();
+    jdbc.update(
+        "INSERT INTO blocks_upgrade.spaces (id, name, type, capacity) VALUES (?, 'Sala preservada', 'ROOM', 4)",
+        id);
+
+    migrations("blocks_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForObject("SELECT count(*) FROM blocks_upgrade.space_blocks", Integer.class))
+        .isZero();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT name FROM blocks_upgrade.spaces WHERE id = ?", String.class, id))
+        .isEqualTo("Sala preservada");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT password_hash FROM blocks_upgrade.user_accounts WHERE email = ?",
+                String.class,
+                "admin@example.com"))
+        .isEqualTo("legacy-test-hash");
   }
 
   @Test

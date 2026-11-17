@@ -125,6 +125,7 @@ A hospedagem para deploy automático ainda será definida.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `user`: conta de usuário, perfil de acesso e repositório JPA.
 - `space`: cadastro administrativo de salas, mesas compartilhadas e estações.
+- `block`: criação, consulta e cancelamento de bloqueios pontuais de espaços.
 - `operatinghours`: consulta pública e configuração administrativa do funcionamento do Hub.
 - `access`: equipe, permissões e auditoria de acesso.
 - `recovery`: recuperação de senha por token e procedimento operacional.
@@ -173,6 +174,9 @@ consulte [Estações e mapa](../docs/20-estacoes-e-mapa.md).
 O funcionamento já está disponível por API, com dias e horários configuráveis;
 consulte [Funcionamento do Hub](../docs/19-funcionamento-do-hub.md). Sua tela de edição
 e a aplicação dessas regras nas futuras reservas ficam para as próximas partes.
+Os bloqueios pontuais já possuem APIs administrativas, descritas em
+[Bloqueios de horário](../docs/21-bloqueios-de-horario.md). Sua aplicação nas reservas
+e a tela de gestão serão implementadas nas próximas etapas.
 
 Decisões de reserva já alinhadas para a implementação futura:
 
