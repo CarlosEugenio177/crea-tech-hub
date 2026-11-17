@@ -167,8 +167,7 @@ implementadas nas próximas etapas.
 
 O cadastro permite criar, editar, consultar com paginação e ativar/desativar espaços.
 O contrato está em [Cadastro administrativo de espaços](../docs/16-espacos.md).
-Fotos, recursos e a interface do mapa completam o CTH-15 nas
-próximas entregas.
+Fotos, recursos e a tela de funcionamento completam o CTH-15 nas próximas entregas.
 A numeração e as posições das estações já possuem APIs de edição e consulta pública;
 consulte [Estações e mapa](../docs/20-estacoes-e-mapa.md).
 O editor visual, as modalidades e as operações em lote estão em

@@ -21,6 +21,8 @@ feita pelo UUID. Cada estação pode ser cadastrada separadamente, por exemplo
 | `active` | Começa como `true`; alterado por endpoint próprio |
 | `id`, `createdAt` | Gerados pelo backend; a data é retornada como instante em UTC |
 | `stationPlacement` | Posição estruturada da estação; ausente quando não configurada; alterada por API própria |
+| `bookingMode` | `WHOLE_SPACE` ou `PER_STATION`; alterado por API própria |
+| `version` | Versão do cadastro, usada no salvamento das posições do mapa |
 
 `active` indica se o cadastro está habilitado para uso nas próximas etapas de catálogo
 e reservas. Não representa disponibilidade de horário. Desativar preserva o registro,
@@ -92,10 +94,11 @@ ordenação. V1 e V2 permanecem preservadas. Esta entrega não cadastra espaços
 automaticamente; nomes e capacidades serão informados pela administração.
 
 O CTH-15 permanece parcialmente implementado. As próximas partes incluem foto,
-recursos/equipamentos descritos na sala, regras e avisos, a interface do mapa e controle
+recursos/equipamentos descritos na sala, regras e avisos e controle
 de visibilidade pública. O catálogo público já está integrado; disponibilidade por
 data e reservas pertencem às etapas seguintes.
 
 O funcionamento do Hub já tem APIs próprias, descritas em
 [Funcionamento do Hub](19-funcionamento-do-hub.md); sua tela de edição ainda será entregue.
 As APIs de organização e consulta pública das estações estão em [Estações e mapa](20-estacoes-e-mapa.md).
+A modalidade de reserva, a geração em lote e o editor visual estão em [Montagem de salas](22-montagem-de-salas.md).

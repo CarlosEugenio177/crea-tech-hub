@@ -30,7 +30,8 @@ Permitir que a equipe mantenha o catálogo do Hub: ambientes, estações, equipa
 **Entrega parcial:** API administrativa de cadastro básico, edição, consulta paginada
 e ativação/desativação implementada. Ver [contrato de espaços](../docs/16-espacos.md).
 Os critérios abaixo continuam abertos até a entrega dos campos e comportamentos
-completos, incluindo foto, recursos, mapa, funcionamento e integração pública.
+completos, incluindo foto, recursos e a tela de funcionamento. O mapa administrativo
+e o catálogo público já estão integrados.
 
 - [ ] Posso **cadastrar e editar** ambientes e estações (foco em salas; reserva de equipamentos fora do escopo atual).
 - [ ] Cada cadastro tem **nome**, **foto**, **capacidade**, **recursos** e um **campo opcional** para listar os **equipamentos disponíveis** na sala.
