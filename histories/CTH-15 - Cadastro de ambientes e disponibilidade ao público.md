@@ -30,12 +30,13 @@ Permitir que a equipe mantenha o catálogo do Hub: ambientes, estações, equipa
 **Entrega parcial:** API administrativa de cadastro básico, edição, consulta paginada
 e ativação/desativação implementada. Ver [contrato de espaços](../docs/16-espacos.md).
 Os critérios abaixo continuam abertos até a entrega dos campos e comportamentos
-completos, incluindo foto, recursos, mapa, funcionamento e integração pública.
+completos, incluindo foto, recursos e a tela de funcionamento. O mapa administrativo
+e o catálogo público já estão integrados.
 
 - [ ] Posso **cadastrar e editar** ambientes e estações (foco em salas; reserva de equipamentos fora do escopo atual).
 - [ ] Cada cadastro tem **nome**, **foto**, **capacidade**, **recursos** e um **campo opcional** para listar os **equipamentos disponíveis** na sala.
 - [ ] Trava de **mínimo de pessoas**, **máximo de horas** e textos específicos por sala não são obrigatórios por enquanto.
-- [ ] Para salas com estações (sala de estudos, coworking), cadastro as **estações numeradas** e a posição delas no **mapa** (conforme Framer). **Backend implementado:** vínculo, número, posição e consulta pública por API; interface e layout físico pendentes. Ver [Estações e mapa](../docs/20-estacoes-e-mapa.md).
+- [x] Para salas com estações (sala de estudos, coworking), cadastro as **estações numeradas** e a posição delas no **mapa**. Geração em lote, arraste com grade e guias, medidas editáveis, alinhamento e distribuição de várias estações e remoção com desfazer implementados. A equipe configura a disposição física real e salva o conjunto. Ver [Montagem de salas](../docs/22-montagem-de-salas.md).
 - [ ] Posso configurar o **horário de funcionamento do Hub** (padrão **8h às 18h**) e os **dias da semana de funcionamento** (padrão **segunda a sexta**), alteráveis quando necessário. **Backend implementado:** consulta e edição por API; tela administrativa pendente. Ver [Funcionamento do Hub](../docs/19-funcionamento-do-hub.md).
 - [ ] Posso tornar um ambiente **disponível ou indisponível ao público** (ex.: salas da diretoria).
 - [ ] Ambientes indisponíveis **somem do catálogo e da reserva pública** (CTH-1, CTH-2), sem apagar o histórico de reservas.

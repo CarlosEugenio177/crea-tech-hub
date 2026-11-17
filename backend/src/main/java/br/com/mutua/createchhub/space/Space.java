@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -37,6 +38,14 @@ public class Space {
   @Column(nullable = false, length = 32)
   private SpaceType type;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "booking_mode", nullable = false, length = 24)
+  private BookingMode bookingMode = BookingMode.WHOLE_SPACE;
+
+  @Version
+  @Column(nullable = false)
+  private long version;
+
   @Positive
   @Column(nullable = false)
   private int capacity;
@@ -57,6 +66,12 @@ public class Space {
   @Column(name = "map_y", precision = 5, scale = 2)
   private BigDecimal mapY;
 
+  @Column(name = "room_width", precision = 5, scale = 2)
+  private BigDecimal roomWidth;
+
+  @Column(name = "room_length", precision = 5, scale = 2)
+  private BigDecimal roomLength;
+
   @Column(nullable = false)
   private boolean active = true;
 
@@ -71,6 +86,10 @@ public class Space {
   }
 
   void update(String name, SpaceType type, int capacity, String description) {
+    if (bookingMode == BookingMode.PER_STATION && type != SpaceType.ROOM) {
+      throw new ResourceConflictException(
+          "Altere a modalidade para espaço inteiro antes de mudar o tipo.");
+    }
     if (roomId != null && type != SpaceType.WORKSTATION) {
       throw new ResourceConflictException(
           "Uma estação vinculada a uma sala não pode mudar de tipo.");
@@ -81,12 +100,59 @@ public class Space {
   private void setDetails(String name, SpaceType type, int capacity, String description) {
     this.name = name == null ? null : name.strip();
     this.type = type;
+    if (type == SpaceType.ROOM) {
+      if (roomWidth == null) roomWidth = BigDecimal.TEN;
+      if (roomLength == null) roomLength = BigDecimal.valueOf(6);
+    } else {
+      roomWidth = null;
+      roomLength = null;
+    }
     this.capacity = capacity;
     this.description = description == null ? null : description.strip();
   }
 
   void changeStatus(boolean active) {
     this.active = active;
+  }
+
+  void changeBookingMode(BookingMode mode) {
+    if (mode == BookingMode.PER_STATION && type != SpaceType.ROOM) {
+      throw new ResourceConflictException("Somente salas podem ser reservadas por estação.");
+    }
+    bookingMode = mode;
+  }
+
+  void moveStation(BigDecimal x, BigDecimal y) {
+    mapX = x;
+    mapY = y;
+  }
+
+  void resizeRoom(BigDecimal width, BigDecimal length) {
+    if (type != SpaceType.ROOM) {
+      throw new ResourceConflictException("Somente salas possuem dimensões de mapa.");
+    }
+    roomWidth = width;
+    roomLength = length;
+  }
+
+  void removeFromRoom() {
+    roomId = null;
+    stationNumber = null;
+    mapX = null;
+    mapY = null;
+    active = false;
+  }
+
+  public RoomDimensions getRoomDimensions() {
+    return roomWidth == null ? null : new RoomDimensions(roomWidth, roomLength);
+  }
+
+  public BookingMode getBookingMode() {
+    return bookingMode;
+  }
+
+  public long getVersion() {
+    return version;
   }
 
   void placeStation(UUID roomId, int number, BigDecimal x, BigDecimal y) {

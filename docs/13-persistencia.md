@@ -37,6 +37,10 @@ do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 
+V8 acrescenta modalidade de reserva e versão aos espaços, preservando as estações
+existentes e configurando seus ambientes para reserva por estação. Consulte
+[Montagem de salas](22-montagem-de-salas.md).
+
 V7 cria `space_blocks` para bloqueios pontuais, com motivo, intervalo e identificação
 de criação e cancelamento. Consulte [Bloqueios de horário](21-bloqueios-de-horario.md).
 

@@ -596,6 +596,51 @@
         "tags" : [ "space-controller" ]
       }
     },
+    "/api/v1/admin/spaces/{id}/booking-mode" : {
+      "put" : {
+        "operationId" : "changeBookingMode",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookingModeRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Definir modalidade de reserva do espaço",
+        "tags" : [ "space-controller" ]
+      }
+    },
     "/api/v1/admin/spaces/{id}/station-placement" : {
       "put" : {
         "operationId" : "placeStation",
@@ -686,6 +731,99 @@
         "tags" : [ "space-controller" ]
       }
     },
+    "/api/v1/admin/spaces/{roomId}/layout" : {
+      "put" : {
+        "operationId" : "saveRoomLayout",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RoomLayoutRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Space"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Salvar dimensões, posições e remoções do mapa",
+        "tags" : [ "station-layout-controller" ]
+      }
+    },
+    "/api/v1/admin/spaces/{roomId}/station-positions" : {
+      "put" : {
+        "operationId" : "saveStationPositions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StationPositionsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Space"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Salvar posições do mapa em conjunto",
+        "tags" : [ "station-layout-controller" ]
+      }
+    },
     "/api/v1/admin/spaces/{roomId}/stations" : {
       "get" : {
         "operationId" : "listAdminRoomStations",
@@ -738,6 +876,54 @@
           "sessionAuth" : [ ]
         } ],
         "summary" : "Listar estações de uma sala",
+        "tags" : [ "station-layout-controller" ]
+      }
+    },
+    "/api/v1/admin/spaces/{roomId}/stations/batch" : {
+      "post" : {
+        "operationId" : "createStationsBatch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StationBatchRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Space"
+                  }
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Gerar estações numeradas em uma sala",
         "tags" : [ "station-layout-controller" ]
       }
     },
@@ -1364,6 +1550,19 @@
         },
         "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
       },
+      "BookingMode" : {
+        "type" : "string",
+        "enum" : [ "WHOLE_SPACE", "PER_STATION" ]
+      },
+      "BookingModeRequest" : {
+        "type" : "object",
+        "properties" : {
+          "bookingMode" : {
+            "$ref" : "#/components/schemas/BookingMode"
+          }
+        },
+        "required" : [ "bookingMode" ]
+      },
       "CsrfToken" : {
         "type" : "object",
         "properties" : {
@@ -1538,6 +1737,9 @@
       "PublicSpace" : {
         "type" : "object",
         "properties" : {
+          "bookingMode" : {
+            "$ref" : "#/components/schemas/BookingMode"
+          },
           "capacity" : {
             "type" : "integer",
             "format" : "int32"
@@ -1552,11 +1754,14 @@
           "name" : {
             "type" : "string"
           },
+          "roomDimensions" : {
+            "$ref" : "#/components/schemas/RoomDimensions"
+          },
           "type" : {
             "$ref" : "#/components/schemas/SpaceType"
           }
         },
-        "required" : [ "capacity", "id", "name", "type" ]
+        "required" : [ "bookingMode", "capacity", "id", "name", "type" ]
       },
       "PublicSpacePage" : {
         "type" : "object",
@@ -1586,11 +1791,82 @@
         },
         "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
       },
+      "RemovedStation" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "minimum" : 0
+          }
+        },
+        "required" : [ "id", "version" ]
+      },
+      "RoomDimensions" : {
+        "type" : "object",
+        "properties" : {
+          "length" : {
+            "type" : "number"
+          },
+          "width" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "length", "width" ]
+      },
+      "RoomLayoutRequest" : {
+        "type" : "object",
+        "properties" : {
+          "length" : {
+            "type" : "number",
+            "description" : "Comprimento do mapa em metros",
+            "maximum" : 100,
+            "minimum" : 1,
+            "multipleOf" : 0.01
+          },
+          "positions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StationPositionUpdate"
+            },
+            "maxItems" : 1000,
+            "minItems" : 0
+          },
+          "removedStations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RemovedStation"
+            },
+            "maxItems" : 1000,
+            "minItems" : 0
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "minimum" : 0
+          },
+          "width" : {
+            "type" : "number",
+            "description" : "Largura do mapa em metros",
+            "maximum" : 100,
+            "minimum" : 1,
+            "multipleOf" : 0.01
+          }
+        },
+        "required" : [ "length", "positions", "removedStations", "version", "width" ]
+      },
       "Space" : {
         "type" : "object",
         "properties" : {
           "active" : {
             "type" : "boolean"
+          },
+          "bookingMode" : {
+            "$ref" : "#/components/schemas/BookingMode"
           },
           "capacity" : {
             "type" : "integer",
@@ -1610,14 +1886,21 @@
           "name" : {
             "type" : "string"
           },
+          "roomDimensions" : {
+            "$ref" : "#/components/schemas/RoomDimensions"
+          },
           "stationPlacement" : {
             "$ref" : "#/components/schemas/StationPlacement"
           },
           "type" : {
             "$ref" : "#/components/schemas/SpaceType"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         },
-        "required" : [ "active", "capacity", "createdAt", "id", "name", "type" ]
+        "required" : [ "active", "bookingMode", "capacity", "createdAt", "id", "name", "type", "version" ]
       },
       "SpaceBlock" : {
         "type" : "object",
@@ -1786,6 +2069,24 @@
         "type" : "string",
         "enum" : [ "ROOM", "SHARED_TABLE", "WORKSTATION" ]
       },
+      "StationBatchRequest" : {
+        "type" : "object",
+        "properties" : {
+          "columns" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "columns", "count" ]
+      },
       "StationPlacement" : {
         "type" : "object",
         "properties" : {
@@ -1836,6 +2137,47 @@
           }
         },
         "required" : [ "number", "roomId", "x", "y" ]
+      },
+      "StationPositionUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "minimum" : 0
+          },
+          "x" : {
+            "type" : "number",
+            "maximum" : 100,
+            "minimum" : 0,
+            "multipleOf" : 0.01
+          },
+          "y" : {
+            "type" : "number",
+            "maximum" : 100,
+            "minimum" : 0,
+            "multipleOf" : 0.01
+          }
+        },
+        "required" : [ "id", "version", "x", "y" ]
+      },
+      "StationPositionsRequest" : {
+        "type" : "object",
+        "properties" : {
+          "positions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StationPositionUpdate"
+            },
+            "maxItems" : 1000,
+            "minItems" : 1
+          }
+        },
+        "required" : [ "positions" ]
       }
     },
     "securitySchemes" : {

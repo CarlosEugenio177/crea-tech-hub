@@ -38,6 +38,20 @@ class StationLayoutPersistenceTests {
         .hasMessageContaining("ck_spaces_station_placement");
   }
 
+  @ParameterizedTest
+  @CsvSource({"0,5", "101,5", "8,-1", "8,101", "8,NULL"})
+  void rejectsInvalidRoomDimensions(String width, String length) {
+    assertThatThrownBy(
+            () ->
+                jdbc.update(
+                    "UPDATE spaces SET room_width = ?, room_length = ? WHERE id = ?",
+                    new java.math.BigDecimal(width),
+                    length.equals("NULL") ? null : new java.math.BigDecimal(length),
+                    roomId))
+        .isInstanceOf(DataIntegrityViolationException.class)
+        .hasMessageContaining("ck_spaces_room_dimensions");
+  }
+
   @Test
   void rejectsIncompletePlacement() {
     assertThatThrownBy(
@@ -65,18 +79,31 @@ class StationLayoutPersistenceTests {
   }
 
   @Test
+  void preventsChangingTheModeOfARoomThatHasStations() {
+    place(stationId, roomId, 1, 25, 40);
+    assertThatThrownBy(
+            () ->
+                jdbc.update("UPDATE spaces SET booking_mode = 'WHOLE_SPACE' WHERE id = ?", roomId))
+        .isInstanceOf(DataIntegrityViolationException.class)
+        .hasMessageContaining("fk_spaces_station_room");
+  }
+
+  @Test
   void preventsChangingTheTypeOfARoomThatHasStations() {
     place(stationId, roomId, 1, 25, 40);
     assertThatThrownBy(
             () -> jdbc.update("UPDATE spaces SET type = 'SHARED_TABLE' WHERE id = ?", roomId))
         .isInstanceOf(DataIntegrityViolationException.class)
-        .hasMessageContaining("fk_spaces_station_room");
+        .hasMessageContaining("ck_spaces_booking_mode_type");
   }
 
   private UUID insert(String type) {
     var id = UUID.randomUUID();
     jdbc.update(
-        "INSERT INTO spaces (id, name, type, capacity) VALUES (?, 'Teste', ?, 1)", id, type);
+        "INSERT INTO spaces (id, name, type, capacity, booking_mode) VALUES (?, 'Teste', ?, 1, ?)",
+        id,
+        type,
+        type.equals("ROOM") ? "PER_STATION" : "WHOLE_SPACE");
     return id;
   }
 

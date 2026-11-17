@@ -6,6 +6,9 @@ um espaço `ROOM`. Não há duplicação de cadastros ou reservas nesta entrega.
 
 ## Configurar uma estação
 
+O ambiente de destino precisa estar em modalidade `PER_STATION`. A geração em lote
+e o editor visual estão em [Montagem de salas](22-montagem-de-salas.md).
+
 Crie a sala e as estações com o cadastro administrativo de espaços. Depois envie:
 
 ```http
@@ -64,9 +67,9 @@ suas estações nesse mapa público sem alterar a situação individual delas.
 O catálogo geral `/api/v1/spaces` também oculta estações vinculadas a salas inativas.
 
 O mapa informa a estrutura física e quais cadastros estão habilitados. `active`
-não significa livre no horário escolhido. A seleção interativa e as cores de livre,
-pendente ou reservado dependem da integração do frontend e dos futuros endpoints
-de disponibilidade, bloqueios e reservas; não devem ser simuladas com esta API.
+não significa livre no horário escolhido. O editor administrativo já permite arrastar
+as estações e salvar posições. A seleção pública e as cores de livre, pendente ou
+reservado dependem da implementação da disponibilidade e das reservas.
 
 ## Persistência
 

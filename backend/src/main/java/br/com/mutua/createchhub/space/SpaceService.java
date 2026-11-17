@@ -49,6 +49,7 @@ public class SpaceService {
           "Uma sala com estações vinculadas não pode mudar de tipo.");
     }
     space.update(request.name(), request.type(), request.capacity(), request.description());
+    spaces.flush();
     return SpaceResponse.from(space);
   }
 
@@ -56,6 +57,19 @@ public class SpaceService {
   public SpaceResponse changeStatus(UUID id, boolean active) {
     var space = findForUpdate(id);
     space.changeStatus(active);
+    spaces.flush();
+    return SpaceResponse.from(space);
+  }
+
+  @Transactional
+  public SpaceResponse changeBookingMode(UUID id, BookingMode mode) {
+    var space = findForUpdate(id);
+    if (mode == BookingMode.WHOLE_SPACE && spaces.existsByRoomId(id)) {
+      throw new ResourceConflictException(
+          "Um espaço com estações vinculadas deve permanecer no modo por estação.");
+    }
+    space.changeBookingMode(mode);
+    spaces.flush();
     return SpaceResponse.from(space);
   }
 

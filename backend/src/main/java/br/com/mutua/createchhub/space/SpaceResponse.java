@@ -7,7 +7,16 @@ import java.util.UUID;
 
 @Schema(
     name = "Space",
-    requiredProperties = {"id", "name", "type", "capacity", "active", "createdAt"})
+    requiredProperties = {
+      "id",
+      "name",
+      "type",
+      "capacity",
+      "active",
+      "createdAt",
+      "bookingMode",
+      "version"
+    })
 public record SpaceResponse(
     UUID id,
     String name,
@@ -16,7 +25,10 @@ public record SpaceResponse(
     @Schema(types = {"string", "null"}) String description,
     boolean active,
     Instant createdAt,
-    @JsonInclude(JsonInclude.Include.NON_NULL) StationPlacementResponse stationPlacement) {
+    @JsonInclude(JsonInclude.Include.NON_NULL) StationPlacementResponse stationPlacement,
+    BookingMode bookingMode,
+    long version,
+    @JsonInclude(JsonInclude.Include.NON_NULL) RoomDimensions roomDimensions) {
 
   static SpaceResponse from(Space space) {
     return new SpaceResponse(
@@ -27,6 +39,9 @@ public record SpaceResponse(
         space.getDescription(),
         space.isActive(),
         space.getCreatedAt(),
-        StationPlacementResponse.from(space));
+        StationPlacementResponse.from(space),
+        space.getBookingMode(),
+        space.getVersion(),
+        space.getRoomDimensions());
   }
 }

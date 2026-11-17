@@ -70,4 +70,11 @@ public class SpaceController {
       @PathVariable UUID id, @Valid @RequestBody SpaceStatusRequest request) {
     return spaces.changeStatus(id, request.active());
   }
+
+  @Operation(operationId = "changeBookingMode", summary = "Definir modalidade de reserva do espaço")
+  @PutMapping("/{id}/booking-mode")
+  public SpaceResponse changeBookingMode(
+      @PathVariable UUID id, @Valid @RequestBody BookingModeRequest request) {
+    return spaces.changeBookingMode(id, request.bookingMode());
+  }
 }
