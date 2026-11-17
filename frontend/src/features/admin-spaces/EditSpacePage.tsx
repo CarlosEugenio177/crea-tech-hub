@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from 'react-router'
-import { problemMessage } from '../../shared/api/problem'
 import { FormPage } from '../../shared/ui/FormPage.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
 import { SpaceForm } from './SpaceForm.tsx'
 import { ADMIN_SPACES } from './spaceRoutes.ts'
 import { useSpace, useUpdateSpace } from './spacesApi.ts'
@@ -28,10 +27,8 @@ export function EditSpacePage() {
           isPending={update.isPending}
           onSubmit={update.submit}
         />
-      ) : space.isPending ? (
-        <Notice tone="info">Carregando…</Notice>
       ) : (
-        <Notice tone="error">{problemMessage(space.error)}</Notice>
+        <QueryStatus error={space.error} />
       )}
     </FormPage>
   )

@@ -1,12 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { api } from '../../shared/api/client'
-import { problemStatus } from '../../shared/api/problem'
+import { problemStatus } from '../../shared/api/problem.ts'
+import { api } from '../../shared/api/client.ts'
+import type { components } from '../../shared/api/schema'
+
+type LoginRequest = components['schemas']['LoginRequest']
+type PasswordChangeRequest = components['schemas']['PasswordChangeRequest']
+type ForgotPasswordRequest = components['schemas']['ForgotPasswordRequest']
+type PasswordResetRequest = components['schemas']['PasswordResetRequest']
 
 const SESSION_PATH = '/api/v1/admin/auth/me'
 const FORM_HEADERS = { 'Content-Type': 'application/x-www-form-urlencoded' }
-
-type Credentials = { email: string; password: string }
 
 function useSessionCache() {
   const queryClient = useQueryClient()
@@ -48,32 +52,60 @@ export function useLogin() {
   return {
     error: login.error,
     isPending: login.isPending,
-    submit: (credentials: Credentials) =>
+    submit: (credentials: LoginRequest) =>
       login.mutate({ body: credentials, headers: FORM_HEADERS }),
   }
 }
 
 export function useLogout() {
   const session = useSessionCache()
-  return api.useMutation('post', '/api/v1/admin/auth/logout', {
+  const logout = api.useMutation('post', '/api/v1/admin/auth/logout', {
     onSettled: session.clear,
   })
+
+  return {
+    isPending: logout.isPending,
+    submit: () => logout.mutate({}),
+  }
 }
 
 export function useChangePassword(onChanged: () => void) {
   const session = useSessionCache()
-  return api.useMutation('post', '/api/v1/admin/auth/password', {
+  const change = api.useMutation('post', '/api/v1/admin/auth/password', {
     onSuccess: () => {
       session.forget()
       onChanged()
     },
   })
+
+  return {
+    error: change.error,
+    isPending: change.isPending,
+    submit: (passwords: PasswordChangeRequest) =>
+      change.mutate({ body: passwords }),
+  }
 }
 
 export function useRequestPasswordRecovery() {
-  return api.useMutation('post', '/api/v1/admin/auth/password/forgot')
+  const recovery = api.useMutation('post', '/api/v1/admin/auth/password/forgot')
+
+  return {
+    error: recovery.error,
+    isPending: recovery.isPending,
+    isSuccess: recovery.isSuccess,
+    submit: (request: ForgotPasswordRequest) =>
+      recovery.mutate({ body: request }),
+  }
 }
 
-export function useResetPassword() {
-  return api.useMutation('post', '/api/v1/admin/auth/password/reset')
+export function useResetPassword(onReset: () => void) {
+  const reset = api.useMutation('post', '/api/v1/admin/auth/password/reset', {
+    onSuccess: onReset,
+  })
+
+  return {
+    error: reset.error,
+    isPending: reset.isPending,
+    submit: (request: PasswordResetRequest) => reset.mutate({ body: request }),
+  }
 }

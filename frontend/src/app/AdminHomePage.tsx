@@ -1,11 +1,12 @@
-import { Link, useOutletContext } from 'react-router'
+import { Link } from 'react-router'
+import { useAdminAccount } from '../features/admin-auth/adminAccount.ts'
 import { ADMIN_HOME } from '../features/admin-auth/adminRoutes.ts'
 import { PageHeader } from '../shared/ui/PageHeader.tsx'
 import styles from './AdminHomePage.module.css'
-import { adminMenuFor, type AdminAccount } from './adminMenu.ts'
+import { adminMenuFor } from './adminMenu.ts'
 
 export function AdminHomePage() {
-  const account = useOutletContext<AdminAccount>()
+  const account = useAdminAccount()
   const areas = adminMenuFor(account).filter((item) => item.to !== ADMIN_HOME)
 
   return (

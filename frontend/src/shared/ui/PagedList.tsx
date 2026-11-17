@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
-import { problemMessage } from '../api/problem'
-import { Notice } from './Notice.tsx'
 import styles from './PagedList.module.css'
 import { Pagination } from './Pagination.tsx'
+import { QueryStatus } from './QueryStatus.tsx'
 
 type PagedListProps<Item> = {
   data: { items: Item[]; totalPages: number } | undefined
@@ -21,8 +20,7 @@ export function PagedList<Item>({
   onPageChange,
   children,
 }: PagedListProps<Item>) {
-  if (error) return <Notice tone="error">{problemMessage(error)}</Notice>
-  if (!data) return <Notice tone="info">Carregando…</Notice>
+  if (error || !data) return <QueryStatus error={error} />
 
   return (
     <>

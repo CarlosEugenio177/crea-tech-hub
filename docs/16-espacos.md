@@ -34,6 +34,13 @@ seu UUID e seus dados; não há exclusão física pela API.
 | GET | `/api/v1/admin/spaces/{id}` | Consulta o cadastro, inclusive inativo |
 | PUT | `/api/v1/admin/spaces/{id}` | Substitui nome, tipo, capacidade e descrição; mantém situação e identidade |
 | PATCH | `/api/v1/admin/spaces/{id}/status` | Ativa ou desativa; responde com o cadastro atualizado |
+| GET | `/api/v1/spaces` | Catálogo público, sem autenticação: somente espaços ativos, ordenados por nome |
+
+O catálogo público aceita apenas leitura e expõe `id`, `name`, `type`, `capacity` e
+`description`; não inclui a situação nem dados internos. Aceita `page` e `size` com
+os mesmos limites da lista administrativa, sem o filtro `active`. O fluxo público de
+solicitação usa esse endpoint na escolha do espaço. Casos de teste manuais estão em
+[`postman/public-space-catalog.postman_collection.json`](postman/public-space-catalog.postman_collection.json).
 
 Corpo de criação/edição:
 

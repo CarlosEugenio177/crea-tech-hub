@@ -4,7 +4,7 @@ import type { Requester } from './requesterSchema.ts'
 export type ReservationPeriod = { date: string; start: string; end: string }
 
 export type ReservationDraft = {
-  spaceId?: string
+  space?: { id: string; name: string }
   period?: ReservationPeriod
   requester?: Requester
 }

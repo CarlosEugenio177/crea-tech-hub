@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
 import { useLogin } from './adminAuthApi.ts'
 
@@ -24,9 +24,7 @@ export function LoginForm({ notice }: LoginFormProps) {
   return (
     <FormCard onSubmit={handleSubmit(login.submit)}>
       {notice && !login.error && <Notice tone="success">{notice}</Notice>}
-      {login.error && (
-        <Notice tone="error">{problemMessage(login.error)}</Notice>
-      )}
+      <ProblemNotice error={login.error} />
       <TextField
         label="E-mail"
         type="email"

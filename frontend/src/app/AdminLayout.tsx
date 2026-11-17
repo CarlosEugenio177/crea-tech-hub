@@ -1,9 +1,10 @@
 import { NavLink, Outlet } from 'react-router'
 import { useLogout } from '../features/admin-auth/adminAuthApi.ts'
+import type { AdminAccount } from '../features/admin-auth/adminAccount.ts'
 import { ADMIN_HOME } from '../features/admin-auth/adminRoutes.ts'
 import { Brand } from '../shared/ui/Brand.tsx'
 import styles from './AdminLayout.module.css'
-import { adminMenuFor, type AdminAccount } from './adminMenu.ts'
+import { adminMenuFor } from './adminMenu.ts'
 
 type AdminLayoutProps = { account: AdminAccount }
 
@@ -35,7 +36,8 @@ export function AdminLayout({ account }: AdminLayoutProps) {
           <button
             type="button"
             className={styles.logout}
-            onClick={() => logout.mutate({})}
+            disabled={logout.isPending}
+            onClick={logout.submit}
           >
             Sair
           </button>
