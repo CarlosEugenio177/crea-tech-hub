@@ -25,7 +25,8 @@ public class ApiContractCustomizer implements OpenApiCustomizer {
           "/api/v1/admin/auth/csrf",
           "/api/v1/admin/auth/login",
           "/api/v1/admin/auth/password/forgot",
-          "/api/v1/admin/auth/password/reset");
+          "/api/v1/admin/auth/password/reset",
+          "/api/v1/spaces");
 
   @Override
   public void customise(OpenAPI api) {

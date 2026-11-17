@@ -24,6 +24,11 @@ public class SpaceService {
     return result.map(SpaceResponse::from);
   }
 
+  public Page<PublicSpaceResponse> listPublic(int page, int size) {
+    var pageable = PageRequest.of(page, size, Sort.by("name", "id"));
+    return spaces.findByActive(true, pageable).map(PublicSpaceResponse::from);
+  }
+
   public SpaceResponse find(UUID id) {
     return SpaceResponse.from(findSpace(id));
   }

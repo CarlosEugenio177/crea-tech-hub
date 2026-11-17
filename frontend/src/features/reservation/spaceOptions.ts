@@ -1,6 +1,7 @@
 import workstation from '../../shared/assets/mulher-mesa.svg'
 import sharedTable from './assets/aperto-de-maos.svg'
 import podcast from './assets/podcast.svg'
+import type { PublicSpace } from './publicSpacesApi.ts'
 
 export type SpaceOption = {
   id: string
@@ -11,34 +12,37 @@ export type SpaceOption = {
   illustrationAlt: string
 }
 
-// Provisório: as opções do Framer ficam fixas até existir o catálogo público (CTH-1).
-export const SPACE_OPTIONS: SpaceOption[] = [
-  {
-    id: 'estacao-individual',
-    name: 'Estação individual',
-    description: 'Seu posto com computador, reservado só para você.',
-    tag: '1 pessoa · Computador',
-    illustration: workstation,
-    illustrationAlt: 'Pessoa trabalhando em uma mesa',
-  },
-  {
-    id: 'sala-de-podcast',
-    name: 'Sala de podcast',
-    description: 'Um espaço dedicado à gravação de podcast.',
-    tag: 'Sala exclusiva',
+const presentationByType = {
+  ROOM: {
+    tag: 'Sala',
     illustration: podcast,
     illustrationAlt: 'Fones de ouvido e microfone',
   },
-  {
-    id: 'mesa-colaborativa',
-    name: 'Mesa colaborativa',
-    description: 'Uma mesa ampla para encontros e trabalho em equipe.',
-    tag: 'Somente para grupos',
+  SHARED_TABLE: {
+    tag: 'Mesa colaborativa',
     illustration: sharedTable,
     illustrationAlt: 'Aperto de mãos',
   },
-]
+  WORKSTATION: {
+    tag: 'Estação individual',
+    illustration: workstation,
+    illustrationAlt: 'Pessoa trabalhando em uma mesa',
+  },
+} satisfies Record<
+  PublicSpace['type'],
+  Pick<SpaceOption, 'tag' | 'illustration' | 'illustrationAlt'>
+>
 
-export function findSpaceOption(id: string | undefined) {
-  return SPACE_OPTIONS.find((option) => option.id === id)
+export function toSpaceOption(space: PublicSpace): SpaceOption {
+  const presentation = presentationByType[space.type]
+  const capacity = `${space.capacity} ${space.capacity === 1 ? 'pessoa' : 'pessoas'}`
+
+  return {
+    id: space.id,
+    name: space.name,
+    description: space.description ?? 'Espaço disponível para solicitação.',
+    tag: `${presentation.tag} · ${capacity}`,
+    illustration: presentation.illustration,
+    illustrationAlt: presentation.illustrationAlt,
+  }
 }
