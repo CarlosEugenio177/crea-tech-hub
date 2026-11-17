@@ -141,6 +141,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/space-blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar bloqueios de espaços */
+        get: operations["listSpaceBlocks"];
+        put?: never;
+        /** Criar bloqueio de espaço */
+        post: operations["createSpaceBlock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/space-blocks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar um bloqueio */
+        get: operations["getSpaceBlock"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/space-blocks/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancelar bloqueio preservando o histórico */
+        post: operations["cancelSpaceBlock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces": {
         parameters: {
             query?: never;
@@ -542,6 +594,50 @@ export interface components {
             stationPlacement?: components["schemas"]["StationPlacement"];
             type: components["schemas"]["SpaceType"];
         };
+        SpaceBlock: {
+            active: boolean;
+            /** Format: date-time */
+            cancelledAt?: string;
+            /** Format: uuid */
+            cancelledBy?: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdBy: string;
+            endsAt: string;
+            /** Format: uuid */
+            id: string;
+            reason: string;
+            /** Format: uuid */
+            spaceId: string;
+            startsAt: string;
+        };
+        SpaceBlockPage: {
+            items: components["schemas"]["SpaceBlock"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        SpaceBlockRequest: {
+            /**
+             * @description Fim exclusivo, em data e hora locais do Hub no Piauí.
+             * @example 2027-03-10T12:30
+             */
+            endsAt: string;
+            reason: string;
+            /** Format: uuid */
+            spaceId: string;
+            /**
+             * @description Data e hora locais do Hub no Piauí.
+             * @example 2027-03-10T09:15
+             */
+            startsAt: string;
+        };
         SpacePage: {
             items: components["schemas"]["Space"][];
             /** Format: int32 */
@@ -805,6 +901,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listSpaceBlocks: {
+        parameters: {
+            query?: {
+                /** @description Inclui bloqueios da sala quando o espaço é uma estação vinculada. */
+                spaceId?: string;
+                active?: boolean;
+                from?: string;
+                to?: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceBlockPage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    createSpaceBlock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpaceBlockRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceBlock"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getSpaceBlock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceBlock"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    cancelSpaceBlock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceBlock"];
                 };
             };
             default: components["responses"]["Problem"];

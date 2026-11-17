@@ -37,6 +37,9 @@ do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 
+V7 cria `space_blocks` para bloqueios pontuais, com motivo, intervalo e identificação
+de criação e cancelamento. Consulte [Bloqueios de horário](21-bloqueios-de-horario.md).
+
 V6 acrescenta vínculo à sala, número e coordenadas às estações em `spaces`, sem alterar
 seus UUIDs ou atribuir posições aos cadastros antigos. Consulte [Estações e mapa](20-estacoes-e-mapa.md).
 

@@ -27,6 +27,13 @@ Travar horários em que um ambiente não pode ser reservado, inclusive de forma 
 
 ## Critérios de aceite
 
+**Entrega parcial:** APIs administrativas de criação, consulta paginada e cancelamento
+de bloqueios pontuais implementadas, com histórico e herança dos bloqueios da sala
+para suas estações. Ver [Bloqueios de horário](../docs/21-bloqueios-de-horario.md).
+Telas, recorrência, disponibilidade pública, edição e tratamento de conflitos com
+reservas existentes continuam pendentes; corrigir um bloqueio nesta API exige cancelar
+e criar outro. Os critérios completos abaixo permanecem abertos.
+
 - [ ] Posso criar um bloqueio informando **ambiente**, **data(s)** e **horário**.
 - [ ] Posso criar bloqueios **recorrentes** (ex.: as tardes de reunião da diretoria definidas no início do ano).
 - [ ] Horários bloqueados aparecem como **indisponíveis** na consulta e **não aceitam reservas** (CTH-2, CTH-4).
