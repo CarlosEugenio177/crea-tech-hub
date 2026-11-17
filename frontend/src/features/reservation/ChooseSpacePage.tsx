@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router'
+import { Button } from '../../shared/ui/Button.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
 import styles from './ChooseSpacePage.module.css'
 import { usePublicSpaces } from './publicSpacesApi.ts'
@@ -13,7 +15,7 @@ export function ChooseSpacePage() {
   const navigate = useNavigate()
   const { update } = useReservationDraft()
   const spaces = usePublicSpaces()
-  const options = spaces.data?.items.map(toSpaceOption)
+  const options = spaces.data?.map(toSpaceOption)
 
   return (
     <StepPage
@@ -38,6 +40,15 @@ export function ChooseSpacePage() {
             />
           ))}
         </ul>
+      )}
+      {options && <ProblemNotice error={spaces.error} />}
+      {spaces.hasNextPage && (
+        <Button
+          disabled={spaces.isFetchingNextPage}
+          onClick={() => void spaces.fetchNextPage()}
+        >
+          Carregar mais espaços
+        </Button>
       )}
     </StepPage>
   )
