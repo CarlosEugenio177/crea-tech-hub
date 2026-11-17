@@ -160,8 +160,9 @@ Esta etapa inclui PostgreSQL, migrações, persistência de contas, login admini
 e cadastro administrativo básico de espaços, restritos à role `ADMIN`.
 As roles são `ADMIN` e `USER`;
 somente administradores ativos usam o login local nesta fase.
-Gestão de contas por API, catálogo, reservas, aprovação, notificações e frontend
-serão implementados nas próximas etapas.
+Gestão de equipe, recuperação de acesso e catálogo público também possuem APIs e
+integração com o frontend. Reservas, aprovação e notificações de reservas serão
+implementadas nas próximas etapas.
 
 O cadastro permite criar, editar, consultar com paginação e ativar/desativar espaços.
 O contrato está em [Cadastro administrativo de espaços](../docs/16-espacos.md).

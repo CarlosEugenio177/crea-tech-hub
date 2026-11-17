@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
 import { pickPermissions } from './permissions.ts'
 import { PermissionsFieldset } from './PermissionsFieldset.tsx'
@@ -47,9 +46,7 @@ export function MemberForm({ options, onSaved }: MemberFormProps) {
 
   return (
     <FormCard onSubmit={submit}>
-      {create.error && (
-        <Notice tone="error">{problemMessage(create.error)}</Notice>
-      )}
+      <ProblemNotice error={create.error} />
       <TextField
         label="Nome completo"
         autoComplete="off"

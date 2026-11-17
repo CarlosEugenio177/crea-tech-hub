@@ -1,7 +1,8 @@
+import { capacityLabel } from '../../shared/format/capacityLabel.ts'
 import { Button } from '../../shared/ui/Button.tsx'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { RecordCard } from '../../shared/ui/RecordCard.tsx'
-import { capacityLabel, SPACE_TYPE_LABELS } from './spaceLabels.ts'
+import { SPACE_TYPE_LABELS } from './spaceLabels.ts'
 import { spaceEditPath } from './spaceRoutes.ts'
 import { useChangeSpaceStatus, type Space } from './spacesApi.ts'
 

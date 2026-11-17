@@ -61,6 +61,7 @@ da 10. A interface deve carregar as páginas necessárias para desenhar a sala i
 Uma sala sem estações retorna uma página vazia. Sala inexistente, tipo diferente
 de `ROOM` ou sala inativa na consulta pública retorna 404. Desativar uma sala oculta
 suas estações nesse mapa público sem alterar a situação individual delas.
+O catálogo geral `/api/v1/spaces` também oculta estações vinculadas a salas inativas.
 
 O mapa informa a estrutura física e quais cadastros estão habilitados. `active`
 não significa livre no horário escolhido. A seleção interativa e as cores de livre,

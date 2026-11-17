@@ -55,6 +55,8 @@ public class SecurityConfiguration {
                       "/api/v1/hub/operating-hours",
                       "/api/v1/spaces/*/stations")
                   .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/api/v1/spaces")
+                  .permitAll()
                   .requestMatchers(
                       HttpMethod.POST,
                       "/api/v1/admin/auth/login",

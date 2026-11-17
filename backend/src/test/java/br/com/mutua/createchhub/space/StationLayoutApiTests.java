@@ -146,6 +146,9 @@ class StationLayoutApiTests {
                   .path("totalElements")
                   .asInt())
           .isEqualTo(2);
+      var catalogBefore = visitor.get("/api/v1/spaces");
+      assertThat(catalogBefore.statusCode()).isEqualTo(200);
+      assertThat(catalogBefore.body()).contains(first.getId().toString());
       assertThat(
               client
                   .json(
@@ -157,6 +160,9 @@ class StationLayoutApiTests {
           .isEqualTo(200);
       assertThat(visitor.get(publicPath).statusCode()).isEqualTo(404);
       assertThat(client.get(PATH + room.getId() + "/stations").statusCode()).isEqualTo(200);
+      var catalogAfter = visitor.get("/api/v1/spaces");
+      assertThat(catalogAfter.statusCode()).isEqualTo(200);
+      assertThat(catalogAfter.body()).doesNotContain(first.getId().toString());
     }
   }
 

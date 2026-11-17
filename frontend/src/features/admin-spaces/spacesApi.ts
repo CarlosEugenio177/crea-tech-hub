@@ -1,5 +1,5 @@
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
-import { api } from '../../shared/api/client'
+import { api } from '../../shared/api/client.ts'
 import type { components } from '../../shared/api/schema'
 
 export type Space = components['schemas']['Space']
@@ -10,9 +10,12 @@ const SPACE_PATH = '/api/v1/admin/spaces/{id}'
 const STATUS_PATH = '/api/v1/admin/spaces/{id}/status'
 const PAGE_SIZE = 20
 
-function useRefreshSpaces() {
+function useRefreshSpaces(onRefreshed?: () => void) {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: ['get', LIST_PATH] })
+  return async () => {
+    await queryClient.invalidateQueries({ queryKey: ['get', LIST_PATH] })
+    onRefreshed?.()
+  }
 }
 
 export function useSpaces(page: number, active?: boolean) {
@@ -35,13 +38,8 @@ export function useSpace(id: string) {
 }
 
 export function useCreateSpace(onSaved: () => void) {
-  const refresh = useRefreshSpaces()
-  const create = api.useMutation('post', LIST_PATH, {
-    onSuccess: async () => {
-      await refresh()
-      onSaved()
-    },
-  })
+  const refresh = useRefreshSpaces(onSaved)
+  const create = api.useMutation('post', LIST_PATH, { onSuccess: refresh })
 
   return {
     error: create.error,
@@ -51,13 +49,8 @@ export function useCreateSpace(onSaved: () => void) {
 }
 
 export function useUpdateSpace(id: string, onSaved: () => void) {
-  const refresh = useRefreshSpaces()
-  const update = api.useMutation('put', SPACE_PATH, {
-    onSuccess: async () => {
-      await refresh()
-      onSaved()
-    },
-  })
+  const refresh = useRefreshSpaces(onSaved)
+  const update = api.useMutation('put', SPACE_PATH, { onSuccess: refresh })
 
   return {
     error: update.error,

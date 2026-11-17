@@ -17,7 +17,8 @@ export function FirstAccessPage() {
       <button
         type="button"
         className={styles.linkButton}
-        onClick={() => logout.mutate({})}
+        disabled={logout.isPending}
+        onClick={logout.submit}
       >
         Sair
       </button>

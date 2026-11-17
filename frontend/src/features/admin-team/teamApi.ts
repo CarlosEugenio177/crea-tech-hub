@@ -1,5 +1,5 @@
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
-import { api } from '../../shared/api/client'
+import { api } from '../../shared/api/client.ts'
 import type { components } from '../../shared/api/schema'
 
 export type TeamMember = components['schemas']['AdminTeamMember']
@@ -15,14 +15,17 @@ const STATUS_PATH = '/api/v1/admin/team/{id}/status'
 const OPTIONS_PATH = '/api/v1/admin/team/permissions'
 const AUDIT_PATH = '/api/v1/admin/team/audit'
 const PAGE_SIZE = 20
+const NAMES_PAGE_SIZE = 100
 
-function useRefreshTeam() {
+function useRefreshTeam(onRefreshed?: () => void) {
   const queryClient = useQueryClient()
-  return () =>
-    Promise.all([
+  return async () => {
+    await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['get', TEAM_PATH] }),
       queryClient.invalidateQueries({ queryKey: ['get', AUDIT_PATH] }),
     ])
+    onRefreshed?.()
+  }
 }
 
 export function useTeam(page: number, size = PAGE_SIZE) {
@@ -44,6 +47,12 @@ export function useTeamMember(id: string) {
   )
 }
 
+export function useMemberName() {
+  const team = useTeam(0, NAMES_PAGE_SIZE)
+  return (id: string) =>
+    team.data?.items.find((member) => member.id === id)?.fullName ?? id
+}
+
 export function usePermissionOptions() {
   return api.useQuery('get', OPTIONS_PATH, {}, { retry: false })
 }
@@ -58,13 +67,8 @@ export function useAudit(page: number) {
 }
 
 export function useCreateMember(onSaved: () => void) {
-  const refresh = useRefreshTeam()
-  const create = api.useMutation('post', TEAM_PATH, {
-    onSuccess: async () => {
-      await refresh()
-      onSaved()
-    },
-  })
+  const refresh = useRefreshTeam(onSaved)
+  const create = api.useMutation('post', TEAM_PATH, { onSuccess: refresh })
 
   return {
     error: create.error,
@@ -74,12 +78,9 @@ export function useCreateMember(onSaved: () => void) {
 }
 
 export function useChangePermissions(id: string, onSaved: () => void) {
-  const refresh = useRefreshTeam()
+  const refresh = useRefreshTeam(onSaved)
   const change = api.useMutation('put', PERMISSIONS_PATH, {
-    onSuccess: async () => {
-      await refresh()
-      onSaved()
-    },
+    onSuccess: refresh,
   })
 
   return {

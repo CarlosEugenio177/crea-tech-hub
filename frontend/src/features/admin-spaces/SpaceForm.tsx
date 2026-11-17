@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { SelectField } from '../../shared/ui/SelectField.tsx'
 import { TextAreaField } from '../../shared/ui/TextAreaField.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
@@ -67,7 +66,7 @@ export function SpaceForm({
 
   return (
     <FormCard onSubmit={submit}>
-      {Boolean(error) && <Notice tone="error">{problemMessage(error)}</Notice>}
+      <ProblemNotice error={error} />
       <TextField
         label="Nome"
         placeholder="Ex.: Sala de reunião"

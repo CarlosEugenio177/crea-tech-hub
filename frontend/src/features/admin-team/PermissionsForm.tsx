@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form'
-import { problemMessage } from '../../shared/api/problem'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { pickPermissions } from './permissions.ts'
 import { PermissionsFieldset } from './PermissionsFieldset.tsx'
 import {
@@ -33,9 +33,7 @@ export function PermissionsForm({
 
   return (
     <FormCard onSubmit={submit}>
-      {change.error && (
-        <Notice tone="error">{problemMessage(change.error)}</Notice>
-      )}
+      <ProblemNotice error={change.error} />
       <Notice tone="info">
         {member.fullName} · {member.email}. Ao salvar, as sessões dessa conta
         são encerradas.

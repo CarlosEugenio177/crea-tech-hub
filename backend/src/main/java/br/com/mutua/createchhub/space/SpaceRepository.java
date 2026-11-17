@@ -14,6 +14,11 @@ public interface SpaceRepository extends JpaRepository<Space, UUID> {
 
   Page<Space> findByActive(boolean active, Pageable pageable);
 
+  @Query(
+      "select s from Space s where s.active = true and (s.roomId is null or exists "
+          + "(select r.id from Space r where r.id = s.roomId and r.active = true))")
+  Page<Space> findPublic(Pageable pageable);
+
   Page<Space> findByRoomId(UUID roomId, Pageable pageable);
 
   Page<Space> findByRoomIdAndActiveTrue(UUID roomId, Pageable pageable);

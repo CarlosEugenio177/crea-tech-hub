@@ -27,7 +27,8 @@ public class ApiContractCustomizer implements OpenApiCustomizer {
           "/api/v1/admin/auth/password/forgot",
           "/api/v1/admin/auth/password/reset",
           "/api/v1/hub/operating-hours",
-          "/api/v1/spaces/{roomId}/stations");
+          "/api/v1/spaces/{roomId}/stations",
+          "/api/v1/spaces");
 
   @Override
   public void customise(OpenAPI api) {

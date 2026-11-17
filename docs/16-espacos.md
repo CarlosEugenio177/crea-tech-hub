@@ -35,6 +35,14 @@ seu UUID e seus dados; não há exclusão física pela API.
 | GET | `/api/v1/admin/spaces/{id}` | Consulta o cadastro, inclusive inativo |
 | PUT | `/api/v1/admin/spaces/{id}` | Substitui nome, tipo, capacidade e descrição; mantém situação e identidade |
 | PATCH | `/api/v1/admin/spaces/{id}/status` | Ativa ou desativa; responde com o cadastro atualizado |
+| GET | `/api/v1/spaces` | Catálogo público, sem autenticação: somente espaços ativos, ordenados por nome |
+
+O catálogo público aceita apenas leitura e expõe `id`, `name`, `type`, `capacity` e
+`description`; não inclui a situação nem dados internos. Estações vinculadas a uma
+sala inativa também ficam ocultas. Aceita `page` e `size` com
+os mesmos limites da lista administrativa, sem o filtro `active`. O fluxo público de
+solicitação usa esse endpoint na escolha do espaço. Casos de teste manuais estão em
+[`postman/public-space-catalog.postman_collection.json`](postman/public-space-catalog.postman_collection.json).
 
 Corpo de criação/edição:
 
@@ -85,8 +93,8 @@ automaticamente; nomes e capacidades serão informados pela administração.
 
 O CTH-15 permanece parcialmente implementado. As próximas partes incluem foto,
 recursos/equipamentos descritos na sala, regras e avisos, a interface do mapa e controle
-de visibilidade pública. Catálogo público,
-disponibilidade por data e reservas pertencem às etapas seguintes.
+de visibilidade pública. O catálogo público já está integrado; disponibilidade por
+data e reservas pertencem às etapas seguintes.
 
 O funcionamento do Hub já tem APIs próprias, descritas em
 [Funcionamento do Hub](19-funcionamento-do-hub.md); sua tela de edição ainda será entregue.

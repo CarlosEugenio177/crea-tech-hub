@@ -1,3 +1,7 @@
+import type {
+  AdminAccount,
+  AdminPermission,
+} from '../features/admin-auth/adminAccount.ts'
 import {
   ADMIN_HOME,
   ADMIN_PASSWORD,
@@ -5,15 +9,12 @@ import {
 import { ADMIN_SPACES } from '../features/admin-spaces/spaceRoutes.ts'
 import { ADMIN_TEAM } from '../features/admin-team/teamRoutes.ts'
 import { ADMIN_RESERVATIONS } from '../features/reservation/reservationRoutes.ts'
-import type { components } from '../shared/api/schema'
-
-export type AdminAccount = components['schemas']['AdminAccount']
 
 type MenuItem = {
   to: string
   label: string
   description: string
-  permission?: AdminAccount['permissions'][number]
+  permission?: AdminPermission
 }
 
 const MENU: MenuItem[] = [
