@@ -19,6 +19,7 @@ function useSessionCache() {
   return {
     refresh: () => queryClient.invalidateQueries({ queryKey }),
     clear: () => {
+      queryClient.getMutationCache().clear()
       queryClient.removeQueries({
         predicate: (query) => query.queryKey[1] !== SESSION_PATH,
       })
