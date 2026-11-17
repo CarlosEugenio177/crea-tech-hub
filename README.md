@@ -12,6 +12,17 @@ O backend está em [`backend/`](backend/README.md), com Java 25, Spring Boot e M
 O frontend está em [`frontend/`](frontend/README.md), com React, TypeScript e Vite.
 As convenções de código e as decisões atuais estão em [`AGENTS.md`](AGENTS.md).
 Consulte o README dessa pasta para executar e testar a fundação inicial.
+
+Antes de selecionar **Reopen in Container** no VS Code, crie o arquivo local de
+variáveis e substitua o placeholder por uma senha não vazia:
+
+```sh
+cp .env.example .env
+```
+
+Edite `.env` e defina `DB_PASSWORD`. O arquivo é ignorado pelo Git e não deve ser
+versionado.
+
 O fluxo de branches e a CI estão descritos em [CI/CD do backend](docs/12-ci-cd.md).
 O banco local e a primeira migração estão descritos em [Persistência](docs/13-persistencia.md).
 O tratamento centralizado de exceções está descrito em [Erros da API](docs/14-erros-da-api.md).
