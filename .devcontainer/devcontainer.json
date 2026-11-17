@@ -5,10 +5,13 @@
   "workspaceFolder": "/workspaces/crea-tech-hub",
   "remoteUser": "vscode",
   "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24.15.0"
+    }
   },
-  "forwardPorts": [8080],
-  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.m2 backend/target && cd backend && ./mvnw --batch-mode --no-transfer-progress dependency:go-offline",
+  "forwardPorts": [8080, 5173],
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.m2 backend/target && cd backend && ./mvnw --batch-mode --no-transfer-progress dependency:go-offline && cd .. && npm --prefix openapi ci --ignore-scripts && npm --prefix frontend ci",
   "customizations": {
     "vscode": {
       "extensions": ["vmware.vscode-boot-dev-pack"]

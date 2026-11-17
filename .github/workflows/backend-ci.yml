@@ -123,6 +123,7 @@ jobs:
           path: |
             backend/target/surefire-reports/
             backend/target/failsafe-reports/
+            backend/target/site/jacoco/
           if-no-files-found: ignore
           retention-days: 7
 
