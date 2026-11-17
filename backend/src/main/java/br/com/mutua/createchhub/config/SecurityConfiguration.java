@@ -50,6 +50,8 @@ public class SecurityConfiguration {
               authorize
                   .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/admin/auth/csrf")
                   .permitAll()
+                  .requestMatchers(HttpMethod.GET, "/api/v1/spaces")
+                  .permitAll()
                   .requestMatchers(
                       HttpMethod.POST,
                       "/api/v1/admin/auth/login",

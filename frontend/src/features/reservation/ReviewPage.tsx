@@ -4,15 +4,13 @@ import { Notice } from '../../shared/ui/Notice.tsx'
 import { useReservationDraft } from './reservationDraft.ts'
 import { RESERVE, RESERVE_REQUESTER } from './reservationRoutes.ts'
 import { ReservationSummary } from './ReservationSummary.tsx'
-import { findSpaceOption } from './spaceOptions.ts'
 import { StepActions } from './StepActions.tsx'
 import { StepPage } from './StepPage.tsx'
 
 export function ReviewPage() {
   const { draft } = useReservationDraft()
-  const space = findSpaceOption(draft.spaceId)
 
-  if (!space || !draft.period || !draft.requester) {
+  if (!draft.spaceId || !draft.spaceName || !draft.period || !draft.requester) {
     return <Navigate to={RESERVE} replace />
   }
 
@@ -23,7 +21,7 @@ export function ReviewPage() {
       description="Confira os dados antes de enviar para a análise da equipe."
     >
       <ReservationSummary
-        spaceName={space.name}
+        spaceName={draft.spaceName}
         period={draft.period}
         requester={draft.requester}
       />
