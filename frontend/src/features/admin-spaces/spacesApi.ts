@@ -13,7 +13,12 @@ const PAGE_SIZE = 20
 function useRefreshSpaces(onRefreshed?: () => void) {
   const queryClient = useQueryClient()
   return async () => {
-    await queryClient.invalidateQueries({ queryKey: ['get', LIST_PATH] })
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['get', LIST_PATH] }),
+      queryClient.invalidateQueries({
+        queryKey: ['get', '/api/v1/admin/spaces/{roomId}/stations'],
+      }),
+    ])
     onRefreshed?.()
   }
 }

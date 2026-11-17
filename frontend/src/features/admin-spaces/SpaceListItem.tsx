@@ -3,7 +3,7 @@ import { Button } from '../../shared/ui/Button.tsx'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
 import { RecordCard } from '../../shared/ui/RecordCard.tsx'
 import { SPACE_TYPE_LABELS } from './spaceLabels.ts'
-import { spaceEditPath } from './spaceRoutes.ts'
+import { spaceEditPath, spaceLayoutPath } from './spaceRoutes.ts'
 import { useChangeSpaceStatus, type Space } from './spacesApi.ts'
 
 type SpaceListItemProps = { space: Space }
@@ -21,6 +21,11 @@ export function SpaceListItem({ space }: SpaceListItemProps) {
           <ButtonLink variant="secondary" to={spaceEditPath(space.id)}>
             Editar
           </ButtonLink>
+          {space.type === 'ROOM' && (
+            <ButtonLink variant="secondary" to={spaceLayoutPath(space.id)}>
+              Montar sala
+            </ButtonLink>
+          )}
           <Button
             variant="secondary"
             disabled={status.isPending}

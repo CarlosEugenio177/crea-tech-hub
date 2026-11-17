@@ -14,10 +14,12 @@ import { EditSpacePage } from '../features/admin-spaces/EditSpacePage.tsx'
 import { NewSpacePage } from '../features/admin-spaces/NewSpacePage.tsx'
 import {
   ADMIN_SPACE_EDIT,
+  ADMIN_SPACE_LAYOUT,
   ADMIN_SPACE_NEW,
   ADMIN_SPACES,
 } from '../features/admin-spaces/spaceRoutes.ts'
 import { SpacesPage } from '../features/admin-spaces/SpacesPage.tsx'
+import { RoomLayoutPage } from '../features/admin-spaces/layout/RoomLayoutPage.tsx'
 import { AuditPage } from '../features/admin-team/AuditPage.tsx'
 import { EditPermissionsPage } from '../features/admin-team/EditPermissionsPage.tsx'
 import { NewMemberPage } from '../features/admin-team/NewMemberPage.tsx'
@@ -72,6 +74,7 @@ export function App() {
         <Route path={ADMIN_SPACES} element={<SpacesPage />} />
         <Route path={ADMIN_SPACE_NEW} element={<NewSpacePage />} />
         <Route path={ADMIN_SPACE_EDIT} element={<EditSpacePage />} />
+        <Route path={ADMIN_SPACE_LAYOUT} element={<RoomLayoutPage />} />
         <Route path={ADMIN_TEAM} element={<TeamPage />} />
         <Route path={ADMIN_TEAM_NEW} element={<NewMemberPage />} />
         <Route path={ADMIN_TEAM_AUDIT} element={<AuditPage />} />

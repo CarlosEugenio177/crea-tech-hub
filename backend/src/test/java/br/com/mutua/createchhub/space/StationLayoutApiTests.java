@@ -46,6 +46,8 @@ class StationLayoutApiTests {
   @BeforeEach
   void prepare() {
     room = spaces.saveAndFlush(new Space("Coworking", SpaceType.ROOM, 16, null));
+    room.changeBookingMode(BookingMode.PER_STATION);
+    room = spaces.saveAndFlush(room);
     station = spaces.saveAndFlush(new Space("Estação", SpaceType.WORKSTATION, 1, null));
     var account =
         new UserAccount(
@@ -90,6 +92,8 @@ class StationLayoutApiTests {
       assertThat(json.readTree(updated.body()).path("stationPlacement"))
           .isEqualTo(persistedPlacement);
       var otherRoom = spaces.saveAndFlush(new Space("Estudos", SpaceType.ROOM, 11, null));
+      otherRoom.changeBookingMode(BookingMode.PER_STATION);
+      spaces.saveAndFlush(otherRoom);
       var moved = new HashMap<>(request());
       moved.put("roomId", otherRoom.getId());
       moved.put("number", 1);

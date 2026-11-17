@@ -5,13 +5,14 @@ import java.util.UUID;
 
 @Schema(
     name = "PublicSpace",
-    requiredProperties = {"id", "name", "type", "capacity"})
+    requiredProperties = {"id", "name", "type", "capacity", "bookingMode"})
 public record PublicSpaceResponse(
     UUID id,
     String name,
     SpaceType type,
     int capacity,
-    @Schema(types = {"string", "null"}) String description) {
+    @Schema(types = {"string", "null"}) String description,
+    BookingMode bookingMode) {
 
   static PublicSpaceResponse from(Space space) {
     return new PublicSpaceResponse(
@@ -19,6 +20,7 @@ public record PublicSpaceResponse(
         space.getName(),
         space.getType(),
         space.getCapacity(),
-        space.getDescription());
+        space.getDescription(),
+        space.getBookingMode());
   }
 }

@@ -171,6 +171,8 @@ Fotos, recursos e a interface do mapa completam o CTH-15 nas
 próximas entregas.
 A numeração e as posições das estações já possuem APIs de edição e consulta pública;
 consulte [Estações e mapa](../docs/20-estacoes-e-mapa.md).
+O editor visual, as modalidades e as operações em lote estão em
+[Montagem de salas](../docs/22-montagem-de-salas.md).
 O funcionamento já está disponível por API, com dias e horários configuráveis;
 consulte [Funcionamento do Hub](../docs/19-funcionamento-do-hub.md). Sua tela de edição
 e a aplicação dessas regras nas futuras reservas ficam para as próximas partes.

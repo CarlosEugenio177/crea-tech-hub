@@ -292,6 +292,7 @@ class SpaceBlockApiTests {
   }
 
   private UUID station(int number) {
+    spaceService.changeBookingMode(room, br.com.mutua.createchhub.space.BookingMode.PER_STATION);
     var station = spaces.saveAndFlush(new Space("Estação", SpaceType.WORKSTATION, 1, null));
     layout.place(
         station.getId(),

@@ -25,6 +25,9 @@ public interface SpaceRepository extends JpaRepository<Space, UUID> {
 
   boolean existsByRoomId(UUID roomId);
 
+  @Query("select max(s.stationNumber) from Space s where s.roomId = :roomId")
+  Integer findLastStationNumber(UUID roomId);
+
   boolean existsByRoomIdAndStationNumberAndIdNot(UUID roomId, int stationNumber, UUID id);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)

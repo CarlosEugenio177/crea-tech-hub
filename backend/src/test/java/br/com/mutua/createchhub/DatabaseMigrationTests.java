@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("7");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("8");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(7);
+    assertThat(flyway.info().applied()).hasSize(8);
   }
 
   @Test
@@ -156,6 +156,41 @@ class DatabaseMigrationTests {
                 String.class,
                 "admin@example.com"))
         .isEqualTo("legacy-test-hash");
+  }
+
+  @Test
+  void infersStationBookingModeWithoutChangingExistingStationIdentities() {
+    migrations("modes_upgrade", "7").migrate();
+    var room = UUID.randomUUID();
+    var station = UUID.randomUUID();
+    jdbc.update(
+        "INSERT INTO modes_upgrade.spaces (id, name, type, capacity) VALUES (?, 'Coworking', 'ROOM', 16)",
+        room);
+    jdbc.update(
+        "INSERT INTO modes_upgrade.spaces (id, name, type, capacity, room_id, station_number, map_x, map_y) VALUES (?, 'Estação 1', 'WORKSTATION', 1, ?, 1, 25, 50)",
+        station,
+        room);
+
+    migrations("modes_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT booking_mode FROM modes_upgrade.spaces WHERE id = ?", String.class, room))
+        .isEqualTo("PER_STATION");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT room_id FROM modes_upgrade.spaces WHERE id = ?", UUID.class, station))
+        .isEqualTo(room);
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT station_number FROM modes_upgrade.spaces WHERE id = ?",
+                Integer.class,
+                station))
+        .isEqualTo(1);
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT version FROM modes_upgrade.spaces WHERE id = ?", Long.class, station))
+        .isZero();
   }
 
   @Test

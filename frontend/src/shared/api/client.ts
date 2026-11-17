@@ -38,6 +38,28 @@ const sessionGuard: Middleware = {
   },
 }
 
-apiClient.use(csrf, sessionGuard)
+const errorResponse: Middleware = {
+  async onResponse({ response }) {
+    if (response.ok) return response
+    try {
+      const body: unknown = await response.clone().json()
+      if (body !== null && typeof body === 'object') return response
+    } catch {
+      // Proxies podem devolver erros sem JSON quando o backend está indisponível.
+    }
+    return Response.json(
+      {
+        status: response.status,
+        detail: 'Não foi possível concluir a solicitação. Tente novamente.',
+      },
+      {
+        status: response.status,
+        headers: { 'Content-Type': 'application/problem+json' },
+      },
+    )
+  },
+}
+
+apiClient.use(csrf, sessionGuard, errorResponse)
 
 export const api = createQueryHooks(apiClient)

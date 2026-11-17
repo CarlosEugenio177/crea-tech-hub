@@ -31,6 +31,7 @@ class StationLayoutConcurrencyTests {
   @Test
   void onlyOneStationCanClaimTheSameNumberConcurrently() throws Exception {
     var room = spaces.saveAndFlush(new Space("Sala", SpaceType.ROOM, 2, null));
+    service.changeBookingMode(room.getId(), BookingMode.PER_STATION);
     var left = spaces.saveAndFlush(new Space("A", SpaceType.WORKSTATION, 1, null));
     var right = spaces.saveAndFlush(new Space("B", SpaceType.WORKSTATION, 1, null));
     var start = new CountDownLatch(1);
@@ -44,8 +45,9 @@ class StationLayoutConcurrencyTests {
   }
 
   @Test
-  void attachingAStationAndChangingItsRoomTypeCannotBothSucceed() throws Exception {
+  void attachingAStationAndChangingItsBookingModeCannotBothSucceed() throws Exception {
     var room = spaces.saveAndFlush(new Space("Sala", SpaceType.ROOM, 2, null));
+    service.changeBookingMode(room.getId(), BookingMode.PER_STATION);
     var station = spaces.saveAndFlush(new Space("Estação", SpaceType.WORKSTATION, 1, null));
     var start = new CountDownLatch(1);
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -55,8 +57,7 @@ class StationLayoutConcurrencyTests {
               () -> {
                 start.await();
                 try {
-                  service.update(
-                      room.getId(), new SpaceRequest("Mesa", SpaceType.SHARED_TABLE, 2, null));
+                  service.changeBookingMode(room.getId(), BookingMode.WHOLE_SPACE);
                   return true;
                 } catch (ResourceConflictException e) {
                   return false;
@@ -67,8 +68,8 @@ class StationLayoutConcurrencyTests {
           .isNotEqualTo(change.get(10, TimeUnit.SECONDS));
     }
     var stored = spaces.findById(station.getId()).orElseThrow();
-    assertThat(spaces.findById(room.getId()).orElseThrow().getType())
-        .isEqualTo(stored.getRoomId() == null ? SpaceType.SHARED_TABLE : SpaceType.ROOM);
+    assertThat(spaces.findById(room.getId()).orElseThrow().getBookingMode())
+        .isEqualTo(stored.getRoomId() == null ? BookingMode.WHOLE_SPACE : BookingMode.PER_STATION);
   }
 
   private boolean claim(CountDownLatch start, UUID id, UUID roomId) throws InterruptedException {

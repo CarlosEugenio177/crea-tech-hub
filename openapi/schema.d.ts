@@ -229,6 +229,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/spaces/{id}/booking-mode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Definir modalidade de reserva do espaço */
+        put: operations["changeBookingMode"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces/{id}/station-placement": {
         parameters: {
             query?: never;
@@ -263,6 +280,23 @@ export interface paths {
         patch: operations["changeSpaceStatus"];
         trace?: never;
     };
+    "/api/v1/admin/spaces/{roomId}/station-positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Salvar posições do mapa em conjunto */
+        put: operations["saveStationPositions"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces/{roomId}/stations": {
         parameters: {
             query?: never;
@@ -274,6 +308,23 @@ export interface paths {
         get: operations["listAdminRoomStations"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/spaces/{roomId}/stations/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Gerar estações numeradas em uma sala */
+        post: operations["createStationsBatch"];
         delete?: never;
         options?: never;
         head?: never;
@@ -510,6 +561,11 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        /** @enum {string} */
+        BookingMode: "WHOLE_SPACE" | "PER_STATION";
+        BookingModeRequest: {
+            bookingMode: components["schemas"]["BookingMode"];
+        };
         CsrfToken: {
             headerName: string;
             parameterName: string;
@@ -562,6 +618,7 @@ export interface components {
             type?: string;
         };
         PublicSpace: {
+            bookingMode: components["schemas"]["BookingMode"];
             /** Format: int32 */
             capacity: number;
             description?: string | null;
@@ -583,6 +640,7 @@ export interface components {
         };
         Space: {
             active: boolean;
+            bookingMode: components["schemas"]["BookingMode"];
             /** Format: int32 */
             capacity: number;
             /** Format: date-time */
@@ -593,6 +651,8 @@ export interface components {
             name: string;
             stationPlacement?: components["schemas"]["StationPlacement"];
             type: components["schemas"]["SpaceType"];
+            /** Format: int64 */
+            version: number;
         };
         SpaceBlock: {
             active: boolean;
@@ -664,6 +724,12 @@ export interface components {
         };
         /** @enum {string} */
         SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
+        StationBatchRequest: {
+            /** Format: int32 */
+            columns: number;
+            /** Format: int32 */
+            count: number;
+        };
         StationPlacement: {
             /** Format: int32 */
             number: number;
@@ -687,6 +753,17 @@ export interface components {
              * @example 40
              */
             y: number;
+        };
+        StationPositionUpdate: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int64 */
+            version: number;
+            x: number;
+            y: number;
+        };
+        StationPositionsRequest: {
+            positions: components["schemas"]["StationPositionUpdate"][];
         };
     };
     responses: {
@@ -1106,6 +1183,33 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    changeBookingMode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingModeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     placeStation: {
         parameters: {
             query?: never;
@@ -1160,6 +1264,33 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    saveStationPositions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StationPositionsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"][];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     listAdminRoomStations: {
         parameters: {
             query?: {
@@ -1181,6 +1312,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SpacePage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    createStationsBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StationBatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"][];
                 };
             };
             default: components["responses"]["Problem"];

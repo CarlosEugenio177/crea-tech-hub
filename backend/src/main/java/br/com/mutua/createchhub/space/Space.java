@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -36,6 +37,14 @@ public class Space {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 32)
   private SpaceType type;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "booking_mode", nullable = false, length = 24)
+  private BookingMode bookingMode = BookingMode.WHOLE_SPACE;
+
+  @Version
+  @Column(nullable = false)
+  private long version;
 
   @Positive
   @Column(nullable = false)
@@ -71,6 +80,10 @@ public class Space {
   }
 
   void update(String name, SpaceType type, int capacity, String description) {
+    if (bookingMode == BookingMode.PER_STATION && type != SpaceType.ROOM) {
+      throw new ResourceConflictException(
+          "Altere a modalidade para espaço inteiro antes de mudar o tipo.");
+    }
     if (roomId != null && type != SpaceType.WORKSTATION) {
       throw new ResourceConflictException(
           "Uma estação vinculada a uma sala não pode mudar de tipo.");
@@ -87,6 +100,26 @@ public class Space {
 
   void changeStatus(boolean active) {
     this.active = active;
+  }
+
+  void changeBookingMode(BookingMode mode) {
+    if (mode == BookingMode.PER_STATION && type != SpaceType.ROOM) {
+      throw new ResourceConflictException("Somente salas podem ser reservadas por estação.");
+    }
+    bookingMode = mode;
+  }
+
+  void moveStation(BigDecimal x, BigDecimal y) {
+    mapX = x;
+    mapY = y;
+  }
+
+  public BookingMode getBookingMode() {
+    return bookingMode;
+  }
+
+  public long getVersion() {
+    return version;
   }
 
   void placeStation(UUID roomId, int number, BigDecimal x, BigDecimal y) {

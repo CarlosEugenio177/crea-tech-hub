@@ -8,6 +8,12 @@
 
 ## Objetivo
 
+**Decisão do beta:** acesso aberto, sem conta ou verificação de vínculo Crea/Mútua.
+O CPF será usado para identificar o solicitante nos dados do pedido, junto de nome e
+contatos. A coleta será implementada na entrega da solicitação; a verificação de
+vínculo ficará para uma etapa futura. Essa decisão prevalece sobre as referências
+abaixo ao ID/cartão da Mútua.
+
 Permitir que o solicitante informe seus dados na própria solicitação, sem criar conta nesta fase, incluindo o ID/cartãozinho da Mútua quando aplicável e o motivo quando exigido.
 
 ## Quem usa

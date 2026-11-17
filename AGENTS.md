@@ -31,7 +31,7 @@
 
 ## Regras já decididas
 
-- Nesta fase, o solicitante usa o fluxo público sem criar conta. Seus dados pertencem à solicitação; não implementar cadastro obrigatório, CPF obrigatório ou validação Crea fictícia.
+- No beta, qualquer pessoa pode solicitar pelo fluxo público sem criar conta. O CPF identifica o solicitante nos dados do pedido, junto de nome e contatos; não é login nem comprovação de vínculo. A coleta será implementada na entrega da solicitação. A verificação Crea/Mútua fica para o futuro, sem consulta fictícia.
 - Login local exclusivo de administradores ativos, com e-mail único normalizado e senha. A autenticação futura do solicitante via Crea/Mútua ainda depende de definição.
 - As roles são `ADMIN` e `USER`. Mutualista, profissional do Crea e outros vínculos são informações independentes das permissões. Não conceder benefícios por vínculo autodeclarado.
 - Superadministrador é um `ADMIN` com `MANAGE_ACCESS`, sem nova role. Novas ações administrativas exigem permissão explícita no backend; não presumir acesso total pela role.
@@ -40,6 +40,7 @@
 - O solicitante informa início e fim com precisão de minutos. Não impor slots fixos. Intervalos são `[início, fim)`: uma reserva pode começar quando a anterior termina.
 - O funcionamento do Hub é configurável por API, com padrão segunda a sexta, 08:00–18:00. Somente `MANAGE_SPACES` permite editar; a leitura pública fica em `/api/v1/hub/operating-hours`. Consultar `docs/19-funcionamento-do-hub.md` antes de implementar disponibilidade e reservas.
 - Estações continuam sendo espaços `WORKSTATION` vinculados a uma sala `ROOM`, com número único na sala e coordenadas percentuais. Consultar `docs/20-estacoes-e-mapa.md`; a consulta do mapa público não representa disponibilidade de horário. Não duplicar estações em outra entidade nem inventar o layout físico.
+- A montagem usa modalidades `WHOLE_SPACE` e `PER_STATION`, geração em lote e editor 2D com arraste. Salvar posições preserva UUIDs e verifica versões para impedir sobrescrita de outra edição. Seguir `docs/22-montagem-de-salas.md`; adicionar estações não recria nem renumera as existentes.
 - Bloqueios pontuais são definidos por `ADMIN` com `MANAGE_SPACES`. O bloqueio da sala se aplica às estações pelo vínculo, sem cópias; cancelamentos preservam o registro e o responsável. Consultar `docs/21-bloqueios-de-horario.md` antes de implementar disponibilidade e reservas. Não impor funcionamento ou limite de duração ao bloqueio definido pelo administrador.
 - Ao implementar reservas, garantir ausência de sobreposição também sob concorrência, com proteção transacional no PostgreSQL; uma consulta prévia isolada não basta.
 - O envio gera comprovante de solicitação pendente. Confirmar somente após decisão administrativa; nunca substituir automaticamente uma reserva por prioridade interna.

@@ -58,6 +58,9 @@ Vite, React Router e as bibliotecas já aprovadas; preservar KISS e YAGNI.
 - Usar textos curtos e concretos, ligados à ação ou ao estado da tela. Rótulos como
   "Bloquear horário" e "Cancelar bloqueio" devem dizer o que acontece. Evitar slogans,
   adjetivos vazios e explicações repetidas nos formulários e avisos.
+- O editor de salas usa as APIs e versões descritas em `../docs/22-montagem-de-salas.md`.
+  Arrastar altera um rascunho; gravar exige ação explícita. Preservar mudanças locais
+  em falhas de rede e conflitos, oferecer operação pelo teclado e manter os UUIDs.
 
 ## Verificação e entrega
 
