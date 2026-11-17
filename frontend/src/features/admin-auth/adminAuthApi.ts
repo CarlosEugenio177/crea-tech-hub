@@ -1,5 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { api } from '../../shared/api/client'
+import { problemStatus } from '../../shared/api/problem'
 
 const SESSION_PATH = '/api/v1/admin/auth/me'
 const FORM_HEADERS = { 'Content-Type': 'application/x-www-form-urlencoded' }
@@ -19,7 +21,22 @@ function useSessionCache() {
 }
 
 export function useAdminSession() {
-  return api.useQuery('get', SESSION_PATH, {}, { retry: false })
+  const queryClient = useQueryClient()
+  const session = api.useQuery('get', SESSION_PATH, {}, { retry: false })
+  const unauthorized = problemStatus(session.error) === 401
+  const revoked = unauthorized && session.data !== undefined
+
+  // Uma nova busca com 401 mantém o último `data` no cache; a sessão revogada
+  // não pode continuar exibindo o painel nem os dados privados já carregados.
+  useEffect(() => {
+    if (revoked) queryClient.removeQueries()
+  }, [revoked, queryClient])
+
+  return {
+    data: unauthorized ? undefined : session.data,
+    error: session.error,
+    isPending: session.isPending,
+  }
 }
 
 export function useLogin() {

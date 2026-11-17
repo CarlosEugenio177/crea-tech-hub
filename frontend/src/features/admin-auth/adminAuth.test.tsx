@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react'
+import { focusManager } from '@tanstack/react-query'
+import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, expect, test, vi } from 'vitest'
 import {
@@ -29,6 +30,7 @@ const account = (passwordChangeRequired = false) =>
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  focusManager.setFocused(undefined)
   window.location.hash = ''
 })
 
@@ -40,6 +42,25 @@ test('sends visitors without a session from the admin area to the login', async 
   expect(
     await screen.findByRole('heading', { name: 'Acesso da equipe' }),
   ).toBeInTheDocument()
+})
+
+test('leaves the admin area when the session is revoked', async () => {
+  const api = fakeApi({ [SESSION]: () => account() })
+  renderApp('/admin')
+  expect(
+    await screen.findByRole('heading', { name: 'Visão geral' }),
+  ).toBeInTheDocument()
+
+  api.routes[SESSION] = unauthenticated
+  act(() => focusManager.setFocused(false))
+  act(() => focusManager.setFocused(true))
+
+  expect(
+    await screen.findByRole('heading', { name: 'Acesso da equipe' }),
+  ).toBeInTheDocument()
+  expect(
+    screen.queryByRole('heading', { name: 'Visão geral' }),
+  ).not.toBeInTheDocument()
 })
 
 test('logs in with form-encoded credentials and the CSRF token', async () => {
