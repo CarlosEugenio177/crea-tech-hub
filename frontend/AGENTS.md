@@ -61,6 +61,9 @@ Vite, React Router e as bibliotecas já aprovadas; preservar KISS e YAGNI.
 - O editor de salas usa as APIs e versões descritas em `../docs/22-montagem-de-salas.md`.
   Arrastar altera um rascunho; gravar exige ação explícita. Preservar mudanças locais
   em falhas de rede e conflitos, oferecer operação pelo teclado e manter os UUIDs.
+  Medidas e remoções entram no mesmo rascunho; selecionar várias permite alinhar,
+  distribuir e remover com desfazer antes de salvar. Preservar o encaixe opcional,
+  as guias e a seleção por número para quem usa toque ou teclado.
 
 ## Verificação e entrega
 

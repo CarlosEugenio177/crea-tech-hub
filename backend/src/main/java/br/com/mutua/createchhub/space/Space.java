@@ -66,6 +66,12 @@ public class Space {
   @Column(name = "map_y", precision = 5, scale = 2)
   private BigDecimal mapY;
 
+  @Column(name = "room_width", precision = 5, scale = 2)
+  private BigDecimal roomWidth;
+
+  @Column(name = "room_length", precision = 5, scale = 2)
+  private BigDecimal roomLength;
+
   @Column(nullable = false)
   private boolean active = true;
 
@@ -94,6 +100,13 @@ public class Space {
   private void setDetails(String name, SpaceType type, int capacity, String description) {
     this.name = name == null ? null : name.strip();
     this.type = type;
+    if (type == SpaceType.ROOM) {
+      if (roomWidth == null) roomWidth = BigDecimal.TEN;
+      if (roomLength == null) roomLength = BigDecimal.valueOf(6);
+    } else {
+      roomWidth = null;
+      roomLength = null;
+    }
     this.capacity = capacity;
     this.description = description == null ? null : description.strip();
   }
@@ -112,6 +125,26 @@ public class Space {
   void moveStation(BigDecimal x, BigDecimal y) {
     mapX = x;
     mapY = y;
+  }
+
+  void resizeRoom(BigDecimal width, BigDecimal length) {
+    if (type != SpaceType.ROOM) {
+      throw new ResourceConflictException("Somente salas possuem dimensões de mapa.");
+    }
+    roomWidth = width;
+    roomLength = length;
+  }
+
+  void removeFromRoom() {
+    roomId = null;
+    stationNumber = null;
+    mapX = null;
+    mapY = null;
+    active = false;
+  }
+
+  public RoomDimensions getRoomDimensions() {
+    return roomWidth == null ? null : new RoomDimensions(roomWidth, roomLength);
   }
 
   public BookingMode getBookingMode() {

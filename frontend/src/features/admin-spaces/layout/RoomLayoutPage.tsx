@@ -37,12 +37,14 @@ export function RoomLayoutPage() {
       ) : (
         <RoomLayoutEditor
           key={id}
-          roomId={id}
-          mode={room.data.bookingMode}
+          room={room.data}
           stations={stations.data.filter(isStation)}
-          fetching={stations.isFetching}
-          loadError={stations.error}
-          onReload={() => void stations.refetch()}
+          fetching={stations.isFetching || room.isFetching}
+          loadError={stations.error ?? room.error}
+          onReload={() => {
+            void room.refetch()
+            void stations.refetch()
+          }}
         />
       )}
     </FormPage>

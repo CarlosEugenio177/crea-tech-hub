@@ -22,6 +22,7 @@ class StationLayoutConcurrencyTests {
   @Autowired private SpaceRepository spaces;
   @Autowired private StationLayoutService layout;
   @Autowired private SpaceService service;
+  @Autowired private RoomLayoutService roomLayout;
 
   @AfterEach
   void cleanup() {
@@ -70,6 +71,49 @@ class StationLayoutConcurrencyTests {
     var stored = spaces.findById(station.getId()).orElseThrow();
     assertThat(spaces.findById(room.getId()).orElseThrow().getBookingMode())
         .isEqualTo(stored.getRoomId() == null ? BookingMode.WHOLE_SPACE : BookingMode.PER_STATION);
+  }
+
+  @Test
+  void removingAndMovingTheSameStationCannotBothSucceed() throws Exception {
+    var room = spaces.saveAndFlush(new Space("Sala", SpaceType.ROOM, 2, null));
+    var configured = service.changeBookingMode(room.getId(), BookingMode.PER_STATION);
+    var station = layout.generate(room.getId(), new StationBatchRequest(1, 1)).getFirst();
+    var movement =
+        new RoomLayoutRequest(
+            configured.version(),
+            BigDecimal.TEN,
+            BigDecimal.valueOf(6),
+            java.util.List.of(
+                new StationPositionsRequest.Position(
+                    station.id(), station.version(), BigDecimal.TEN, BigDecimal.TEN)),
+            java.util.List.of());
+    var removal =
+        new RoomLayoutRequest(
+            configured.version(),
+            BigDecimal.TEN,
+            BigDecimal.valueOf(6),
+            java.util.List.of(),
+            java.util.List.of(
+                new RoomLayoutRequest.RemovedStation(station.id(), station.version())));
+    var start = new CountDownLatch(1);
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      var a = executor.submit(() -> save(start, room.getId(), movement));
+      var b = executor.submit(() -> save(start, room.getId(), removal));
+      start.countDown();
+      assertThat(a.get(10, TimeUnit.SECONDS)).isNotEqualTo(b.get(10, TimeUnit.SECONDS));
+    }
+    assertThat(spaces.findById(station.id())).isPresent();
+  }
+
+  private boolean save(CountDownLatch start, UUID id, RoomLayoutRequest request)
+      throws InterruptedException {
+    start.await();
+    try {
+      roomLayout.save(id, request);
+      return true;
+    } catch (ResourceConflictException e) {
+      return false;
+    }
   }
 
   private boolean claim(CountDownLatch start, UUID id, UUID roomId) throws InterruptedException {

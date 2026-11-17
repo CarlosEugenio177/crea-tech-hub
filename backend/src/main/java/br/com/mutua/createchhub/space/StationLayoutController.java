@@ -24,9 +24,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class StationLayoutController {
 
   private final StationLayoutService layout;
+  private final RoomLayoutService roomLayout;
 
-  public StationLayoutController(StationLayoutService layout) {
+  public StationLayoutController(StationLayoutService layout, RoomLayoutService roomLayout) {
     this.layout = layout;
+    this.roomLayout = roomLayout;
+  }
+
+  @Operation(
+      operationId = "saveRoomLayout",
+      summary = "Salvar dimensões, posições e remoções do mapa")
+  @PutMapping("/{roomId}/layout")
+  public SpaceResponse saveLayout(
+      @PathVariable UUID roomId, @Valid @RequestBody RoomLayoutRequest request) {
+    return roomLayout.save(roomId, request);
   }
 
   @Operation(operationId = "listAdminRoomStations", summary = "Listar estações de uma sala")

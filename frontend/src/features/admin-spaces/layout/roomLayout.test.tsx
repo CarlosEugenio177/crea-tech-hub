@@ -17,7 +17,7 @@ const ROOM = `GET /api/v1/admin/spaces/${ID}`
 const STATIONS = `GET /api/v1/admin/spaces/${ID}/stations`
 const MODE = `PUT /api/v1/admin/spaces/${ID}/booking-mode`
 const BATCH = `POST /api/v1/admin/spaces/${ID}/stations/batch`
-const SAVE = `PUT /api/v1/admin/spaces/${ID}/station-positions`
+const SAVE = `PUT /api/v1/admin/spaces/${ID}/layout`
 const room: Space = {
   id: ID,
   name: 'Coworking',
@@ -100,14 +100,17 @@ test('changes the booking mode and generates the requested stations', async () =
 test('moves with the keyboard and persists only after saving', async () => {
   const user = userEvent.setup()
   const api = fakeApi(base())
-  api.routes[SAVE] = () =>
-    json([
-      {
-        ...station(1),
-        version: 1,
-        stationPlacement: { roomId: ID, number: 1, x: 27, y: 50 },
-      },
-    ])
+  api.routes[SAVE] = () => {
+    api.routes[STATIONS] = () =>
+      page([
+        {
+          ...station(1),
+          version: 1,
+          stationPlacement: { roomId: ID, number: 1, x: 27, y: 50 },
+        },
+      ])
+    return json(room)
+  }
   renderApp(`/admin/espacos/${ID}/mapa`)
   const seat = await screen.findByRole('button', { name: 'Mover estação 1' })
   await user.click(seat)
@@ -117,6 +120,10 @@ test('moves with the keyboard and persists only after saving', async () => {
   await user.click(screen.getByRole('button', { name: 'Salvar mapa' }))
   expect(await screen.findByText('Mapa salvo.')).toBeInTheDocument()
   expect(JSON.parse(api.sent(SAVE)[0].body)).toEqual({
+    version: 0,
+    width: 10,
+    length: 6,
+    removedStations: [],
     positions: [{ id: station(1).id, version: 0, x: 27, y: 50 }],
   })
   expect(seat.style.left).toBe('27%')
@@ -235,4 +242,157 @@ test('keeps unsaved positions when a background refresh fails', async () => {
   await user.click(screen.getByRole('button', { name: 'Recarregar mapa' }))
   await waitFor(() => expect(seat).toBeEnabled())
   expect(seat.style.left).toBe('27%')
+})
+
+test('snaps while dragging and allows disabling the alignment aid', async () => {
+  vi.stubGlobal('PointerEvent', MouseEvent)
+  const user = userEvent.setup()
+  const other = {
+    ...station(2),
+    stationPlacement: { roomId: ID, number: 2, x: 60, y: 40 },
+  }
+  fakeApi(base([station(1), other]))
+  renderApp(`/admin/espacos/${ID}/mapa`)
+  const seat = await screen.findByRole('button', { name: 'Mover estação 1' })
+  const canvas = screen.getByRole('group', { name: 'Mapa de estações' })
+  vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue(
+    new DOMRect(0, 0, 400, 240),
+  )
+  fireEvent.pointerDown(seat, {
+    button: 0,
+    clientX: 100,
+    clientY: 120,
+    pointerId: 1,
+  })
+  fireEvent.pointerMove(seat, { clientX: 239.2, clientY: 97, pointerId: 1 })
+  expect(seat.style.left).toBe('60%')
+  expect(seat.style.top).toBe('40%')
+  fireEvent.pointerUp(seat, { pointerId: 1 })
+  await user.click(screen.getByLabelText('Auxiliar alinhamento'))
+  fireEvent.pointerDown(seat, {
+    button: 0,
+    clientX: 240,
+    clientY: 96,
+    pointerId: 2,
+  })
+  fireEvent.pointerMove(seat, { clientX: 239.2, clientY: 97, pointerId: 2 })
+  expect(seat.style.left).toBe('59.8%')
+  expect(seat.style.top).toBe('40.42%')
+})
+
+test('aligns and distributes the selected stations without recreating them', async () => {
+  const user = userEvent.setup()
+  const items = [station(1), station(2), station(3)].map((item, i) => ({
+    ...item,
+    stationPlacement: {
+      roomId: ID,
+      number: i + 1,
+      x: [10, 35, 90][i] ?? 0,
+      y: [20, 70, 40][i] ?? 0,
+    },
+  }))
+  fakeApi(base(items))
+  renderApp(`/admin/espacos/${ID}/mapa`)
+  expect(
+    await screen.findByRole('button', { name: 'Alinhar em fileira' }),
+  ).toBeDisabled()
+  await user.click(
+    await screen.findByRole('button', { name: 'Selecionar todas' }),
+  )
+  await user.click(screen.getByRole('button', { name: 'Alinhar em fileira' }))
+  await user.click(
+    screen.getByRole('button', { name: 'Igualar distâncias horizontais' }),
+  )
+  expect(
+    screen.getByRole('button', { name: 'Mover estação 1' }).style.top,
+  ).toBe('45%')
+  expect(
+    screen.getByRole('button', { name: 'Mover estação 2' }).style.left,
+  ).toBe('50%')
+  expect(
+    screen.getByRole('button', { name: 'Mover estação 3' }).style.left,
+  ).toBe('90%')
+  await user.click(screen.getByRole('button', { name: 'Descartar' }))
+  expect(
+    screen.getByRole('button', { name: 'Mover estação 2' }).style.left,
+  ).toBe('35%')
+})
+
+test('resizes the map and removes multiple stations only when saving', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi(base([station(1), station(2), station(3)]))
+  api.routes[SAVE] = () => {
+    api.routes[STATIONS] = () => page([station(1)])
+    return json({
+      ...room,
+      version: 1,
+      roomDimensions: { width: 8.5, length: 4 },
+    })
+  }
+  renderApp(`/admin/espacos/${ID}/mapa`)
+  const width = await screen.findByLabelText('Largura (m)')
+  await user.clear(width)
+  await user.type(width, '8,5')
+  await user.clear(screen.getByLabelText('Comprimento (m)'))
+  await user.type(screen.getByLabelText('Comprimento (m)'), '4')
+  await user.click(screen.getByRole('button', { name: 'Aplicar medidas' }))
+  expect(
+    screen.getByRole('group', { name: 'Mapa de estações' }).style.aspectRatio,
+  ).toBe('8.5 / 4')
+  await user.click(screen.getByText('Selecionar por número'))
+  await user.click(screen.getByRole('checkbox', { name: 'Estação 2' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Estação 3' }))
+  await user.click(screen.getByRole('button', { name: 'Remover do mapa (2)' }))
+  expect(
+    screen.queryByRole('button', { name: 'Mover estação 2' }),
+  ).not.toBeInTheDocument()
+  expect(api.sent(SAVE)).toHaveLength(0)
+  await user.click(screen.getByRole('button', { name: 'Desfazer remoções' }))
+  expect(
+    screen.getByRole('button', { name: 'Mover estação 2' }),
+  ).toBeInTheDocument()
+  await user.click(screen.getByRole('checkbox', { name: 'Estação 2' }))
+  await user.click(screen.getByRole('checkbox', { name: 'Estação 3' }))
+  await user.click(screen.getByRole('button', { name: 'Remover do mapa (2)' }))
+  await user.click(screen.getByRole('button', { name: 'Salvar mapa' }))
+  expect(await screen.findByText('Mapa salvo.')).toBeInTheDocument()
+  expect(JSON.parse(api.sent(SAVE)[0].body)).toEqual({
+    version: 0,
+    width: 8.5,
+    length: 4,
+    positions: [],
+    removedStations: [
+      { id: station(2).id, version: 0 },
+      { id: station(3).id, version: 0 },
+    ],
+  })
+  expect(
+    screen.queryByRole('button', { name: 'Mover estação 2' }),
+  ).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Salvar mapa' })).toBeDisabled()
+})
+
+test('keeps removals on conflict and can discard them', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi(base())
+  api.routes[SAVE] = () => problem(409, 'O mapa foi alterado por outra pessoa.')
+  renderApp(`/admin/espacos/${ID}/mapa`)
+  await user.click(
+    await screen.findByRole('button', { name: 'Mover estação 1' }),
+  )
+  await user.keyboard('{Delete}')
+  expect(
+    screen.queryByRole('button', { name: 'Mover estação 1' }),
+  ).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Salvar mapa' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'O mapa foi alterado por outra pessoa.',
+  )
+  expect(
+    screen.getByRole('button', { name: 'Desfazer remoções' }),
+  ).toBeEnabled()
+  await user.click(screen.getByRole('button', { name: 'Descartar' }))
+  expect(
+    screen.getByRole('button', { name: 'Mover estação 1' }),
+  ).toBeInTheDocument()
 })

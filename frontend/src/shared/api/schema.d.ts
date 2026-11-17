@@ -280,6 +280,23 @@ export interface paths {
         patch: operations["changeSpaceStatus"];
         trace?: never;
     };
+    "/api/v1/admin/spaces/{roomId}/layout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Salvar dimensões, posições e remoções do mapa */
+        put: operations["saveRoomLayout"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/spaces/{roomId}/station-positions": {
         parameters: {
             query?: never;
@@ -625,6 +642,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            roomDimensions?: components["schemas"]["RoomDimensions"];
             type: components["schemas"]["SpaceType"];
         };
         PublicSpacePage: {
@@ -638,6 +656,26 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        RemovedStation: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int64 */
+            version: number;
+        };
+        RoomDimensions: {
+            length: number;
+            width: number;
+        };
+        RoomLayoutRequest: {
+            /** @description Comprimento do mapa em metros */
+            length: number;
+            positions: components["schemas"]["StationPositionUpdate"][];
+            removedStations: components["schemas"]["RemovedStation"][];
+            /** Format: int64 */
+            version: number;
+            /** @description Largura do mapa em metros */
+            width: number;
+        };
         Space: {
             active: boolean;
             bookingMode: components["schemas"]["BookingMode"];
@@ -649,6 +687,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            roomDimensions?: components["schemas"]["RoomDimensions"];
             stationPlacement?: components["schemas"]["StationPlacement"];
             type: components["schemas"]["SpaceType"];
             /** Format: int64 */
@@ -1249,6 +1288,33 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["SpaceStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    saveRoomLayout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomLayoutRequest"];
             };
         };
         responses: {

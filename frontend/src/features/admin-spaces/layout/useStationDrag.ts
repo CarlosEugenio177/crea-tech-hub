@@ -8,12 +8,25 @@ export function useStationDrag(
   point: (station: Station) => Point,
   move: (station: Station, position: Point) => void,
   select: (id: string) => void,
+  adjust: (
+    position: Point,
+    bounds: DOMRect,
+    station: Station,
+    free: boolean,
+  ) => Point,
+  onStop: () => void,
 ) {
   const drag = useRef<Drag | null>(null)
 
   return {
     start(event: PointerEvent<HTMLButtonElement>, station: Station) {
-      if (event.button !== 0 || !canvas.current) return
+      if (
+        event.button !== 0 ||
+        event.ctrlKey ||
+        event.metaKey ||
+        !canvas.current
+      )
+        return
       const bounds = canvas.current.getBoundingClientRect()
       if (bounds.width === 0 || bounds.height === 0) return
       const position = point(station)
@@ -26,7 +39,7 @@ export function useStationDrag(
           event.clientY - bounds.top - (position.y * bounds.height) / 100,
       }
       event.preventDefault()
-      event.currentTarget.focus()
+      event.currentTarget.focus({ preventScroll: true })
       event.currentTarget.setPointerCapture?.(event.pointerId)
       select(station.id)
     },
@@ -43,17 +56,23 @@ export function useStationDrag(
       if (!bounds.width || !bounds.height) return
       move(
         station,
-        boundedPoint(
-          ((event.clientX - bounds.left - current.offsetX) * 100) /
-            bounds.width,
-          ((event.clientY - bounds.top - current.offsetY) * 100) /
-            bounds.height,
+        adjust(
+          boundedPoint(
+            ((event.clientX - bounds.left - current.offsetX) * 100) /
+              bounds.width,
+            ((event.clientY - bounds.top - current.offsetY) * 100) /
+              bounds.height,
+          ),
+          bounds,
+          station,
+          event.altKey,
         ),
       )
     },
     stop(event: PointerEvent<HTMLButtonElement>) {
       if (drag.current?.pointerId !== event.pointerId) return
       drag.current = null
+      onStop()
       if (event.currentTarget.hasPointerCapture?.(event.pointerId))
         event.currentTarget.releasePointerCapture(event.pointerId)
     },

@@ -25,9 +25,56 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("8");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("9");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(8);
+    assertThat(flyway.info().applied()).hasSize(9);
+  }
+
+  @Test
+  void addsEditableDimensionsWithoutMovingOrRenumberingExistingStations() {
+    migrations("dimensions_upgrade", "8").migrate();
+    var room = UUID.randomUUID();
+    var station = UUID.randomUUID();
+    jdbc.update(
+        "INSERT INTO dimensions_upgrade.spaces (id, name, type, capacity, booking_mode, version) VALUES (?, 'Sala', 'ROOM', 4, 'PER_STATION', 4)",
+        room);
+    jdbc.update(
+        "INSERT INTO dimensions_upgrade.spaces (id, name, type, capacity, room_id, station_number, map_x, map_y) VALUES (?, 'Estação', 'WORKSTATION', 1, ?, 7, 25.5, 40)",
+        station,
+        room);
+    migrations("dimensions_upgrade", "latest").migrate();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT room_width FROM dimensions_upgrade.spaces WHERE id = ?",
+                java.math.BigDecimal.class,
+                room))
+        .isEqualByComparingTo("10");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT room_length FROM dimensions_upgrade.spaces WHERE id = ?",
+                java.math.BigDecimal.class,
+                room))
+        .isEqualByComparingTo("6");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT version FROM dimensions_upgrade.spaces WHERE id = ?", Long.class, room))
+        .isEqualTo(4);
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT station_number FROM dimensions_upgrade.spaces WHERE id = ?",
+                Integer.class,
+                station))
+        .isEqualTo(7);
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT map_x FROM dimensions_upgrade.spaces WHERE id = ?",
+                java.math.BigDecimal.class,
+                station))
+        .isEqualByComparingTo("25.5");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT room_id FROM dimensions_upgrade.spaces WHERE id = ?", UUID.class, station))
+        .isEqualTo(room);
   }
 
   @Test

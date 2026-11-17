@@ -53,14 +53,93 @@
   border: 2px solid var(--color-border-field);
   border-radius: var(--radius-field);
   background-color: var(--color-background);
-  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
-  background-size: 20px 20px;
 }
 .canvas {
   position: relative;
-  height: 320px;
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+}
+.mapViewport {
+  max-width: 100%;
+  overflow: auto;
+  max-height: 700px;
+}
+.mapScale {
+  margin: 20px 0 0;
+  text-align: center;
+  font: var(--font-small);
+  color: var(--color-text-muted);
+}
+.verticalGuide,
+.horizontalGuide {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+.verticalGuide {
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--color-primary);
+}
+.horizontalGuide {
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--color-primary);
+}
+.selectionTools {
+  display: grid;
+  gap: 12px;
+}
+.selectionTools summary {
+  cursor: pointer;
+  font: var(--font-small);
+}
+.stationList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 0;
+  max-height: 180px;
+  overflow: auto;
+}
+.stationList label,
+.toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font: var(--font-small);
+}
+.mapOptions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.mapOptions > label {
+  margin-right: auto;
+}
+.removeButton {
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
+  padding: 12px 16px;
+  font: var(--font-button);
+  cursor: pointer;
+}
+.removeButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.removalNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 .station {
+  z-index: 2;
   position: absolute;
   width: 52px;
   height: 50px;
@@ -149,9 +228,6 @@
   }
   .room {
     padding: 28px;
-  }
-  .canvas {
-    height: 300px;
   }
   .station {
     width: 44px;

@@ -27,7 +27,8 @@ public record SpaceResponse(
     Instant createdAt,
     @JsonInclude(JsonInclude.Include.NON_NULL) StationPlacementResponse stationPlacement,
     BookingMode bookingMode,
-    long version) {
+    long version,
+    @JsonInclude(JsonInclude.Include.NON_NULL) RoomDimensions roomDimensions) {
 
   static SpaceResponse from(Space space) {
     return new SpaceResponse(
@@ -40,6 +41,7 @@ public record SpaceResponse(
         space.getCreatedAt(),
         StationPlacementResponse.from(space),
         space.getBookingMode(),
-        space.getVersion());
+        space.getVersion(),
+        space.getRoomDimensions());
   }
 }

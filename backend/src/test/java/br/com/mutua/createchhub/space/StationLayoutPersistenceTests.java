@@ -38,6 +38,20 @@ class StationLayoutPersistenceTests {
         .hasMessageContaining("ck_spaces_station_placement");
   }
 
+  @ParameterizedTest
+  @CsvSource({"0,5", "101,5", "8,-1", "8,101", "8,NULL"})
+  void rejectsInvalidRoomDimensions(String width, String length) {
+    assertThatThrownBy(
+            () ->
+                jdbc.update(
+                    "UPDATE spaces SET room_width = ?, room_length = ? WHERE id = ?",
+                    new java.math.BigDecimal(width),
+                    length.equals("NULL") ? null : new java.math.BigDecimal(length),
+                    roomId))
+        .isInstanceOf(DataIntegrityViolationException.class)
+        .hasMessageContaining("ck_spaces_room_dimensions");
+  }
+
   @Test
   void rejectsIncompletePlacement() {
     assertThatThrownBy(

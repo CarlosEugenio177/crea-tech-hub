@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.space;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
@@ -12,7 +13,8 @@ public record PublicSpaceResponse(
     SpaceType type,
     int capacity,
     @Schema(types = {"string", "null"}) String description,
-    BookingMode bookingMode) {
+    BookingMode bookingMode,
+    @JsonInclude(JsonInclude.Include.NON_NULL) RoomDimensions roomDimensions) {
 
   static PublicSpaceResponse from(Space space) {
     return new PublicSpaceResponse(
@@ -21,6 +23,7 @@ public record PublicSpaceResponse(
         space.getType(),
         space.getCapacity(),
         space.getDescription(),
-        space.getBookingMode());
+        space.getBookingMode(),
+        space.getRoomDimensions());
   }
 }
