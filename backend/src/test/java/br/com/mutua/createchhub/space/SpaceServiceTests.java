@@ -27,7 +27,7 @@ class SpaceServiceTests {
     var result = new SpaceService(spaces).listPublic(2, 10);
 
     assertThat(result.getContent())
-        .extracting(PublicSpaceResponse::name)
+        .extracting(response -> response.name())
         .containsExactly("Sala aberta");
     var pageable = ArgumentCaptor.forClass(Pageable.class);
     verify(spaces).findPublic(pageable.capture());

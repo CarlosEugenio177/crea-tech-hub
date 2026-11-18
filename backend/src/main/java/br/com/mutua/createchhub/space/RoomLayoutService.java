@@ -6,7 +6,6 @@ import br.com.mutua.createchhub.shared.error.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +30,7 @@ public class RoomLayoutService {
     ids.add(roomId);
     var locked =
         spaces.findAllForUpdate(ids).stream()
-            .collect(Collectors.toMap(Space::getId, Function.identity()));
+            .collect(Collectors.toMap(space -> space.getId(), space -> space));
     var room = locked.get(roomId);
     if (room == null) throw new ResourceNotFoundException("Sala não encontrada.");
     if (room.getType() != SpaceType.ROOM || room.getBookingMode() != BookingMode.PER_STATION) {

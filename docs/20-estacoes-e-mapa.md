@@ -1,5 +1,19 @@
 # Estações numeradas e mapa da sala
 
+## Disponibilidade pública
+
+`GET /api/v1/spaces/{id}/availability` recebe `startsAt` e `endsAt` em
+horário local do Hub (por exemplo, `2027-03-10T09:15`). A consulta aceita
+intervalos no mesmo dia e aplica o funcionamento e os bloqueios ativos. O fim
+é exclusivo. Bloquear a sala afeta todas as estações e bloquear uma estação
+afeta apenas aquela vaga.
+
+O visitante pode escolher no mapa, pelo número ou pedir a primeira estação
+livre. Consultar ou escolher não segura o horário. Pedidos pendentes e
+confirmados passarão a bloquear o horário na entrega de envio da solicitação.
+
+## Cadastro e posição
+
 Esta parte do CTH-15 organiza as estações existentes dentro de salas. Cada estação
 continua sendo um espaço `WORKSTATION`, de capacidade 1 e UUID próprio; uma sala é
 um espaço `ROOM`. Não há duplicação de cadastros ou reservas nesta entrega.
@@ -68,8 +82,8 @@ O catálogo geral `/api/v1/spaces` também oculta estações vinculadas a salas 
 
 O mapa informa a estrutura física e quais cadastros estão habilitados. `active`
 não significa livre no horário escolhido. O editor administrativo já permite arrastar
-as estações e salvar posições. A seleção pública e as cores de livre, pendente ou
-reservado dependem da implementação da disponibilidade e das reservas.
+as estações e salvar posições. A seleção pública usa a consulta por intervalo.
+A ocupação por solicitações pendentes e confirmadas virá com o registro de pedidos.
 
 ## Persistência
 

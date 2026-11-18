@@ -1,0 +1,46 @@
+.options {
+  display: grid;
+  gap: 16px;
+  margin-block: 16px;
+}
+
+.viewport {
+  overflow: auto;
+  padding: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-background);
+}
+
+.room {
+  position: relative;
+  min-width: 235px;
+  height: 260px;
+}
+
+.station {
+  position: absolute;
+  display: grid;
+  place-content: center;
+  width: 54px;
+  min-height: 44px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font: var(--font-small);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.station:disabled {
+  border-color: var(--color-border-field);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.station[aria-pressed='true'] {
+  z-index: 1;
+  background: var(--color-primary);
+  color: var(--color-on-inverse);
+}

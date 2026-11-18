@@ -3,6 +3,7 @@ package br.com.mutua.createchhub.auth;
 import br.com.mutua.createchhub.user.UserAccount;
 import java.io.Serial;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.springframework.security.core.CredentialsContainer;
@@ -25,7 +26,8 @@ public final class AdminPrincipal implements UserDetails, CredentialsContainer {
     var authorities =
         Stream.concat(
                 Stream.of("ROLE_" + account.getAccessRole().name()),
-                account.getPermissions().stream().map(Enum::name))
+                account.getPermissions().stream()
+                    .map(permission -> Objects.requireNonNull(permission).name()))
             .map(SimpleGrantedAuthority::new)
             .toList();
     user =

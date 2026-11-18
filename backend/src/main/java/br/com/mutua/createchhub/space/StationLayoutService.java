@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -105,7 +104,7 @@ public class StationLayoutService {
 
   @Transactional
   public List<SpaceResponse> savePositions(UUID roomId, StationPositionsRequest request) {
-    var ids = request.positions().stream().map(StationPositionsRequest.Position::id).toList();
+    var ids = request.positions().stream().map(position -> position.id()).toList();
     if (new HashSet<>(ids).size() != ids.size()) {
       throw new InvalidRequestException("Cada estação deve aparecer apenas uma vez.");
     }
@@ -113,7 +112,7 @@ public class StationLayoutService {
     lockIds.add(roomId);
     Map<UUID, Space> locked =
         spaces.findAllForUpdate(lockIds).stream()
-            .collect(Collectors.toMap(Space::getId, Function.identity()));
+            .collect(Collectors.toMap(space -> space.getId(), space -> space));
     var room = locked.get(roomId);
     if (room == null) throw roomNotFound();
     requireStationRoom(room);
@@ -130,7 +129,9 @@ public class StationLayoutService {
     }
     request.positions().forEach(p -> locked.get(p.id()).moveStation(p.x(), p.y()));
     spaces.flush();
-    return request.positions().stream().map(p -> SpaceResponse.from(locked.get(p.id()))).toList();
+    return request.positions().stream()
+        .map(position -> SpaceResponse.from(locked.get(position.id())))
+        .toList();
   }
 
   private BigDecimal percent(long index, long count) {
