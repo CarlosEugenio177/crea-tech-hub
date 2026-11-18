@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                       "/api/v1/admin/auth/csrf",
                       "/api/v1/hub/operating-hours",
                       "/api/v1/hub/usage-rules",
+                      "/api/v1/reservations/receipt",
                       "/api/v1/spaces/*/stations",
                       "/api/v1/spaces/*/availability")
                   .permitAll()
@@ -60,6 +61,7 @@ public class SecurityConfiguration {
                   .permitAll()
                   .requestMatchers(
                       HttpMethod.POST,
+                      "/api/v1/reservations",
                       "/api/v1/admin/auth/login",
                       "/api/v1/admin/auth/password/forgot",
                       "/api/v1/admin/auth/password/reset")

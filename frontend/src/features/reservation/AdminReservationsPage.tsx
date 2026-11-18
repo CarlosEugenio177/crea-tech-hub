@@ -9,8 +9,8 @@ export function AdminReservationsPage() {
       description="Solicitações recebidas pelo site, para análise e decisão da equipe."
     >
       <Notice tone="info">
-        O painel de reservas ainda não está disponível. As solicitações
-        aparecerão aqui quando o envio pelo site for liberado.
+        A consulta de solicitações e as ações da equipe estarão disponíveis na
+        próxima etapa.
       </Notice>
     </ListPage>
   )

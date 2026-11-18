@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 public interface SpaceRepository extends JpaRepository<Space, UUID> {
+  @Query("select s.roomId from Space s where s.id = :id")
+  UUID findParentId(UUID id);
 
   Page<Space> findByActive(boolean active, Pageable pageable);
 

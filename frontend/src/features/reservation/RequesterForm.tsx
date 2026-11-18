@@ -14,6 +14,8 @@ import {
 } from './requesterSchema.ts'
 import { RESERVE_TIME } from './reservationRoutes.ts'
 import { StepActions } from './StepActions.tsx'
+import { useUsageRules } from './reservationApi.ts'
+import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
 
 type RequesterFormProps = {
   requester?: Requester
@@ -21,6 +23,7 @@ type RequesterFormProps = {
 }
 
 export function RequesterForm({ requester, onSubmit }: RequesterFormProps) {
+  const rules = useUsageRules()
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(requesterSchema),
     defaultValues: requester,
@@ -48,10 +51,12 @@ export function RequesterForm({ requester, onSubmit }: RequesterFormProps) {
         {...register('fullName')}
       />
       <TextField
-        label="ID ou cartão da Mútua (opcional)"
-        hint="Para mutualistas. A conferência é feita pela equipe."
-        error={errors.mutuaId?.message}
-        {...register('mutuaId')}
+        label="CPF"
+        inputMode="numeric"
+        maxLength={14}
+        hint="A Mútua confere sua identidade na portaria."
+        error={errors.cpf?.message}
+        {...register('cpf')}
       />
       <TextField
         label="WhatsApp"
@@ -89,13 +94,34 @@ export function RequesterForm({ requester, onSubmit }: RequesterFormProps) {
         Seus dados identificam esta solicitação e permitem o contato da equipe.
         Não criam conta nem comprovam vínculo com o Crea ou a Mútua.
       </Notice>
-      <CheckboxField
-        label="Li e aceito as regras de uso do Hub"
-        error={errors.rulesAccepted?.message}
-        {...register('rulesAccepted')}
-      />
+      {rules.data ? (
+        <section aria-label="Regras de uso do Hub">
+          <h2>Regras de uso do Hub</h2>
+          <ul>
+            {rules.data.generalRules.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+          <CheckboxField
+            label="Li e aceito as regras de uso do Hub"
+            error={errors.rulesAccepted?.message}
+            {...register('rulesAccepted')}
+          />
+        </section>
+      ) : (
+        <>
+          <QueryStatus error={rules.error} />
+          {rules.isError && (
+            <Button variant="secondary" onClick={() => void rules.refetch()}>
+              Tentar carregar as regras novamente
+            </Button>
+          )}
+        </>
+      )}
       <StepActions backTo={RESERVE_TIME} backLabel="Voltar ao horário">
-        <Button type="submit">Revisar solicitação</Button>
+        <Button type="submit" disabled={!rules.data}>
+          Revisar solicitação
+        </Button>
       </StepActions>
     </FormCard>
   )

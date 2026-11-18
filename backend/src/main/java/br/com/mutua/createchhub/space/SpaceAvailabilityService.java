@@ -2,6 +2,7 @@ package br.com.mutua.createchhub.space;
 
 import br.com.mutua.createchhub.block.SpaceBlockRepository;
 import br.com.mutua.createchhub.operatinghours.OperatingHoursService;
+import br.com.mutua.createchhub.reservation.ReservationRepository;
 import br.com.mutua.createchhub.shared.error.InvalidRequestException;
 import br.com.mutua.createchhub.shared.error.ResourceNotFoundException;
 import java.time.Clock;
@@ -10,6 +11,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -22,16 +24,19 @@ public class SpaceAvailabilityService {
   private final SpaceBlockRepository blocks;
   private final OperatingHoursService hours;
   private final Clock clock;
+  private final ReservationRepository reservations;
 
   public SpaceAvailabilityService(
       SpaceRepository spaces,
       SpaceBlockRepository blocks,
       OperatingHoursService hours,
-      Clock clock) {
+      Clock clock,
+      ReservationRepository reservations) {
     this.spaces = spaces;
     this.blocks = blocks;
     this.hours = hours;
     this.clock = clock;
+    this.reservations = reservations;
   }
 
   @Transactional(readOnly = true)
@@ -60,7 +65,8 @@ public class SpaceAvailabilityService {
     ids.add(id);
     if (space.getRoomId() != null) ids.add(space.getRoomId());
     stations.forEach(station -> ids.add(station.getId()));
-    var blocked = blocks.findBlockedSpaceIds(ids, start, end);
+    var blocked = new HashSet<>(blocks.findBlockedSpaceIds(ids, start, end));
+    blocked.addAll(reservations.occupied(ids, start, end));
     boolean roomBlocked =
         blocked.contains(id) || (space.getRoomId() != null && blocked.contains(space.getRoomId()));
     var options =
@@ -75,7 +81,11 @@ public class SpaceAvailabilityService {
                         !roomBlocked && !blocked.contains(station.getId())))
             .toList();
     boolean available =
-        perStation ? options.stream().anyMatch(SpaceAvailability.Station::available) : !roomBlocked;
+        perStation
+            ? options.stream().anyMatch(SpaceAvailability.Station::available)
+            : !roomBlocked
+                && (space.getType() != SpaceType.ROOM
+                    || !reservations.hasOccupiedStations(id, start, end));
     return new SpaceAvailability(
         available ? SpaceAvailability.Status.AVAILABLE : SpaceAvailability.Status.UNAVAILABLE,
         options);

@@ -1,16 +1,27 @@
-import { Navigate } from 'react-router'
+import { Navigate, useNavigate } from 'react-router'
 import { Button } from '../../shared/ui/Button.tsx'
-import { Notice } from '../../shared/ui/Notice.tsx'
+import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
+import { useSubmitReservation } from './reservationApi.ts'
 import { useReservationDraft } from './reservationDraft.ts'
-import { RESERVE, RESERVE_REQUESTER } from './reservationRoutes.ts'
+import {
+  RESERVE,
+  RESERVE_REQUESTER,
+  RESERVE_TIME,
+  TRACKING,
+} from './reservationRoutes.ts'
 import { ReservationSummary } from './ReservationSummary.tsx'
 import { StepActions } from './StepActions.tsx'
 import { StepPage } from './StepPage.tsx'
 
 export function ReviewPage() {
   const { draft } = useReservationDraft()
+  const navigate = useNavigate()
+  const submission = useSubmitReservation((token) => {
+    void navigate(`${TRACKING}#${token}`, { replace: true })
+  })
+  const { space, period, requester, station } = draft
 
-  if (!draft.space || !draft.period || !draft.requester) {
+  if (!space || !period || !requester) {
     return <Navigate to={RESERVE} replace />
   }
 
@@ -21,19 +32,32 @@ export function ReviewPage() {
       description="Confira os dados antes de enviar para a análise da equipe."
     >
       <ReservationSummary
-        spaceName={draft.space.name}
-        stationNumber={draft.station?.number}
-        period={draft.period}
-        requester={draft.requester}
+        spaceName={space.name}
+        stationNumber={station?.number}
+        period={period}
+        requester={requester}
       />
-      <Notice tone="info">
-        O envio de solicitações ainda não está disponível. Quando estiver, você
-        receberá um comprovante com protocolo e um link individual para
-        acompanhar ou cancelar, e a reserva só será confirmada após a análise da
-        equipe.
-      </Notice>
-      <StepActions backTo={RESERVE_REQUESTER} backLabel="Voltar aos dados">
-        <Button disabled>Enviar solicitação para análise</Button>
+      <ProblemNotice error={submission.error} />
+      <StepActions
+        backTo={
+          submission.error?.status === 409 ? RESERVE_TIME : RESERVE_REQUESTER
+        }
+        backLabel={
+          submission.error?.status === 409
+            ? 'Escolher outro horário ou estação'
+            : 'Voltar aos dados'
+        }
+      >
+        <Button
+          disabled={submission.isPending || submission.error?.status === 409}
+          onClick={() =>
+            submission.submit(space.id, station?.id, period, requester)
+          }
+        >
+          {submission.isPending
+            ? 'Enviando…'
+            : 'Enviar solicitação para análise'}
+        </Button>
       </StepActions>
     </StepPage>
   )

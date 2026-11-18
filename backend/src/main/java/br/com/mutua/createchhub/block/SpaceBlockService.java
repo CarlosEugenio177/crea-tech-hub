@@ -47,7 +47,7 @@ public class SpaceBlockService {
 
   @Transactional
   public SpaceBlockResponse create(SpaceBlockRequest request, UUID actor) {
-    if (!spaces.existsById(request.spaceId())) {
+    if (spaces.findForUpdate(request.spaceId()).isEmpty()) {
       throw new ResourceNotFoundException("Espaço não encontrado.");
     }
     var block =
