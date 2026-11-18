@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -17,7 +18,7 @@ final class AuthenticationOpenApi {
   private AuthenticationOpenApi() {}
 
   static void addFilterEndpoints(OpenAPI api) {
-    var login =
+    Schema<?> login =
         new ObjectSchema()
             .addProperty("email", new StringSchema())
             .addProperty("password", new StringSchema().format("password").writeOnly(true));

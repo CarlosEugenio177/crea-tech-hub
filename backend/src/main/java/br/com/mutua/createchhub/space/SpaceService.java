@@ -22,12 +22,12 @@ public class SpaceService {
   public Page<SpaceResponse> list(Boolean active, int page, int size) {
     var pageable = PageRequest.of(page, size, Sort.by("name", "id"));
     var result = active == null ? spaces.findAll(pageable) : spaces.findByActive(active, pageable);
-    return result.map(SpaceResponse::from);
+    return result.map(space -> SpaceResponse.from(space));
   }
 
   public Page<PublicSpaceResponse> listPublic(int page, int size) {
     var pageable = PageRequest.of(page, size, Sort.by("name", "id"));
-    return spaces.findPublic(pageable).map(PublicSpaceResponse::from);
+    return spaces.findPublic(pageable).map(space -> PublicSpaceResponse.from(space));
   }
 
   public SpaceResponse find(UUID id) {

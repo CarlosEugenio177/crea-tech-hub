@@ -17,6 +17,7 @@ import br.com.mutua.createchhub.user.UserAccountRepository;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -134,7 +135,7 @@ class SpaceBlockApiTests {
     create(room, "13:00", "14:00");
     var expectedFirst =
         Stream.of(shortBlock.id(), longerBlock.id())
-            .map(UUID::toString)
+            .map(id -> Objects.requireNonNull(id).toString())
             .sorted()
             .findFirst()
             .orElseThrow();
