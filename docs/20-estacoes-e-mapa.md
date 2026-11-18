@@ -9,8 +9,9 @@ intervalos no mesmo dia e aplica o funcionamento e os bloqueios ativos. O fim
 afeta apenas aquela vaga.
 
 O visitante pode escolher no mapa, pelo número ou pedir a primeira estação
-livre. Consultar ou escolher não segura o horário. Pedidos pendentes e
-confirmados passarão a bloquear o horário na entrega de envio da solicitação.
+livre. Consultar ou escolher não segura o horário. Ao registrar o pedido,
+o backend verifica de novo a disponibilidade e os pedidos pendentes ou
+confirmados ocupam seus respectivos intervalos.
 
 ## Cadastro e posição
 
@@ -83,7 +84,6 @@ O catálogo geral `/api/v1/spaces` também oculta estações vinculadas a salas 
 O mapa informa a estrutura física e quais cadastros estão habilitados. `active`
 não significa livre no horário escolhido. O editor administrativo já permite arrastar
 as estações e salvar posições. A seleção pública usa a consulta por intervalo.
-A ocupação por solicitações pendentes e confirmadas virá com o registro de pedidos.
 
 ## Persistência
 

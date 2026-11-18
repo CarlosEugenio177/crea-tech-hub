@@ -28,6 +28,15 @@ Entregar ao usuário um comprovante com os dados do agendamento e as orientaçõ
 
 ## Critérios de aceite
 
+A entrega de solicitação expõe `POST /api/v1/reservations` sem login e com
+CSRF. O backend valida CPF e aceite, verifica novamente a disponibilidade sob
+bloqueio transacional dos recursos e grava o pedido pendente. O comprovante
+exibe protocolo, espaço, estação quando aplicável, data e horário. O token
+privado fica no fragmento do endereço e é enviado no cabeçalho
+`X-Reservation-Token` ao consultar `GET /api/v1/reservations/receipt`.
+CPF e contatos não saem na resposta pública. Decisões, cancelamento e
+notificações seguem nas histórias correspondentes.
+
 - [ ] Ao registrar a solicitação, o sistema **exibe o comprovante / protocolo na tela** informando que a reserva foi **encaminhada para análise** e que o status será confirmado via **WhatsApp e e-mail**.
 - [ ] O comprovante traz os **dados do agendamento**: ambiente (e estação, quando houver), data, horário e dados do solicitante.
 - [ ] O comprovante traz os **textos de orientação**: **compromisso de uso** e **política de cancelamento**.

@@ -1,4 +1,5 @@
 import { PROFILE_LABELS, type Requester } from './requesterSchema.ts'
+import { cpfDigits } from './cpf.ts'
 import { formatDate } from './reservationDates.ts'
 import type { ReservationPeriod } from './reservationDraft.ts'
 import styles from './ReservationSummary.module.css'
@@ -23,7 +24,7 @@ export function ReservationSummary({
     ['Horário', `${period.start} às ${period.end}`],
     ['Solicitante', requester.fullName],
     ['Perfil', PROFILE_LABELS[requester.profile]],
-    ['ID ou cartão da Mútua', requester.mutuaId],
+    ['CPF', `***.***.***-${cpfDigits(requester.cpf).slice(-2)}`],
     ['WhatsApp', requester.whatsapp],
     ['E-mail', requester.email],
     ['Motivo', requester.reason],

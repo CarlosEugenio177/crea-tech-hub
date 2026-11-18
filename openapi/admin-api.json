@@ -1253,6 +1253,73 @@
         "tags" : [ "public-usage-rules-controller" ]
       }
     },
+    "/api/v1/reservations" : {
+      "post" : {
+        "operationId" : "requestReservation",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReservationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationSubmission"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ]
+        } ],
+        "summary" : "Solicitar reserva para análise",
+        "tags" : [ "public-reservation-controller" ]
+      }
+    },
+    "/api/v1/reservations/receipt" : {
+      "get" : {
+        "operationId" : "getReservationReceipt",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Reservation-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "[A-Za-z0-9_-]{43}"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationReceipt"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Consultar pedido pelo código privado",
+        "tags" : [ "public-reservation-controller" ]
+      }
+    },
     "/api/v1/spaces" : {
       "get" : {
         "operationId" : "listPublicSpaces",
@@ -1805,6 +1872,10 @@
           }
         }
       },
+      "Profile" : {
+        "type" : "string",
+        "enum" : [ "MUTUALIST", "EXTERNAL" ]
+      },
       "PublicSpace" : {
         "type" : "object",
         "properties" : {
@@ -1876,6 +1947,119 @@
           }
         },
         "required" : [ "id", "version" ]
+      },
+      "Requester" : {
+        "type" : "object",
+        "properties" : {
+          "cpf" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "[0-9]{11}"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          },
+          "fullName" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "notes" : {
+            "type" : "string",
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "onBehalfOfOthers" : {
+            "type" : "boolean"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "reason" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "whatsapp" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "[0-9]{10,11}"
+          }
+        },
+        "required" : [ "cpf", "email", "fullName", "notes", "onBehalfOfOthers", "profile", "reason", "whatsapp" ]
+      },
+      "ReservationReceipt" : {
+        "type" : "object",
+        "properties" : {
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "protocol" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "spaceName" : {
+            "type" : "string"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "stationNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "status" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "endsAt", "protocol", "spaceName", "startsAt", "status" ]
+      },
+      "ReservationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "endsAt" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "^(?!0000)[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "requester" : {
+            "$ref" : "#/components/schemas/Requester"
+          },
+          "rulesAccepted" : {
+            "type" : "boolean"
+          },
+          "spaceId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "^(?!0000)[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "stationId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "endsAt", "requester", "rulesAccepted", "spaceId", "startsAt" ]
+      },
+      "ReservationSubmission" : {
+        "type" : "object",
+        "properties" : {
+          "receipt" : {
+            "$ref" : "#/components/schemas/ReservationReceipt"
+          },
+          "trackingToken" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "receipt", "trackingToken" ]
       },
       "RoomDimensions" : {
         "type" : "object",

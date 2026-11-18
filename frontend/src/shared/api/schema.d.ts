@@ -485,6 +485,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Solicitar reserva para análise */
+        post: operations["requestReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reservations/receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar pedido pelo código privado */
+        get: operations["getReservationReceipt"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces": {
         parameters: {
             query?: never;
@@ -668,6 +702,8 @@ export interface components {
             title?: string;
             type?: string;
         };
+        /** @enum {string} */
+        Profile: "MUTUALIST" | "EXTERNAL";
         PublicSpace: {
             bookingMode: components["schemas"]["BookingMode"];
             /** Format: int32 */
@@ -695,6 +731,43 @@ export interface components {
             id: string;
             /** Format: int64 */
             version: number;
+        };
+        Requester: {
+            cpf: string;
+            /** Format: email */
+            email: string;
+            fullName: string;
+            notes: string;
+            onBehalfOfOthers: boolean;
+            profile: components["schemas"]["Profile"];
+            reason: string;
+            whatsapp: string;
+        };
+        ReservationReceipt: {
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: uuid */
+            protocol: string;
+            spaceName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: int32 */
+            stationNumber?: number;
+            status: string;
+        };
+        ReservationRequest: {
+            endsAt: string;
+            requester: components["schemas"]["Requester"];
+            rulesAccepted: boolean;
+            /** Format: uuid */
+            spaceId: string;
+            startsAt: string;
+            /** Format: uuid */
+            stationId?: string;
+        };
+        ReservationSubmission: {
+            receipt: components["schemas"]["ReservationReceipt"];
+            trackingToken: string;
         };
         RoomDimensions: {
             length: number;
@@ -1673,6 +1746,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UsageRules"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    requestReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationSubmission"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getReservationReceipt: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Reservation-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationReceipt"];
                 };
             };
             default: components["responses"]["Problem"];
