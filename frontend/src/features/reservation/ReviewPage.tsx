@@ -22,6 +22,7 @@ export function ReviewPage() {
     >
       <ReservationSummary
         spaceName={draft.space.name}
+        stationNumber={draft.station?.number}
         period={draft.period}
         requester={draft.requester}
       />

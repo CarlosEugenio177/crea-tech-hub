@@ -47,16 +47,17 @@ const schema = z
 type PeriodFormProps = {
   period?: ReservationPeriod
   onSubmit: (period: ReservationPeriod) => void
+  onEdit: () => void
 }
 
-export function PeriodForm({ period, onSubmit }: PeriodFormProps) {
+export function PeriodForm({ period, onSubmit, onEdit }: PeriodFormProps) {
   const { register, handleSubmit, formState } = useForm({
     resolver: zodResolver(schema),
     defaultValues: period && { ...period, date: toBrazilianDate(period.date) },
   })
 
   return (
-    <FormCard onSubmit={handleSubmit(onSubmit)}>
+    <FormCard onSubmit={handleSubmit(onSubmit)} onChange={onEdit}>
       <TextField
         label="Data"
         inputMode="numeric"
@@ -83,12 +84,12 @@ export function PeriodForm({ period, onSubmit }: PeriodFormProps) {
         autoComplete="off"
         placeholder="hh:mm"
         maxLength={5}
-        hint="Funcionamento padrão: segunda a sexta, das 8h às 18h. A equipe confere a disponibilidade."
+        hint="Informe o horário local do Hub."
         error={formState.errors.end?.message}
         {...withMask(register('end'), maskTime)}
       />
       <StepActions backTo={RESERVE} backLabel="Voltar aos espaços">
-        <Button type="submit">Continuar</Button>
+        <Button type="submit">Ver disponibilidade</Button>
       </StepActions>
     </FormCard>
   )

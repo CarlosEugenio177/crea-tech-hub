@@ -34,7 +34,10 @@ export function ChooseSpacePage() {
               key={option.id}
               option={option}
               onChoose={() => {
-                update({ space: { id: option.id, name: option.name } })
+                update({
+                  space: { id: option.id, name: option.name },
+                  station: undefined,
+                })
                 void navigate(RESERVE_TIME)
               }}
             />

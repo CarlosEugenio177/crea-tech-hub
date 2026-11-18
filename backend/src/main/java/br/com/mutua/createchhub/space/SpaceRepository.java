@@ -23,6 +23,8 @@ public interface SpaceRepository extends JpaRepository<Space, UUID> {
 
   Page<Space> findByRoomIdAndActiveTrue(UUID roomId, Pageable pageable);
 
+  List<Space> findByRoomIdAndActiveTrueOrderByStationNumber(UUID roomId);
+
   boolean existsByRoomId(UUID roomId);
 
   @Query("select max(s.stationNumber) from Space s where s.roomId = :roomId")

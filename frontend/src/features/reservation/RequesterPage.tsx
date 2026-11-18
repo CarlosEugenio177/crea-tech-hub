@@ -16,6 +16,11 @@ export function RequesterPage() {
       title="Seus dados"
       description="Informe quem está solicitando. Não é preciso criar conta."
     >
+      {draft.station && (
+        <p>
+          {draft.space?.name} · Estação {draft.station.number}
+        </p>
+      )}
       <RequesterForm
         requester={draft.requester}
         onSubmit={(requester) => {
