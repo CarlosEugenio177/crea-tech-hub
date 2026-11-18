@@ -5,17 +5,20 @@ import styles from './ReservationSummary.module.css'
 
 type ReservationSummaryProps = {
   spaceName: string
+  stationNumber?: number
   period: ReservationPeriod
   requester: Requester
 }
 
 export function ReservationSummary({
   spaceName,
+  stationNumber,
   period,
   requester,
 }: ReservationSummaryProps) {
   const rows = [
     ['Espaço', spaceName],
+    ['Estação', stationNumber?.toString() ?? ''],
     ['Data', formatDate(period.date)],
     ['Horário', `${period.start} às ${period.end}`],
     ['Solicitante', requester.fullName],

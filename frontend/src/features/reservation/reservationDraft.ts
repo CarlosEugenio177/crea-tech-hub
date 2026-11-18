@@ -6,6 +6,7 @@ export type ReservationPeriod = { date: string; start: string; end: string }
 export type ReservationDraft = {
   space?: { id: string; name: string }
   period?: ReservationPeriod
+  station?: { id: string; number: number }
   requester?: Requester
 }
 

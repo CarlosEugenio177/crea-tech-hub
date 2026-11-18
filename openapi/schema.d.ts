@@ -485,6 +485,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/spaces/{id}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar disponibilidade no intervalo local do Hub */
+        get: operations["getSpaceAvailability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces/{roomId}/stations": {
         parameters: {
             query?: never;
@@ -693,6 +710,10 @@ export interface components {
             /** Format: int64 */
             version: number;
         };
+        SpaceAvailability: {
+            stations: components["schemas"]["Station"][];
+            status: components["schemas"]["Status"];
+        };
         SpaceBlock: {
             active: boolean;
             /** Format: date-time */
@@ -763,6 +784,17 @@ export interface components {
         };
         /** @enum {string} */
         SpaceType: "ROOM" | "SHARED_TABLE" | "WORKSTATION";
+        Station: {
+            available: boolean;
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            number: number;
+            /** Format: double */
+            x: number;
+            /** Format: double */
+            y: number;
+        };
         StationBatchRequest: {
             /** Format: int32 */
             columns: number;
@@ -804,6 +836,8 @@ export interface components {
         StationPositionsRequest: {
             positions: components["schemas"]["StationPositionUpdate"][];
         };
+        /** @enum {string} */
+        Status: "AVAILABLE" | "CLOSED" | "UNAVAILABLE";
     };
     responses: {
         /** @description Erro no formato ProblemDetail. */
@@ -1621,6 +1655,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicSpacePage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getSpaceAvailability: {
+        parameters: {
+            query: {
+                startsAt: string;
+                endsAt: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceAvailability"];
                 };
             };
             default: components["responses"]["Problem"];

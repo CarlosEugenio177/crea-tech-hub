@@ -2,6 +2,7 @@ package br.com.mutua.createchhub.space;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import br.com.mutua.createchhub.block.SpaceBlockRepository;
 import br.com.mutua.createchhub.support.PostgresTestConfiguration;
 import br.com.mutua.createchhub.support.SessionClient;
 import br.com.mutua.createchhub.user.AccessRole;
@@ -37,6 +38,7 @@ class StationLayoutApiTests {
 
   @LocalServerPort private int port;
   @Autowired private SpaceRepository spaces;
+  @Autowired private SpaceBlockRepository blocks;
   @Autowired private StationLayoutService layout;
   @Autowired private UserAccountRepository accounts;
   @Autowired private PasswordEncoder passwords;
@@ -58,8 +60,63 @@ class StationLayoutApiTests {
 
   @AfterEach
   void cleanup() {
+    blocks.deleteAllInBatch();
     spaces.deleteAllInBatch();
     accounts.deleteAll();
+  }
+
+  @Test
+  void publicAvailabilityAppliesStationAndRoomBlocksWithoutExposingTheirReasons() throws Exception {
+    var seats = layout.generate(room.getId(), new StationBatchRequest(2, 2));
+    String base = "/api/v1/spaces/" + room.getId() + "/availability";
+    String interval = "?startsAt=2099-03-10T09:00&endsAt=2099-03-10T10:00";
+    String endpoint = "/api/v1/admin/space-blocks";
+    try (var client = admin();
+        var visitor = new SessionClient(port)) {
+      var csrf = client.csrf();
+      var stationBlock =
+          Map.of(
+              "spaceId",
+              seats.getFirst().id(),
+              "startsAt",
+              "2099-03-10T09:30",
+              "endsAt",
+              "2099-03-10T10:00",
+              "reason",
+              "Motivo interno");
+      assertThat(client.json("POST", endpoint, stationBlock, csrf).statusCode()).isEqualTo(201);
+      var result = visitor.get(base + interval);
+      assertThat(result.statusCode()).isEqualTo(200);
+      assertThat(result.body()).doesNotContain("Motivo interno", "createdBy");
+      var body = json.readTree(result.body());
+      assertThat(body.path("status").asString()).isEqualTo("AVAILABLE");
+      assertThat(body.path("stations").get(0).path("available").asBoolean()).isFalse();
+      assertThat(body.path("stations").get(1).path("available").asBoolean()).isTrue();
+      var adjacent = visitor.get(base + "?startsAt=2099-03-10T10:00&endsAt=2099-03-10T11:00");
+      assertThat(
+              json.readTree(adjacent.body()).path("stations").get(0).path("available").asBoolean())
+          .isTrue();
+      var roomBlock = new HashMap<>(stationBlock);
+      roomBlock.put("spaceId", room.getId());
+      var created = client.json("POST", endpoint, roomBlock, csrf);
+      assertThat(created.statusCode()).isEqualTo(201);
+      var blocked = json.readTree(visitor.get(base + interval).body());
+      assertThat(blocked.path("status").asString()).isEqualTo("UNAVAILABLE");
+      assertThat(blocked.path("stations").get(1).path("available").asBoolean()).isFalse();
+      var roomBlockId = json.readTree(created.body()).path("id").asString();
+      assertThat(
+              client
+                  .json("POST", endpoint + "/" + roomBlockId + "/cancel", null, csrf)
+                  .statusCode())
+          .isEqualTo(200);
+      assertThat(json.readTree(visitor.get(base + interval).body()).path("status").asString())
+          .isEqualTo("AVAILABLE");
+      var closed = visitor.get(base + "?startsAt=2099-03-10T07:00&endsAt=2099-03-10T08:30");
+      assertThat(json.readTree(closed.body()).path("status").asString()).isEqualTo("CLOSED");
+      assertThat(
+              visitor.get(base + "?startsAt=2099-02-31T09:00&endsAt=2099-02-31T10:00").statusCode())
+          .isEqualTo(400);
+    }
   }
 
   @Test

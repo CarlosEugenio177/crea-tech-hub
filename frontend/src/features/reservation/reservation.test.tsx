@@ -5,6 +5,8 @@ import { fakeApi, json, problem } from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
 
 const CATALOG = 'GET /api/v1/spaces'
+const AVAILABILITY =
+  'GET /api/v1/spaces/3d7c6c7f-7c5e-4e31-b6c1-8d9f3c1fca02/availability'
 
 const catalog = () =>
   json({
@@ -38,7 +40,10 @@ const catalog = () =>
   })
 
 beforeEach(() => {
-  fakeApi({ [CATALOG]: catalog })
+  fakeApi({
+    [CATALOG]: catalog,
+    [AVAILABILITY]: () => json({ status: 'AVAILABLE', stations: [] }),
+  })
 })
 
 async function chooseSpaceAndPeriod(user: ReturnType<typeof userEvent.setup>) {
@@ -48,7 +53,8 @@ async function chooseSpaceAndPeriod(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   await user.type(screen.getByLabelText('Início'), '09:15')
   await user.type(screen.getByLabelText('Fim'), '10:45')
-  await user.click(screen.getByRole('button', { name: 'Continuar' }))
+  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  await user.click(await screen.findByRole('button', { name: 'Continuar' }))
   await screen.findByRole('heading', { name: 'Seus dados' })
 }
 
@@ -111,7 +117,7 @@ test('rejects a period that ends before it starts', async () => {
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   await user.type(screen.getByLabelText('Início'), '10:00')
   await user.type(screen.getByLabelText('Fim'), '09:00')
-  await user.click(screen.getByRole('button', { name: 'Continuar' }))
+  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
 
   expect(
     await screen.findByText('O fim deve ser depois do início.'),
@@ -144,7 +150,7 @@ test('rejects a date that does not exist in the calendar', async () => {
   await user.type(screen.getByLabelText('Data'), '31/02/2099')
   await user.type(screen.getByLabelText('Início'), '10:00')
   await user.type(screen.getByLabelText('Fim'), '11:00')
-  await user.click(screen.getByRole('button', { name: 'Continuar' }))
+  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
 
   expect(
     await screen.findByText('Informe uma data válida.'),
@@ -158,6 +164,52 @@ test('sends visitors who open a later step directly back to the first one', () =
     screen.getByRole('heading', {
       name: 'Qual espaço acompanha seu próximo projeto?',
     }),
+  ).toBeInTheDocument()
+})
+
+test('shows blocked stations and can choose a free station automatically', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi({
+    [CATALOG]: catalog,
+    [AVAILABILITY]: () =>
+      json({
+        status: 'AVAILABLE',
+        stations: [
+          { id: 'a', number: 1, x: 20, y: 50, available: false },
+          { id: 'b', number: 2, x: 60, y: 50, available: true },
+        ],
+      }),
+  })
+  renderApp('/reservar')
+  await user.click(
+    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+  )
+  await user.type(screen.getByLabelText('Data'), '10/03/2099')
+  await user.type(screen.getByLabelText('Início'), '09:15')
+  await user.type(screen.getByLabelText('Fim'), '10:45')
+  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  expect(
+    await screen.findByRole('button', { name: 'Estação 1, indisponível' }),
+  ).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Estação 2, livre' })).toBeEnabled()
+  expect(
+    new URLSearchParams(api.sent(AVAILABILITY)[0].search).get('startsAt'),
+  ).toBe('2099-03-10T09:15')
+  await user.clear(screen.getByLabelText('Fim'))
+  expect(
+    screen.queryByRole('button', {
+      name: 'Escolher uma estação livre pra mim',
+    }),
+  ).not.toBeInTheDocument()
+  await user.type(screen.getByLabelText('Fim'), '10:45')
+  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'Escolher uma estação livre pra mim',
+    }),
+  )
+  expect(
+    await screen.findByRole('heading', { name: 'Seus dados' }),
   ).toBeInTheDocument()
 })
 
