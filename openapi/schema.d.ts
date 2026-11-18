@@ -468,6 +468,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/hub/usage-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar regras gerais de uso do Hub */
+        get: operations["getUsageRules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces": {
         parameters: {
             query?: never;
@@ -803,6 +820,10 @@ export interface components {
         };
         StationPositionsRequest: {
             positions: components["schemas"]["StationPositionUpdate"][];
+        };
+        UsageRules: {
+            acceptanceRequired: boolean;
+            generalRules: string[];
         };
     };
     responses: {
@@ -1597,6 +1618,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getUsageRules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsageRules"];
                 };
             };
             default: components["responses"]["Problem"];

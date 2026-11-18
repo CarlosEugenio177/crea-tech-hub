@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                       "/actuator/health",
                       "/api/v1/admin/auth/csrf",
                       "/api/v1/hub/operating-hours",
+                      "/api/v1/hub/usage-rules",
                       "/api/v1/spaces/*/stations")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/spaces")
