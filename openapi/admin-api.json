@@ -1230,6 +1230,29 @@
         "tags" : [ "public-operating-hours-controller" ]
       }
     },
+    "/api/v1/hub/usage-rules" : {
+      "get" : {
+        "operationId" : "getUsageRules",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsageRules"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Consultar regras gerais de uso do Hub",
+        "tags" : [ "public-usage-rules-controller" ]
+      }
+    },
     "/api/v1/spaces" : {
       "get" : {
         "operationId" : "listPublicSpaces",
@@ -2270,6 +2293,21 @@
       "Status" : {
         "type" : "string",
         "enum" : [ "AVAILABLE", "CLOSED", "UNAVAILABLE" ]
+      },
+      "UsageRules" : {
+        "type" : "object",
+        "properties" : {
+          "acceptanceRequired" : {
+            "type" : "boolean"
+          },
+          "generalRules" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "acceptanceRequired", "generalRules" ]
       }
     },
     "securitySchemes" : {

@@ -29,7 +29,13 @@ Garantir que o usuário conheça e aceite as regras do ambiente antes de confirm
 
 ## Critérios de aceite
 
+- [x] A consulta pública das regras gerais do Hub está disponível por API.
 - [ ] Antes da confirmação, o sistema **exibe as regras gerais de uso** do Hub; textos específicos por sala (mínimo de pessoas, máximo de horas) **não precisam** por enquanto.
 - [ ] O usuário precisa **aceitar** as regras para concluir; sem aceite, a reserva **não é registrada**.
 - [ ] O **aceite fica registrado** junto à reserva.
 - [ ] As regras aparecem de forma legível no celular e acessível por teclado (CTH-21).
+
+### Verificação manual
+
+Use a coleção [Regras públicas de uso](../docs/postman/public-usage-rules.postman_collection.json)
+para consultar o endpoint público sem autenticação e validar o formato da resposta.

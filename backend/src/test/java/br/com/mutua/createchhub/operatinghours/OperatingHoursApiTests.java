@@ -36,6 +36,7 @@ class OperatingHoursApiTests {
 
   private static final String ADMIN_PATH = "/api/v1/admin/hub/operating-hours";
   private static final String PUBLIC_PATH = "/api/v1/hub/operating-hours";
+  private static final String USAGE_RULES_PATH = "/api/v1/hub/usage-rules";
   private static final String PASSWORD = "Operating-hours-test-password";
   private static final Set<DayOfWeek> WEEKDAYS =
       Set.of(
@@ -81,6 +82,23 @@ class OperatingHoursApiTests {
       assertThat(client.get(ADMIN_PATH).statusCode()).isEqualTo(401);
       assertThat(client.json("PUT", ADMIN_PATH, validRequest(), client.csrf()).statusCode())
           .isEqualTo(401);
+    }
+  }
+
+  @Test
+  void publishesUsageRulesWithoutLogin() throws Exception {
+    try (var client = new SessionClient(port)) {
+      var response = client.get(USAGE_RULES_PATH);
+
+      assertThat(response.statusCode()).isEqualTo(200);
+      assertThat(response.headers().firstValue("Content-Type").orElseThrow())
+          .contains("application/json");
+      var body = json.readTree(response.body());
+      assertThat(body.path("acceptanceRequired").asBoolean()).isTrue();
+      assertThat(body.path("generalRules").isArray()).isTrue();
+      assertThat(body.path("generalRules").size()).isEqualTo(4);
+      assertThat(body.path("generalRules").get(0).asString())
+          .isEqualTo("Todas as solicitações passam por análise manual antes da confirmação.");
     }
   }
 
