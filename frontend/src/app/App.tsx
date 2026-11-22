@@ -50,6 +50,8 @@ import { AdminHomePage } from './AdminHomePage.tsx'
 import { HomePage } from './HomePage.tsx'
 import { NotFoundPage } from './NotFoundPage.tsx'
 import { PublicLayout } from './PublicLayout.tsx'
+import { OperatingHoursPage } from '../features/admin-operating-hours/OperatingHoursPage.tsx'
+import { ADMIN_OPERATING_HOURS } from '../features/admin-operating-hours/operatingHoursRoutes.ts'
 
 export function App() {
   return (
@@ -71,6 +73,7 @@ export function App() {
       <Route path={ADMIN_HOME} element={<AdminArea />}>
         <Route index element={<AdminHomePage />} />
         <Route path={ADMIN_RESERVATIONS} element={<AdminReservationsPage />} />
+        <Route path={ADMIN_OPERATING_HOURS} element={<OperatingHoursPage />} />
         <Route path={ADMIN_SPACES} element={<SpacesPage />} />
         <Route path={ADMIN_SPACE_NEW} element={<NewSpacePage />} />
         <Route path={ADMIN_SPACE_EDIT} element={<EditSpacePage />} />
