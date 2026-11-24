@@ -10,6 +10,14 @@ import { ChangePasswordPage } from '../features/admin-auth/ChangePasswordPage.ts
 import { ForgotPasswordPage } from '../features/admin-auth/ForgotPasswordPage.tsx'
 import { LoginPage } from '../features/admin-auth/LoginPage.tsx'
 import { ResetPasswordPage } from '../features/admin-auth/ResetPasswordPage.tsx'
+import { OperatingHoursPage } from '../features/admin-operating-hours/OperatingHoursPage.tsx'
+import { ADMIN_OPERATING_HOURS } from '../features/admin-operating-hours/operatingHoursRoutes.ts'
+import { NewSpaceBlockPage } from '../features/admin-space-blocks/NewSpaceBlockPage.tsx'
+import {
+  ADMIN_SPACE_BLOCK_NEW,
+  ADMIN_SPACE_BLOCKS,
+} from '../features/admin-space-blocks/spaceBlockRoutes.ts'
+import { SpaceBlocksPage } from '../features/admin-space-blocks/SpaceBlocksPage.tsx'
 import { EditSpacePage } from '../features/admin-spaces/EditSpacePage.tsx'
 import { NewSpacePage } from '../features/admin-spaces/NewSpacePage.tsx'
 import {
@@ -75,6 +83,9 @@ export function App() {
         <Route path={ADMIN_SPACE_NEW} element={<NewSpacePage />} />
         <Route path={ADMIN_SPACE_EDIT} element={<EditSpacePage />} />
         <Route path={ADMIN_SPACE_LAYOUT} element={<RoomLayoutPage />} />
+        <Route path={ADMIN_SPACE_BLOCKS} element={<SpaceBlocksPage />} />
+        <Route path={ADMIN_SPACE_BLOCK_NEW} element={<NewSpaceBlockPage />} />
+        <Route path={ADMIN_OPERATING_HOURS} element={<OperatingHoursPage />} />
         <Route path={ADMIN_TEAM} element={<TeamPage />} />
         <Route path={ADMIN_TEAM_NEW} element={<NewMemberPage />} />
         <Route path={ADMIN_TEAM_AUDIT} element={<AuditPage />} />

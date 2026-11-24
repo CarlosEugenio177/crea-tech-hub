@@ -8,6 +8,15 @@ export function useUsageRules() {
   return api.useQuery('get', '/api/v1/hub/usage-rules', {}, { retry: false })
 }
 
+export function usePublicOperatingHours() {
+  return api.useQuery(
+    'get',
+    '/api/v1/hub/operating-hours',
+    {},
+    { retry: false },
+  )
+}
+
 export function useSubmitReservation(onSubmitted: (token: string) => void) {
   const mutation = api.useMutation('post', '/api/v1/reservations', {
     onSuccess: (data) => onSubmitted(data.trackingToken),
