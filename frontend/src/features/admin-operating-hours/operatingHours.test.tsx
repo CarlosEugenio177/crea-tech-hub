@@ -7,6 +7,8 @@ import { renderApp } from '../../test/renderApp.tsx'
 const SESSION = 'GET /api/v1/admin/auth/me'
 const FIND = 'GET /api/v1/admin/hub/operating-hours'
 const UPDATE = 'PUT /api/v1/admin/hub/operating-hours'
+const PUBLIC_HOURS = 'GET /api/v1/hub/operating-hours'
+const PUBLIC_SPACES = 'GET /api/v1/spaces'
 
 const manager = () =>
   json({
@@ -64,7 +66,7 @@ test('loads and updates the Hub operating hours', async () => {
   })
 })
 
-test('requires at least one working day', async () => {
+test('requires at least one working day and closing after opening', async () => {
   const user = userEvent.setup()
   const api = fakeApi({
     [SESSION]: manager,
@@ -83,6 +85,16 @@ test('requires at least one working day', async () => {
 
   expect(
     await screen.findByText('Selecione pelo menos um dia de funcionamento.'),
+  ).toBeInTheDocument()
+  expect(api.sent(UPDATE)).toHaveLength(0)
+
+  await user.click(screen.getByLabelText('Segunda-feira'))
+  await user.clear(screen.getByLabelText('Fechamento'))
+  await user.type(screen.getByLabelText('Fechamento'), '08:00')
+  await user.click(screen.getByRole('button', { name: 'Salvar horário' }))
+
+  expect(
+    await screen.findByText('O fechamento deve ser depois da abertura.'),
   ).toBeInTheDocument()
   expect(api.sent(UPDATE)).toHaveLength(0)
 })
@@ -106,7 +118,45 @@ test('offers operating hours only to accounts that can manage spaces', async () 
   expect(
     screen.queryByRole('link', { name: 'Funcionamento' }),
   ).not.toBeInTheDocument()
+})
+
+test('shows the public Hub operating hours when choosing reservation time', async () => {
+  const user = userEvent.setup()
+  fakeApi({
+    [PUBLIC_SPACES]: () =>
+      json({
+        items: [
+          {
+            id: '3d7c6c7f-7c5e-4e31-b6c1-8d9f3c1fca02',
+            name: 'Sala de podcast',
+            type: 'ROOM',
+            bookingMode: 'WHOLE_SPACE',
+            capacity: 4,
+            description: 'Um espaço dedicado à gravação de podcast.',
+          },
+        ],
+        page: 0,
+        size: 20,
+        totalElements: 1,
+        totalPages: 1,
+      }),
+    [PUBLIC_HOURS]: () =>
+      json({
+        daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],
+        openingTime: '08:00',
+        closingTime: '18:00',
+      }),
+  })
+
+  renderApp('/reservar')
+
+  await user.click(
+    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+  )
+
   expect(
-    screen.getByRole('heading', { name: 'Visão geral' }),
+    await screen.findByText(
+      'Funcionamento do Hub: segunda a sexta, das 08:00 às 18:00.',
+    ),
   ).toBeInTheDocument()
 })

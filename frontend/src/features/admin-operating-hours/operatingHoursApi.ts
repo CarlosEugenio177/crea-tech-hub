@@ -7,6 +7,7 @@ export type OperatingHoursRequest =
   components['schemas']['OperatingHoursRequest']
 
 const OPERATING_HOURS_PATH = '/api/v1/admin/hub/operating-hours'
+const PUBLIC_OPERATING_HOURS_PATH = '/api/v1/hub/operating-hours'
 
 export function useAdminOperatingHours() {
   return api.useQuery(
@@ -21,9 +22,14 @@ export function useUpdateOperatingHours(onSaved: () => void) {
   const queryClient = useQueryClient()
   const update = api.useMutation('put', OPERATING_HOURS_PATH, {
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ['get', OPERATING_HOURS_PATH],
-      })
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['get', OPERATING_HOURS_PATH],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['get', PUBLIC_OPERATING_HOURS_PATH],
+        }),
+      ])
       onSaved()
     },
   })

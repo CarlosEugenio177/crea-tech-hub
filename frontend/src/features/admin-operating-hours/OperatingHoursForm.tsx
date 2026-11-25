@@ -7,34 +7,40 @@ import { CheckboxField } from '../../shared/ui/CheckboxField.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
+import { maskTime, withMask } from '../reservation/inputMasks.ts'
+import { TIME_24H } from '../reservation/reservationDates.ts'
 import styles from './OperatingHoursPage.module.css'
 import type {
   OperatingHours,
   OperatingHoursRequest,
 } from './operatingHoursApi.ts'
 
-const timePattern = /^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/
-
 const schema = z
   .object({
     openingTime: z
       .string()
-      .regex(timePattern, 'Informe um horário válido no formato hh:mm.')
-      .transform((value) => value),
+      .regex(TIME_24H, 'Informe um horário válido no formato hh:mm.'),
     closingTime: z
       .string()
-      .regex(timePattern, 'Informe um horário válido no formato hh:mm.')
-      .transform((value) => value),
+      .regex(TIME_24H, 'Informe um horário válido no formato hh:mm.'),
   })
-  .refine((hours) => hours.closingTime > hours.openingTime, {
-    path: ['closingTime'],
-    message: 'O fechamento deve ser depois da abertura.',
-  })
+  .refine(
+    (values) =>
+      !TIME_24H.test(values.openingTime) ||
+      !TIME_24H.test(values.closingTime) ||
+      values.closingTime > values.openingTime,
+    {
+      path: ['closingTime'],
+      message: 'O fechamento deve ser depois da abertura.',
+    },
+  )
 
-const DAYS: Array<{
+type DayOption = {
   value: OperatingHoursRequest['daysOfWeek'][number]
   label: string
-}> = [
+}
+
+const DAYS: DayOption[] = [
   { value: 'MONDAY', label: 'Segunda-feira' },
   { value: 'TUESDAY', label: 'Terça-feira' },
   { value: 'WEDNESDAY', label: 'Quarta-feira' },
@@ -114,17 +120,23 @@ export function OperatingHoursForm({
       </fieldset>
       <TextField
         label="Abertura"
+        inputMode="numeric"
+        autoComplete="off"
         placeholder="08:00"
+        maxLength={5}
         hint="Horário local do Hub, de 00:00 a 23:59."
         error={formState.errors.openingTime?.message}
-        {...register('openingTime')}
+        {...withMask(register('openingTime'), maskTime)}
       />
       <TextField
         label="Fechamento"
+        inputMode="numeric"
+        autoComplete="off"
         placeholder="18:00"
+        maxLength={5}
         hint="O fechamento deve ser depois da abertura."
         error={formState.errors.closingTime?.message}
-        {...register('closingTime')}
+        {...withMask(register('closingTime'), maskTime)}
       />
       <Button type="submit" disabled={isPending}>
         {isPending ? 'Salvando…' : 'Salvar horário'}
