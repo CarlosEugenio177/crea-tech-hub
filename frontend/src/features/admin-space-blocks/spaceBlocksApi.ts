@@ -19,7 +19,7 @@ export type SpaceBlocksFilter = {
   to?: string
 }
 
-export function useSpaceBlocks(filter: SpaceBlocksFilter) {
+export function useSpaceBlocks(filter: SpaceBlocksFilter, enabled: boolean) {
   return api.useQuery(
     'get',
     BLOCKS_PATH,
@@ -35,7 +35,7 @@ export function useSpaceBlocks(filter: SpaceBlocksFilter) {
         },
       },
     },
-    { placeholderData: keepPreviousData, retry: false },
+    { enabled, placeholderData: keepPreviousData, retry: false },
   )
 }
 

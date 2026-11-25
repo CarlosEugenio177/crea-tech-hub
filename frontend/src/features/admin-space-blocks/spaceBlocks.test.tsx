@@ -177,3 +177,20 @@ test('offers space blocks only to accounts that can manage spaces', async () => 
     screen.queryByRole('link', { name: 'Bloqueios' }),
   ).not.toBeInTheDocument()
 })
+
+test('includes the whole last day in the block filter', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi({
+    [SESSION]: manager,
+    [SPACES]: spacesPage,
+    [LIST]: () =>
+      json({ items: [], page: 0, size: 20, totalElements: 0, totalPages: 0 }),
+  })
+
+  renderApp('/admin/bloqueios')
+  await user.type(await screen.findByLabelText('Até'), '31012027')
+  await screen.findByText('Nenhum bloqueio encontrado.')
+  expect(new URLSearchParams(api.sent(LIST).at(-1)?.search).get('to')).toBe(
+    '2027-02-01T00:00',
+  )
+})

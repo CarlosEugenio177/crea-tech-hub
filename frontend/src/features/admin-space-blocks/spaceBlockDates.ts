@@ -1,5 +1,12 @@
 import { toBrazilianDate } from '../reservation/reservationDates.ts'
 
+export function exclusiveDayEnd(date: string) {
+  if (date === '9999-12-31') return undefined
+  const next = new Date(`${date}T00:00:00Z`)
+  next.setUTCDate(next.getUTCDate() + 1)
+  return `${next.toISOString().slice(0, 10)}T00:00`
+}
+
 const dateTimeFormat = new Intl.DateTimeFormat('pt-BR', {
   dateStyle: 'short',
   timeStyle: 'short',

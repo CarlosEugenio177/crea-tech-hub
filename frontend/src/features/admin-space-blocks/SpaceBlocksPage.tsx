@@ -12,6 +12,7 @@ import {
   toIsoDate,
 } from '../reservation/reservationDates.ts'
 import { SpaceBlockListItem } from './SpaceBlockListItem.tsx'
+import { exclusiveDayEnd } from './spaceBlockDates.ts'
 import styles from './SpaceBlocksPage.module.css'
 import { ADMIN_SPACE_BLOCK_NEW } from './spaceBlockRoutes.ts'
 import { useAllAdminSpaces, useSpaceBlocks } from './spaceBlocksApi.ts'
@@ -51,15 +52,20 @@ export function SpaceBlocksPage() {
 
   const from =
     !rangeError && fromParsed.iso ? `${fromParsed.iso}T00:00` : undefined
-  const to = !rangeError && toParsed.iso ? `${toParsed.iso}T23:59` : undefined
+  const to =
+    !rangeError && toParsed.iso ? exclusiveDayEnd(toParsed.iso) : undefined
+  const validDates = !rangeError && !fromParsed.error && !toParsed.error
 
-  const blocks = useSpaceBlocks({
-    page,
-    spaceId: spaceId || undefined,
-    active: status === '' ? undefined : status === 'true',
-    from,
-    to,
-  })
+  const blocks = useSpaceBlocks(
+    {
+      page,
+      spaceId: spaceId || undefined,
+      active: status === '' ? undefined : status === 'true',
+      from,
+      to,
+    },
+    validDates,
+  )
 
   const hasFilters =
     spaceId !== '' || status !== 'true' || fromInput !== '' || toInput !== ''
@@ -144,25 +150,27 @@ export function SpaceBlocksPage() {
           </Button>
         </div>
       )}
-      <PagedList
-        data={blocks.data}
-        error={blocks.error}
-        page={page}
-        onPageChange={setPage}
-        emptyText={
-          page === 0 && !hasFilters
-            ? 'Nenhum bloqueio ativo.'
-            : 'Nenhum bloqueio encontrado.'
-        }
-      >
-        {(block) => (
-          <SpaceBlockListItem
-            key={block.id}
-            block={block}
-            spaceName={spaceNames.get(block.spaceId)}
-          />
-        )}
-      </PagedList>
+      {validDates && (
+        <PagedList
+          data={blocks.data}
+          error={blocks.error}
+          page={page}
+          onPageChange={setPage}
+          emptyText={
+            page === 0 && !hasFilters
+              ? 'Nenhum bloqueio ativo.'
+              : 'Nenhum bloqueio encontrado.'
+          }
+        >
+          {(block) => (
+            <SpaceBlockListItem
+              key={block.id}
+              block={block}
+              spaceName={spaceNames.get(block.spaceId)}
+            />
+          )}
+        </PagedList>
+      )}
     </ListPage>
   )
 }
