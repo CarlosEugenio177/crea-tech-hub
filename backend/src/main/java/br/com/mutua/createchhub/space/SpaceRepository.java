@@ -27,6 +27,19 @@ public interface SpaceRepository extends JpaRepository<Space, UUID> {
 
   List<Space> findByRoomIdAndActiveTrueOrderByStationNumber(UUID roomId);
 
+  List<Space> findByRoomIdInAndActiveTrue(List<UUID> roomIds);
+
+  @Query(
+      """
+      select s from Space s
+      where s.active = true and s.roomId is null
+        and ((s.bookingMode = br.com.mutua.createchhub.space.BookingMode.WHOLE_SPACE
+            and s.capacity >= :participants)
+          or (s.bookingMode = br.com.mutua.createchhub.space.BookingMode.PER_STATION
+            and :participants = 1))
+      """)
+  List<Space> findRecommendationCandidates(int participants);
+
   boolean existsByRoomId(UUID roomId);
 
   @Query("select max(s.stationNumber) from Space s where s.roomId = :roomId")

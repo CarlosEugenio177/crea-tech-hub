@@ -58,6 +58,9 @@ class OpenApiContractTests {
       assertThat(paths.path("/api/v1/admin/auth/csrf").path("get").path("security").isEmpty())
           .isTrue();
       assertThat(paths.path("/api/v1/spaces").path("get").path("security").isEmpty()).isTrue();
+      assertThat(
+              paths.path("/api/v1/spaces/recommendations").path("get").path("security").isEmpty())
+          .isTrue();
       assertThat(login.path("security").path(0).has("csrf")).isTrue();
       assertThat(login.path("security").path(0).has("sessionAuth")).isFalse();
       var spaceWrite = paths.path("/api/v1/admin/spaces").path("post");

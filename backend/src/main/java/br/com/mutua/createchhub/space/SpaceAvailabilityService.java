@@ -36,25 +36,14 @@ public class SpaceAvailabilityService {
   }
 
   public SpaceAvailability check(UUID id, String startsAt, String endsAt) {
-    var start = parse(startsAt);
-    var end = parse(endsAt);
-    if (!end.isAfter(start)) {
-      throw new InvalidRequestException("O fim deve ser depois do início.");
-    }
-    if (start.isBefore(now())) {
-      throw new InvalidRequestException("Escolha um horário a partir de agora.");
-    }
+    var interval = parseInterval(startsAt, endsAt);
     var space = publicSpace(id);
-    var schedule = hours.current();
-    if (!start.toLocalDate().equals(end.toLocalDate())
-        || !schedule.daysOfWeek().contains(start.getDayOfWeek())
-        || start.toLocalTime().isBefore(LocalTime.parse(schedule.openingTime()))
-        || end.toLocalTime().isAfter(LocalTime.parse(schedule.closingTime()))) {
+    if (!isHubOpen(interval)) {
       return new SpaceAvailability(SpaceAvailability.Status.CLOSED, List.of());
     }
     var stations = stations(space);
     var unavailable =
-        intervals(space, stations, start, end).stream()
+        intervals(space, stations, interval.start(), interval.end()).stream()
             .map(SpaceBusyIntervals.Interval::resourceId)
             .collect(Collectors.toSet());
     boolean roomBlocked = sharedIds(space).stream().anyMatch(unavailable::contains);
@@ -121,10 +110,37 @@ public class SpaceAvailabilityService {
       Space space, List<Space> stations, LocalDateTime start, LocalDateTime end) {
     var ids = new ArrayList<>(sharedIds(space));
     stations.forEach(station -> ids.add(station.getId()));
-    boolean wholeRoom =
-        space.getType() == SpaceType.ROOM && space.getBookingMode() == BookingMode.WHOLE_SPACE;
-    return busy.find(ids, space.getId(), wholeRoom, start, end);
+    var wholeRooms = isWholeRoom(space) ? List.of(space.getId()) : List.<UUID>of();
+    return busy.find(ids, wholeRooms, start, end);
   }
+
+  static boolean isWholeRoom(Space space) {
+    return space.getType() == SpaceType.ROOM && space.getBookingMode() == BookingMode.WHOLE_SPACE;
+  }
+
+  LocalInterval parseInterval(String startsAt, String endsAt) {
+    var start = parse(startsAt);
+    var end = parse(endsAt);
+    if (!end.isAfter(start)) {
+      throw new InvalidRequestException("O fim deve ser depois do início.");
+    }
+    if (start.isBefore(now())) {
+      throw new InvalidRequestException("Escolha um horário a partir de agora.");
+    }
+    return new LocalInterval(start, end);
+  }
+
+  boolean isHubOpen(LocalInterval interval) {
+    var schedule = hours.current();
+    var start = interval.start();
+    var end = interval.end();
+    return start.toLocalDate().equals(end.toLocalDate())
+        && schedule.daysOfWeek().contains(start.getDayOfWeek())
+        && !start.toLocalTime().isBefore(LocalTime.parse(schedule.openingTime()))
+        && !end.toLocalTime().isAfter(LocalTime.parse(schedule.closingTime()));
+  }
+
+  record LocalInterval(LocalDateTime start, LocalDateTime end) {}
 
   private List<UUID> sharedIds(Space space) {
     return space.getRoomId() == null

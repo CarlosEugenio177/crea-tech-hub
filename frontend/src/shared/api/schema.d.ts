@@ -604,6 +604,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/spaces/recommendations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Recomendar ambientes disponíveis por número de participantes */
+        get: operations["recommendSpaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces/{id}/availability": {
         parameters: {
             query?: never;
@@ -1012,6 +1029,12 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
+        };
+        SpaceRecommendation: {
+            message?: string;
+            recommended?: components["schemas"]["PublicSpace"];
+            spaces: components["schemas"]["PublicSpace"][];
+            status: components["schemas"]["Status"];
         };
         SpaceRequest: {
             /**
@@ -2076,6 +2099,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicSpacePage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    recommendSpaces: {
+        parameters: {
+            query: {
+                participants: number;
+                startsAt: string;
+                endsAt: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceRecommendation"];
                 };
             };
             default: components["responses"]["Problem"];
