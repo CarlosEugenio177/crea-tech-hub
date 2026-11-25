@@ -23,6 +23,8 @@ const rules = () =>
 const AVAILABILITY =
   'GET /api/v1/spaces/3d7c6c7f-7c5e-4e31-b6c1-8d9f3c1fca02/availability'
 
+const DAY_AGENDA = `${AVAILABILITY}/day`
+
 const catalog = () =>
   json({
     items: [
@@ -73,6 +75,56 @@ async function chooseSpaceAndPeriod(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole('button', { name: 'Continuar' }))
   await screen.findByRole('heading', { name: 'Seus dados' })
 }
+
+test('lets the visitor choose an available period from the day agenda and adjust the minutes', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi({
+    [CATALOG]: catalog,
+    [DAY_AGENDA]: () =>
+      json({
+        closed: false,
+        periods: [
+          { start: '08:00', end: '09:15', available: false },
+          { start: '09:15', end: '10:45', available: true },
+        ],
+      }),
+    [AVAILABILITY]: () => json({ status: 'AVAILABLE', stations: [] }),
+  })
+  renderApp('/reservar')
+  await user.click(
+    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+  )
+  await user.type(screen.getByLabelText('Data'), '10/03/2099')
+  expect(await screen.findByText('Indisponível')).toBeVisible()
+  expect(
+    screen.queryByRole('button', { name: 'Usar horário das 08:00 às 09:15' }),
+  ).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Dia seguinte' }))
+  expect(screen.getByLabelText('Data')).toHaveValue('11/03/2099')
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'Usar horário das 09:15 às 10:45',
+    }),
+  )
+  expect(screen.getByLabelText('Início')).toHaveValue('09:15')
+  expect(screen.getByLabelText('Fim')).toHaveValue('10:45')
+  expect(screen.getByLabelText('Início')).toHaveFocus()
+
+  await user.clear(screen.getByLabelText('Fim'))
+  await user.type(screen.getByLabelText('Fim'), '10:22')
+  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  expect(
+    await screen.findByRole('button', { name: 'Continuar' }),
+  ).toBeInTheDocument()
+  expect(
+    Object.fromEntries(
+      new URLSearchParams(api.sent(AVAILABILITY).at(-1)?.search),
+    ),
+  ).toEqual({
+    startsAt: '2099-03-11T09:15',
+    endsAt: '2099-03-11T10:22',
+  })
+})
 
 test('keeps the requester after a conflict and opens the receipt after retrying', async () => {
   const user = userEvent.setup()

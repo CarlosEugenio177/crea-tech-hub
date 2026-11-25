@@ -31,6 +31,7 @@ export function ChooseTimePage() {
         <Notice tone="info">{formatOperatingHours(hours.data)}</Notice>
       )}
       <PeriodForm
+        spaceId={draft.space.id}
         period={draft.period}
         onSubmit={(nextPeriod) => {
           setPeriod(nextPeriod)

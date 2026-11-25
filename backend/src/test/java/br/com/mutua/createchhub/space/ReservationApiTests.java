@@ -112,6 +112,61 @@ class ReservationApiTests {
   }
 
   @Test
+  void publicDayAgendaDoesNotJoinFreePeriodsOnDifferentStations() throws Exception {
+    var room = spaces.saveAndFlush(new Space("Coworking", SpaceType.ROOM, 2, null));
+    spaceService.changeBookingMode(room.getId(), BookingMode.PER_STATION);
+    var seats = layout.generate(room.getId(), new StationBatchRequest(2, 2));
+    var first = request(room, seats.getFirst());
+    first.put("startsAt", "2099-03-10T08:00");
+    first.put("endsAt", "2099-03-10T10:15");
+    var last = request(room, seats.getLast());
+    last.put("startsAt", "2099-03-10T10:15");
+    last.put("endsAt", "2099-03-10T18:00");
+
+    try (var visitor = new SessionClient(port)) {
+      var csrf = visitor.csrf();
+      assertThat(visitor.json("POST", PATH, first, csrf).statusCode()).isEqualTo(201);
+      var created = visitor.json("POST", PATH, last, csrf);
+      assertThat(created.statusCode()).isEqualTo(201);
+      var base = "/api/v1/spaces/" + room.getId() + "/availability";
+      var day = visitor.get(base + "/day?date=2099-03-10");
+      assertThat(day.statusCode()).isEqualTo(200);
+      assertThat(day.headers().firstValue("Cache-Control")).contains("no-store");
+      assertThat(json.readTree(day.body()).path("periods"))
+          .isEqualTo(
+              json.readTree(
+                  """
+              [
+                {"start":"08:00","end":"10:15","available":true},
+                {"start":"10:15","end":"18:00","available":true}
+              ]
+              """));
+      assertThat(day.body()).doesNotContain("visitor@example.com", "52998224725", "protocol");
+      var full = visitor.get(base + "?startsAt=2099-03-10T08:00&endsAt=2099-03-10T18:00");
+      assertThat(json.readTree(full.body()).path("status").asString()).isEqualTo("UNAVAILABLE");
+
+      var token = json.readTree(created.body()).path("trackingToken").asString();
+      assertThat(
+              visitor
+                  .json(
+                      "POST",
+                      CANCEL_PATH,
+                      Map.of("confirmLateCancellation", false),
+                      csrf,
+                      Map.of("X-Reservation-Token", token))
+                  .statusCode())
+          .isEqualTo(200);
+      var released = visitor.get(base + "/day?date=2099-03-10");
+      assertThat(json.readTree(released.body()).path("periods"))
+          .isEqualTo(
+              json.readTree(
+                  """
+              [{"start":"08:00","end":"18:00","available":true}]
+              """));
+    }
+  }
+
+  @Test
   void cancelsWithPrivateTokenReleasesAvailabilityAndPreservesIdempotencyUnderConcurrency()
       throws Exception {
     var room = spaces.saveAndFlush(new Space("Coworking", SpaceType.ROOM, 2, null));
