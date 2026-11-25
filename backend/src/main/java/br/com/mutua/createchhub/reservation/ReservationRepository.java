@@ -141,7 +141,7 @@ public class ReservationRepository {
         SELECT id, space_name, station_number, starts_at, ends_at, status, cancelled_at, late_cancellation,
           (SELECT note FROM reservation_decisions WHERE reservation_id = reservations.id
             ORDER BY id DESC LIMIT 1) AS decision_note
-        FROM reservations WHERE tracking_hash = :hash
+        FROM reservations WHERE tracking_hash = :hash OR email_tracking_hash = :hash
         """
             + (forUpdate ? " FOR UPDATE" : "");
     return jdbc

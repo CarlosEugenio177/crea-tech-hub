@@ -50,7 +50,9 @@ public class AdminReservationQuery {
         jdbc.query(
             """
         SELECT id, space_name, station_number, starts_at, ends_at, status, full_name, email,
-               whatsapp, reason, profile, notes, late_cancellation
+               whatsapp, reason, profile, notes, late_cancellation,
+               (SELECT state FROM reservation_emails WHERE reservation_id = reservations.id
+                 ORDER BY id DESC LIMIT 1) AS email_delivery_status
         """
                 + from
                 + " ORDER BY starts_at DESC, id DESC LIMIT :size OFFSET :offset",
@@ -69,9 +71,14 @@ public class AdminReservationQuery {
                     row.getString("reason"),
                     ReservationRequest.Profile.valueOf(row.getString("profile")),
                     row.getString("notes"),
-                    row.getBoolean("late_cancellation")));
+                    row.getBoolean("late_cancellation"),
+                    deliveryStatus(row.getString("email_delivery_status"))));
     return new AdminReservationPage(
         items, page, size, total, Math.toIntExact(Math.ceilDiv(total, size)));
+  }
+
+  private static ReservationEmailQueue.DeliveryStatus deliveryStatus(String state) {
+    return state == null ? null : ReservationEmailQueue.DeliveryStatus.valueOf(state);
   }
 
   private static boolean hasText(String value) {

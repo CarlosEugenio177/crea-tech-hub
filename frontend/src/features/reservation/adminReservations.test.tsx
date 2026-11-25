@@ -41,6 +41,7 @@ test('filters reservations and shows contact details and late cancellations', as
             endsAt: '2099-03-10T10:00',
             status: 'CANCELLED',
             lateCancellation: true,
+            emailDeliveryStatus: 'FAILED',
             email: 'visitor@example.com',
             whatsapp: '86999990000',
             reason: 'Estudo',
@@ -61,6 +62,7 @@ test('filters reservations and shows contact details and late cancellations', as
   expect(screen.getByText(/Cancelamento tardio/)).toBeInTheDocument()
   await user.click(screen.getByText('Ver contato e detalhes'))
   expect(screen.getByText('visitor@example.com')).toBeVisible()
+  expect(screen.getByText('Falha no envio')).toBeVisible()
   await user.type(screen.getByLabelText('Nome ou protocolo'), 'Mariana')
   await user.type(screen.getByLabelText('Ambiente'), 'estudo')
   await user.type(screen.getByLabelText('Data da reserva'), '10032099')
