@@ -73,6 +73,16 @@ public class SpaceBlockController {
   }
 
   @Operation(
+      operationId = "cancelSpaceBlockSeries",
+      summary = "Cancelar ocorrências futuras e em andamento de uma série")
+  @PostMapping("/series/{seriesId}/cancel")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void cancelSeries(
+      @PathVariable UUID seriesId, @AuthenticationPrincipal AdminPrincipal principal) {
+    blocks.cancelSeries(seriesId, principal.getAccountId());
+  }
+
+  @Operation(
       operationId = "cancelSpaceBlock",
       summary = "Cancelar bloqueio preservando o histórico")
   @PostMapping("/{id}/cancel")

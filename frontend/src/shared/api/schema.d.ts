@@ -193,6 +193,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/space-blocks/series/{seriesId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancelar ocorrências futuras e em andamento de uma série */
+        post: operations["cancelSpaceBlockSeries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/space-blocks/{id}": {
         parameters: {
             query?: never;
@@ -921,6 +938,8 @@ export interface components {
             id: string;
             reason: string;
             /** Format: uuid */
+            seriesId?: string;
+            /** Format: uuid */
             spaceId: string;
             startsAt: string;
         };
@@ -942,6 +961,11 @@ export interface components {
              */
             endsAt: string;
             reason: string;
+            /**
+             * @description Última data inclusiva para inícios de uma série semanal.
+             * @example 2027-04-28
+             */
+            repeatUntil?: string;
             /** Format: uuid */
             spaceId: string;
             /**
@@ -1359,6 +1383,27 @@ export interface operations {
                 };
             };
             409: components["responses"]["Problem"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    cancelSpaceBlockSeries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                seriesId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             default: components["responses"]["Problem"];
         };
     };

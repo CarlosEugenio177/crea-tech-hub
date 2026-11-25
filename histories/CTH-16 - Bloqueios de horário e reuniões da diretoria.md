@@ -30,11 +30,11 @@ Travar horários em que um ambiente não pode ser reservado, inclusive de forma 
 O painel permite criar, consultar e cancelar bloqueios pontuais, com histórico
 e herança dos bloqueios da sala para suas estações. A disponibilidade pública
 considera os bloqueios ativos. O painel avisa e preserva a reserva se houver
-conflito. Recorrência e edição continuam pendentes. Para corrigir um bloqueio,
-cancele e crie outro. Ver [Bloqueios de horário](../docs/21-bloqueios-de-horario.md).
+conflito. O painel também cria séries semanais até uma data e permite cancelar uma
+ocorrência ou o restante da série. Para editar um intervalo, cancele e crie outro. Ver [Bloqueios de horário](../docs/21-bloqueios-de-horario.md).
 
 - [x] Posso criar um bloqueio informando **ambiente**, **data(s)** e **horário**.
-- [ ] Posso criar bloqueios **recorrentes** (ex.: as tardes de reunião da diretoria definidas no início do ano).
+- [x] Posso criar bloqueios **recorrentes** (ex.: as tardes de reunião da diretoria definidas no início do ano).
 - [x] Horários bloqueados aparecem como **indisponíveis** na consulta e **não aceitam reservas** (CTH-2, CTH-4).
 - [ ] **Fora** dos horários fixos, as salas da diretoria **podem ser liberadas** ao público quando estiverem livres.
 - [ ] Posso **editar e remover** bloqueios; remover libera o horário.

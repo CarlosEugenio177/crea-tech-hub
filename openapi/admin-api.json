@@ -489,6 +489,34 @@
         "tags" : [ "space-block-controller" ]
       }
     },
+    "/api/v1/admin/space-blocks/series/{seriesId}/cancel" : {
+      "post" : {
+        "operationId" : "cancelSpaceBlockSeries",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "seriesId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Cancelar ocorrências futuras e em andamento de uma série",
+        "tags" : [ "space-block-controller" ]
+      }
+    },
     "/api/v1/admin/space-blocks/{id}" : {
       "get" : {
         "operationId" : "getSpaceBlock",
@@ -2510,6 +2538,10 @@
           "reason" : {
             "type" : "string"
           },
+          "seriesId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
           "spaceId" : {
             "type" : "string",
             "format" : "uuid"
@@ -2563,6 +2595,12 @@
             "type" : "string",
             "maxLength" : 500,
             "minLength" : 0
+          },
+          "repeatUntil" : {
+            "type" : "string",
+            "description" : "Última data inclusiva para inícios de uma série semanal.",
+            "example" : "2027-04-28",
+            "pattern" : "(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}"
           },
           "spaceId" : {
             "type" : "string",

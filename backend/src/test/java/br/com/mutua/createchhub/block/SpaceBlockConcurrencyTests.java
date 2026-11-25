@@ -46,7 +46,8 @@ class SpaceBlockConcurrencyTests {
             new UserAccount("Segundo", "second@example.com", "test-hash", AccessRole.ADMIN));
     var block =
         service.create(
-            new SpaceBlockRequest(room.getId(), "2027-03-10T09:00", "2027-03-10T10:00", "Reunião"),
+            new SpaceBlockRequest(
+                room.getId(), "2027-03-10T09:00", "2027-03-10T10:00", "Reunião", null),
             first.getId());
     var start = new CountDownLatch(1);
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {

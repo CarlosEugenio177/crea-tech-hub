@@ -6,6 +6,7 @@ import {
   CSRF_TOKEN,
   fakeApi,
   json,
+  noContent,
   problem,
 } from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
@@ -101,10 +102,10 @@ test('lists blocks and cancels an active block with CSRF', async () => {
   expect(cancelReq.headers.get(CSRF_HEADER)).toBe(CSRF_TOKEN)
 })
 
-test('shows the reservation conflict and lets the operator adjust the block', async () => {
+test('shows the reservation conflict and lets the operator adjust the weekly series', async () => {
   const user = userEvent.setup()
   const message =
-    'Já existe uma reserva pendente ou confirmada nesse horário. Confira a fila de reservas ou ajuste o intervalo.'
+    'Já existe uma reserva pendente ou confirmada no bloqueio de 17/03/2027. Confira a fila de reservas ou ajuste o intervalo.'
   let attempts = 0
   const api = fakeApi({
     [SESSION]: manager,
@@ -128,12 +129,17 @@ test('shows the reservation conflict and lets the operator adjust the block', as
   await user.type(screen.getByLabelText('Hora de início'), '0915')
   await user.type(screen.getByLabelText('Data de fim'), '10032027')
   await user.type(screen.getByLabelText('Hora de fim'), '1230')
+  await user.click(
+    screen.getByRole('checkbox', { name: 'Repetir toda semana' }),
+  )
+  await user.type(screen.getByLabelText('Repetir até'), '24032027')
   await user.type(screen.getByLabelText('Motivo'), '  Manutenção  ')
   await user.click(screen.getByRole('button', { name: 'Bloquear horário' }))
 
   expect(await screen.findByRole('alert')).toHaveTextContent(message)
   expect(screen.getByLabelText('Motivo')).toHaveValue('  Manutenção  ')
   expect(screen.getByLabelText('Data de início')).toHaveValue('10/03/2027')
+  expect(screen.getByLabelText('Repetir até')).toHaveValue('24/03/2027')
   const start = screen.getByLabelText('Hora de início')
   await user.clear(start)
   await user.type(start, '1015')
@@ -151,7 +157,41 @@ test('shows the reservation conflict and lets the operator adjust the block', as
     startsAt: '2027-03-10T09:15',
     endsAt: '2027-03-10T12:30',
     reason: 'Manutenção',
+    repeatUntil: '2027-03-24',
   })
+})
+
+test('confirms series cancellation and refreshes the list', async () => {
+  const user = userEvent.setup()
+  const seriesId = '4b866cdc-7a7b-4cdd-8fc4-4d80bb5ca953'
+  const route = `POST /api/v1/admin/space-blocks/series/${seriesId}/cancel`
+  let cancelled = false
+  const api = fakeApi({
+    [SESSION]: manager,
+    [SPACES]: spacesPage,
+    [LIST]: () =>
+      json({
+        items: cancelled ? [] : [{ ...activeBlock, seriesId }],
+        page: 0,
+        size: 20,
+        totalElements: cancelled ? 0 : 1,
+        totalPages: cancelled ? 0 : 1,
+      }),
+    [route]: () => {
+      cancelled = true
+      return noContent()
+    },
+  })
+  renderApp('/admin/bloqueios')
+  await user.click(
+    await screen.findByRole('button', { name: 'Cancelar série' }),
+  )
+  expect(api.sent(route)).toHaveLength(0)
+  await user.click(
+    screen.getByRole('button', { name: 'Confirmar cancelamento da série' }),
+  )
+  expect(await screen.findByText('Nenhum bloqueio ativo.')).toBeInTheDocument()
+  expect(api.sent(route)[0].headers.get(CSRF_HEADER)).toBe(CSRF_TOKEN)
 })
 
 test('rejects an end timestamp that is not after start', async () => {

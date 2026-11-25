@@ -18,6 +18,10 @@ public interface SpaceBlockRepository
   @Query("select b from SpaceBlock b where b.id = :id")
   Optional<SpaceBlock> findForUpdate(UUID id);
 
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select b from SpaceBlock b where b.seriesId = :seriesId order by b.id")
+  List<SpaceBlock> findSeriesForUpdate(UUID seriesId);
+
   @Query(
       """
       select distinct b.spaceId from SpaceBlock b

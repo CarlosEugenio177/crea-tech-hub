@@ -28,7 +28,8 @@ public record SpaceBlockResponse(
     Instant createdAt,
     boolean active,
     UUID cancelledBy,
-    Instant cancelledAt) {
+    Instant cancelledAt,
+    UUID seriesId) {
 
   static SpaceBlockResponse from(SpaceBlock block) {
     return new SpaceBlockResponse(
@@ -41,6 +42,7 @@ public record SpaceBlockResponse(
         block.getCreatedAt(),
         block.getCancelledAt() == null,
         block.getCancelledBy(),
-        block.getCancelledAt());
+        block.getCancelledAt(),
+        block.getSeriesId());
   }
 }

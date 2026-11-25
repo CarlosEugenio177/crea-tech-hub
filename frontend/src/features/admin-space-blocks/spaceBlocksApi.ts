@@ -8,6 +8,7 @@ export type SpaceBlockRequest = components['schemas']['SpaceBlockRequest']
 
 const BLOCKS_PATH = '/api/v1/admin/space-blocks'
 const CANCEL_PATH = '/api/v1/admin/space-blocks/{id}/cancel'
+const CANCEL_SERIES_PATH = '/api/v1/admin/space-blocks/series/{seriesId}/cancel'
 const SPACES_PATH = '/api/v1/admin/spaces'
 const PAGE_SIZE = 20
 
@@ -73,6 +74,20 @@ export function useCreateSpaceBlock(onSaved: () => void) {
     error: create.error,
     isPending: create.isPending,
     submit: (block: SpaceBlockRequest) => create.mutate({ body: block }),
+  }
+}
+
+export function useCancelSpaceBlockSeries() {
+  const queryClient = useQueryClient()
+  const mutation = api.useMutation('post', CANCEL_SERIES_PATH, {
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['get', BLOCKS_PATH] }),
+  })
+  return {
+    error: mutation.error,
+    isPending: mutation.isPending,
+    cancel: (seriesId: string) =>
+      mutation.mutate({ params: { path: { seriesId } } }),
   }
 }
 

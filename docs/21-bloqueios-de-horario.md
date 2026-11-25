@@ -43,8 +43,26 @@ horários adjacentes não impedem o bloqueio.
 Para cancelar, envie `POST /api/v1/admin/space-blocks/{id}/cancel`, sem corpo.
 A resposta 200 mantém o registro original e acrescenta `cancelledBy` e `cancelledAt`.
 Repetir a operação retorna o mesmo cancelamento, preservando o primeiro responsável
-e horário, inclusive em requisições simultâneas. Não há exclusão física, reativação
-ou edição do intervalo nesta API; corrigir um bloqueio exige cancelar e criar outro.
+e horário, inclusive em requisições simultâneas. Para corrigir um intervalo,
+o operador cancela o bloqueio e cria outro.
+
+## Recorrência semanal
+
+No painel, marque **Repetir toda semana** e informe a data final. Na API, envie
+o campo opcional `repeatUntil` no formato `aaaa-MM-dd`. A primeira ocorrência
+é o intervalo informado. Os demais inícios caem no mesmo dia da semana, até
+a data final inclusive. A série aceita de duas a 52 ocorrências. Cada intervalo
+pode durar até uma semana.
+
+A criação retorna a primeira ocorrência com `seriesId`. Todas as ocorrências
+são gravadas na mesma transação. Se alguma delas conflitar com uma reserva
+pendente ou confirmada, a API retorna 409 com a data do primeiro conflito.
+
+O painel permite cancelar uma ocorrência ou o restante da série. O endpoint
+`POST /api/v1/admin/space-blocks/series/{seriesId}/cancel` exige a mesma sessão
+e CSRF. A resposta 204 vale também para pedidos repetidos. O cancelamento em
+série alcança ocorrências futuras e em andamento. As encerradas permanecem no
+histórico.
 
 ## Consultar
 
@@ -93,5 +111,5 @@ A tela administrativa usa o contrato OpenAPI para criar, listar e cancelar bloqu
 A disponibilidade pública e o envio de reservas consideram os bloqueios ativos.
 A criação de bloqueios e o envio de reservas compartilham a trava transacional do
 espaço afetado. Assim, uma reserva e um bloqueio incompatíveis não podem ser
-gravados ao mesmo tempo. Recorrência e edição de bloqueios existentes ficam para
-as próximas entregas.
+gravados ao mesmo tempo. A edição direta de bloqueios existentes fica para uma
+próxima entrega.
