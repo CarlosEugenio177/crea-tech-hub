@@ -48,8 +48,9 @@ O contrato oficial `openapi/admin-api.json` e os tipos derivados incluem os trê
 endpoints. A interface pode consultar o GET público para exibir as informações atuais;
 o horário de funcionamento não exige autenticação para ser conhecido.
 
-Esta entrega contém a configuração e suas APIs. A tela de edição e o consumo dessa
-configuração no formulário público serão feitos em uma entrega do frontend. A
-disponibilidade por data, os bloqueios e a criação de reservas ainda precisam usar
+Esta entrega contém a configuração, suas APIs e a tela administrativa de edição.
+O consumo dessa configuração no formulário público será feito em uma entrega
+posterior do frontend. A disponibilidade por data, os bloqueios e a criação de reservas
+ainda precisam usar
 essas regras quando forem implementados. O funcionamento não representa ocupação
 de uma estação e não cria slots fixos. Reservas existentes não são alteradas por esta API.
