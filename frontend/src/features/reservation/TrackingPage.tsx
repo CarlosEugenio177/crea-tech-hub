@@ -130,7 +130,6 @@ export function TrackingPage() {
             </dl>
             {data.cancellable ? (
               <CancelReservationBox
-                startsAt={data.startsAt}
                 lateCancellationWarning={data.lateCancellationWarning}
                 isPending={cancellation.isPending}
                 error={cancellation.error}

@@ -3,10 +3,8 @@ import { Button } from '../../shared/ui/Button.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import styles from './CancelReservationBox.module.css'
-import { isLessThan24HoursBeforeStart } from './reservationDates.ts'
 
 type CancelReservationBoxProps = {
-  startsAt: string
   lateCancellationWarning: boolean
   isPending: boolean
   error: unknown
@@ -14,7 +12,6 @@ type CancelReservationBoxProps = {
 }
 
 export function CancelReservationBox({
-  startsAt,
   lateCancellationWarning,
   isPending,
   error,
@@ -30,12 +27,9 @@ export function CancelReservationBox({
     )
   }
 
-  const isLate =
-    lateCancellationWarning || isLessThan24HoursBeforeStart(startsAt)
-
   return (
     <section className={styles.box} aria-label="Confirmação de cancelamento">
-      {isLate ? (
+      {lateCancellationWarning ? (
         <Notice tone="info">
           Faltam menos de 24 horas para o início. Este cancelamento será
           registrado como tardio.
@@ -47,7 +41,10 @@ export function CancelReservationBox({
       )}
       <ProblemNotice error={error} />
       <div className={styles.actions}>
-        <Button disabled={isPending} onClick={() => onCancel(isLate)}>
+        <Button
+          disabled={isPending}
+          onClick={() => onCancel(lateCancellationWarning)}
+        >
           {isPending ? 'Cancelando…' : 'Confirmar cancelamento'}
         </Button>
         <Button

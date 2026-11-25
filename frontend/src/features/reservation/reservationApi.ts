@@ -70,10 +70,10 @@ export function useCancelReservation(
       })
       onCancelled(data)
     },
-    onError: (error) => {
+    onError: async (error) => {
       if (error.status === 409) {
-        void queryClient.invalidateQueries({
-          queryKey: ['get', '/api/v1/reservations/receipt'],
+        await queryClient.invalidateQueries({
+          queryKey: receiptKey,
         })
       }
     },
