@@ -1543,6 +1543,14 @@
             "maximum" : 100,
             "minimum" : 1
           }
+        }, {
+          "in" : "query",
+          "name" : "topLevelOnly",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
         } ],
         "responses" : {
           "200" : {

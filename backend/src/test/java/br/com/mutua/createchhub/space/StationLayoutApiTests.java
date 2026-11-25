@@ -230,6 +230,11 @@ class StationLayoutApiTests {
       var catalogBefore = visitor.get("/api/v1/spaces");
       assertThat(catalogBefore.statusCode()).isEqualTo(200);
       assertThat(catalogBefore.body()).contains(first.getId().toString());
+      var topLevel = visitor.get("/api/v1/spaces?topLevelOnly=true");
+      assertThat(topLevel.statusCode()).isEqualTo(200);
+      assertThat(topLevel.body())
+          .contains(room.getId().toString())
+          .doesNotContain(first.getId().toString());
       assertThat(
               client
                   .json(

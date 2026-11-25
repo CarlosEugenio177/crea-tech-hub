@@ -9,6 +9,7 @@ import {
   problem,
 } from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
+import { selectTime, timeControls } from '../../test/timeControls.ts'
 
 const CATALOG = 'GET /api/v1/spaces'
 const RULES = 'GET /api/v1/hub/usage-rules'
@@ -69,8 +70,8 @@ async function chooseSpaceAndPeriod(user: ReturnType<typeof userEvent.setup>) {
     await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
   )
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
-  await user.type(screen.getByLabelText('Início'), '09:15')
-  await user.type(screen.getByLabelText('Fim'), '10:45')
+  await selectTime(user, 'Início', '09:15')
+  await selectTime(user, 'Fim', '10:45')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   await user.click(await screen.findByRole('button', { name: 'Continuar' }))
   await screen.findByRole('heading', { name: 'Seus dados' })
@@ -106,12 +107,14 @@ test('lets the visitor choose an available period from the day agenda and adjust
       name: 'Usar horário das 09:15 às 10:45',
     }),
   )
-  expect(screen.getByLabelText('Início')).toHaveValue('09:15')
-  expect(screen.getByLabelText('Fim')).toHaveValue('10:45')
-  expect(screen.getByLabelText('Início')).toHaveFocus()
+  expect(timeControls('Início').hour).toHaveValue('09')
+  expect(timeControls('Início').minute).toHaveValue('15')
+  expect(timeControls('Fim').hour).toHaveValue('10')
+  expect(timeControls('Fim').minute).toHaveValue('45')
+  expect(timeControls('Início').hour).toHaveFocus()
 
-  await user.clear(screen.getByLabelText('Fim'))
-  await user.type(screen.getByLabelText('Fim'), '10:22')
+  await user.selectOptions(timeControls('Fim').hour, '')
+  await selectTime(user, 'Fim', '10:22')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   expect(
     await screen.findByRole('button', { name: 'Continuar' }),
@@ -177,8 +180,8 @@ test('keeps the requester after a conflict and opens the receipt after retrying'
       name: 'Escolher outro horário ou estação',
     }),
   )
-  await user.clear(screen.getByLabelText('Início'))
-  await user.type(screen.getByLabelText('Início'), '09:30')
+  await user.selectOptions(timeControls('Início').hour, '')
+  await selectTime(user, 'Início', '09:30')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   await user.click(await screen.findByRole('button', { name: 'Continuar' }))
   expect(await screen.findByLabelText('CPF')).toHaveValue('529.982.247-25')
@@ -458,8 +461,8 @@ test('rejects a period that ends before it starts', async () => {
     await screen.findByRole('button', { name: 'Escolher Estação individual' }),
   )
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
-  await user.type(screen.getByLabelText('Início'), '10:00')
-  await user.type(screen.getByLabelText('Fim'), '09:00')
+  await selectTime(user, 'Início', '10:00')
+  await selectTime(user, 'Fim', '09:00')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
 
   expect(
@@ -467,7 +470,7 @@ test('rejects a period that ends before it starts', async () => {
   ).toBeInTheDocument()
 })
 
-test('formats the date and times in the Brazilian pattern while typing digits', async () => {
+test('formats dates and accepts exact minutes using the time selectors', async () => {
   const user = userEvent.setup()
   renderApp('/reservar')
 
@@ -475,12 +478,14 @@ test('formats the date and times in the Brazilian pattern while typing digits', 
     await screen.findByRole('button', { name: 'Escolher Estação individual' }),
   )
   await user.type(screen.getByLabelText('Data'), '10032099')
-  await user.type(screen.getByLabelText('Início'), '0915')
-  await user.type(screen.getByLabelText('Fim'), '1045')
+  await selectTime(user, 'Início', '09:15')
+  await selectTime(user, 'Fim', '10:45')
 
   expect(screen.getByLabelText('Data')).toHaveValue('10/03/2099')
-  expect(screen.getByLabelText('Início')).toHaveValue('09:15')
-  expect(screen.getByLabelText('Fim')).toHaveValue('10:45')
+  expect(timeControls('Início').hour).toHaveValue('09')
+  expect(timeControls('Início').minute).toHaveValue('15')
+  expect(timeControls('Fim').hour).toHaveValue('10')
+  expect(timeControls('Fim').minute).toHaveValue('45')
 })
 
 test('rejects a date that does not exist in the calendar', async () => {
@@ -491,8 +496,8 @@ test('rejects a date that does not exist in the calendar', async () => {
     await screen.findByRole('button', { name: 'Escolher Estação individual' }),
   )
   await user.type(screen.getByLabelText('Data'), '31/02/2099')
-  await user.type(screen.getByLabelText('Início'), '10:00')
-  await user.type(screen.getByLabelText('Fim'), '11:00')
+  await selectTime(user, 'Início', '10:00')
+  await selectTime(user, 'Fim', '11:00')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
 
   expect(
@@ -528,8 +533,8 @@ test('shows blocked stations and can choose a free station automatically', async
     await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
   )
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
-  await user.type(screen.getByLabelText('Início'), '09:15')
-  await user.type(screen.getByLabelText('Fim'), '10:45')
+  await selectTime(user, 'Início', '09:15')
+  await selectTime(user, 'Fim', '10:45')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   expect(
     await screen.findByRole('button', { name: 'Estação 1, indisponível' }),
@@ -538,13 +543,13 @@ test('shows blocked stations and can choose a free station automatically', async
   expect(
     new URLSearchParams(api.sent(AVAILABILITY)[0].search).get('startsAt'),
   ).toBe('2099-03-10T09:15')
-  await user.clear(screen.getByLabelText('Fim'))
+  await user.selectOptions(timeControls('Fim').hour, '')
   expect(
     screen.queryByRole('button', {
       name: 'Escolher uma estação livre pra mim',
     }),
   ).not.toBeInTheDocument()
-  await user.type(screen.getByLabelText('Fim'), '10:45')
+  await selectTime(user, 'Fim', '10:45')
   await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   await user.click(
     await screen.findByRole('button', {

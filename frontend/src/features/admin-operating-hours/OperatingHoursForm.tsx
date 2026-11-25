@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useId, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useController, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
 import { CheckboxField } from '../../shared/ui/CheckboxField.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
-import { TextField } from '../../shared/ui/TextField.tsx'
-import { maskTime, withMask } from '../reservation/inputMasks.ts'
+import { TimeField } from '../../shared/ui/TimeField.tsx'
 import { TIME_24H } from '../reservation/reservationDates.ts'
 import styles from './OperatingHoursPage.module.css'
 import type {
@@ -17,12 +16,8 @@ import type {
 
 const schema = z
   .object({
-    openingTime: z
-      .string()
-      .regex(TIME_24H, 'Informe um horário válido no formato hh:mm.'),
-    closingTime: z
-      .string()
-      .regex(TIME_24H, 'Informe um horário válido no formato hh:mm.'),
+    openingTime: z.string().regex(TIME_24H, 'Selecione um horário.'),
+    closingTime: z.string().regex(TIME_24H, 'Selecione um horário.'),
   })
   .refine(
     (values) =>
@@ -66,13 +61,16 @@ export function OperatingHoursForm({
   const [days, setDays] = useState(hours.daysOfWeek)
   const [daysError, setDaysError] = useState<string>()
   const daysErrorId = useId()
-  const { register, handleSubmit, formState } = useForm({
+  const { control, handleSubmit } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       openingTime: hours.openingTime,
       closingTime: hours.closingTime,
     },
   })
+
+  const opening = useController({ control, name: 'openingTime' })
+  const closing = useController({ control, name: 'closingTime' })
 
   const toggleDay = (day: OperatingHoursRequest['daysOfWeek'][number]) => {
     setDaysError(undefined)
@@ -118,25 +116,15 @@ export function OperatingHoursForm({
           </p>
         )}
       </fieldset>
-      <TextField
+      <TimeField
         label="Abertura"
-        inputMode="numeric"
-        autoComplete="off"
-        placeholder="08:00"
-        maxLength={5}
-        hint="Horário local do Hub, de 00:00 a 23:59."
-        error={formState.errors.openingTime?.message}
-        {...withMask(register('openingTime'), maskTime)}
+        error={opening.fieldState.error?.message}
+        {...opening.field}
       />
-      <TextField
+      <TimeField
         label="Fechamento"
-        inputMode="numeric"
-        autoComplete="off"
-        placeholder="18:00"
-        maxLength={5}
-        hint="O fechamento deve ser depois da abertura."
-        error={formState.errors.closingTime?.message}
-        {...withMask(register('closingTime'), maskTime)}
+        error={closing.fieldState.error?.message}
+        {...closing.field}
       />
       <Button type="submit" disabled={isPending}>
         {isPending ? 'Salvando…' : 'Salvar horário'}

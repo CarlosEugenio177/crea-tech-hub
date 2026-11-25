@@ -1,30 +1,41 @@
 import { useState } from 'react'
 import { Button } from '../../shared/ui/Button.tsx'
+import type { PublicSpace } from './publicSpacesApi.ts'
 import styles from './SpaceOptionCard.module.css'
-import type { SpaceOption } from './spaceOptions.ts'
+import { spaceDetails } from './spaceOptions.ts'
 
 type SpaceOptionCardProps = {
-  option: SpaceOption
+  space: PublicSpace
   onChoose: () => void
 }
 
-export function SpaceOptionCard({ option, onChoose }: SpaceOptionCardProps) {
+export function SpaceOptionCard({ space, onChoose }: SpaceOptionCardProps) {
   const [failedPhoto, setFailedPhoto] = useState<string>()
-  const photo = option.photoUrl === failedPhoto ? undefined : option.photoUrl
+  const photo =
+    space.photoUrl === failedPhoto ? undefined : (space.photoUrl ?? undefined)
+
   return (
     <li className={styles.card}>
-      <img
-        className={photo ? styles.photo : styles.illustration}
-        src={photo ?? option.illustration}
-        alt={photo ? `Foto de ${option.name}` : option.illustrationAlt}
-        loading="lazy"
-        referrerPolicy="no-referrer"
-        onError={photo ? () => setFailedPhoto(photo) : undefined}
-      />
-      <h2 className={styles.name}>{option.name}</h2>
-      <p className={styles.description}>{option.description}</p>
-      <p className={styles.tag}>{option.tag}</p>
-      <Button onClick={onChoose}>Escolher {option.name}</Button>
+      <div className={styles.room}>
+        {photo && (
+          <img
+            className={styles.photo}
+            src={photo}
+            alt={`Foto de ${space.name}`}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={() => setFailedPhoto(photo)}
+          />
+        )}
+        <div className={styles.details}>
+          <h2>{space.name}</h2>
+          <p className={styles.capacity}>{spaceDetails(space)}</p>
+        </div>
+      </div>
+      {space.description && (
+        <p className={styles.description}>{space.description}</p>
+      )}
+      <Button onClick={onChoose}>Escolher {space.name}</Button>
     </li>
   )
 }

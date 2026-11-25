@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, useWatch } from 'react-hook-form'
+import { useController, useForm, useWatch } from 'react-hook-form'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { DayAgenda } from './DayAgenda.tsx'
@@ -43,6 +43,8 @@ export function PeriodForm({
     defaultValues: period && { ...period, date: toBrazilianDate(period.date) },
   })
 
+  const { field: start } = useController({ control, name: 'start' })
+  const { field: end } = useController({ control, name: 'end' })
   const typedDate = useWatch({ control, name: 'date' })
   const date = typedDate ? toIsoDate(typedDate) : today()
   const showAgenda =
@@ -58,11 +60,9 @@ export function PeriodForm({
   return (
     <FormCard onSubmit={handleSubmit(onSubmit)} onChange={onEdit}>
       <PeriodFields
-        fields={{
-          date: register('date'),
-          start: register('start'),
-          end: register('end'),
-        }}
+        date={register('date')}
+        start={start}
+        end={end}
         errors={errors}
       >
         {showAgenda && (

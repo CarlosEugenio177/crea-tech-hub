@@ -6,7 +6,7 @@ test('shows the home page at the root path', () => {
   renderApp('/')
 
   expect(
-    screen.getByRole('heading', { name: 'Seu acesso ao Hub começa aqui' }),
+    screen.getByRole('heading', { name: 'Reserve uma sala ou estação' }),
   ).toBeInTheDocument()
 })
 

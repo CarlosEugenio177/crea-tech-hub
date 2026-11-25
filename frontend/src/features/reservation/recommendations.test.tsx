@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { expect, test } from 'vitest'
 import { fakeApi, json } from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
+import { selectTime, timeControls } from '../../test/timeControls.ts'
 
 const catalog = 'GET /api/v1/spaces'
 const recommendations = 'GET /api/v1/spaces/recommendations'
@@ -26,8 +27,8 @@ async function fillCriteria(
 ) {
   await user.type(screen.getByLabelText('Número de pessoas'), participants)
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
-  await user.type(screen.getByLabelText('Início'), '09:15')
-  await user.type(screen.getByLabelText('Fim'), '10:45')
+  await selectTime(user, 'Início', '09:15')
+  await selectTime(user, 'Fim', '10:45')
 }
 
 test('recommends a room and rechecks the same interval after choosing an alternative', async () => {
@@ -77,8 +78,10 @@ test('recommends a room and rechecks the same interval after choosing an alterna
   )
   await screen.findByRole('button', { name: 'Continuar' })
   expect(screen.getByLabelText('Data')).toHaveValue('10/03/2099')
-  expect(screen.getByLabelText('Início')).toHaveValue('09:15')
-  expect(screen.getByLabelText('Fim')).toHaveValue('10:45')
+  expect(timeControls('Início').hour).toHaveValue('09')
+  expect(timeControls('Início').minute).toHaveValue('15')
+  expect(timeControls('Fim').hour).toHaveValue('10')
+  expect(timeControls('Fim').minute).toHaveValue('45')
   expect(
     Object.fromEntries(new URLSearchParams(api.sent(availability)[0].search)),
   ).toEqual({

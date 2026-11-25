@@ -9,26 +9,19 @@ import { usePublicSpaces } from './publicSpacesApi.ts'
 import { useReservationDraft } from './reservationDraft.ts'
 import { RESERVE_RECOMMENDATION, RESERVE_TIME } from './reservationRoutes.ts'
 import { SpaceOptionCard } from './SpaceOptionCard.tsx'
-import { toSpaceOption } from './spaceOptions.ts'
 import { StepPage } from './StepPage.tsx'
 
 export function ChooseSpacePage() {
   const navigate = useNavigate()
   const { draft, update } = useReservationDraft()
   const spaces = usePublicSpaces()
-  const options = spaces.data?.map(toSpaceOption)
+  const options = spaces.data
 
   return (
-    <StepPage
-      step={1}
-      title="Escolha um espaço"
-      description="Escolha o ambiente e, em seguida, a data e o horário."
-    >
-      <div>
-        <ButtonLink to={RESERVE_RECOMMENDATION} variant="secondary">
-          Buscar por número de pessoas
-        </ButtonLink>
-      </div>
+    <StepPage step={1} title="Escolha um espaço">
+      <ButtonLink to={RESERVE_RECOMMENDATION} variant="secondary">
+        Buscar por número de pessoas
+      </ButtonLink>
       {!options ? (
         <QueryStatus error={spaces.error} />
       ) : options.length === 0 ? (
@@ -38,7 +31,7 @@ export function ChooseSpacePage() {
           {options.map((option) => (
             <SpaceOptionCard
               key={option.id}
-              option={option}
+              space={option}
               onChoose={() => {
                 update({
                   space: { id: option.id, name: option.name },

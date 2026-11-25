@@ -8,9 +8,8 @@ import styles from './PublicLayout.module.css'
 type PublicLayoutProps = { children?: ReactNode }
 
 const MENU = [
-  { to: '/', label: 'Início' },
-  { to: RESERVE, label: 'Solicitar espaço' },
-  { to: TRACKING, label: 'Acompanhar solicitação' },
+  { to: RESERVE, label: 'Reservar' },
+  { to: TRACKING, label: 'Acompanhar' },
 ]
 
 export function PublicLayout({ children }: PublicLayoutProps) {
@@ -24,7 +23,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
                 className={({ isActive }) =>
                   isActive ? styles.activeItem : styles.item
                 }

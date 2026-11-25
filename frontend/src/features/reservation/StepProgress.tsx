@@ -14,10 +14,8 @@ export function StepProgress({ current }: StepProgressProps) {
         return (
           <li
             key={step.to}
-            className={number > current ? styles.pending : styles.reached}
             aria-current={number === current ? 'step' : undefined}
           >
-            <span className={styles.number}>{number}</span>
             {done ? (
               <Link to={step.to} className={styles.label}>
                 {step.label}

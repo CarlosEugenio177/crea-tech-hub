@@ -43,9 +43,7 @@ export function DayAgenda({
         </div>
       </div>
       {agenda.isError ? (
-        <p role="status">
-          Agenda indisponível. Você ainda pode informar o horário abaixo.
-        </p>
+        <p role="status">Agenda indisponível. Use os seletores de horário.</p>
       ) : !agenda.data ? (
         <p role="status">Consultando horários…</p>
       ) : agenda.data.closed ? (

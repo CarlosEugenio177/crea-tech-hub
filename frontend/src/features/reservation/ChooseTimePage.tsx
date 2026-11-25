@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
-import { Notice } from '../../shared/ui/Notice.tsx'
 import { AvailabilityOptions } from './AvailabilityOptions.tsx'
 import { formatOperatingHours } from './operatingHoursLabel.ts'
 import { PeriodForm } from './PeriodForm.tsx'
@@ -29,14 +28,8 @@ export function ChooseTimePage() {
   if (!draft.space) return <Navigate to={RESERVE} replace />
 
   return (
-    <StepPage
-      step={2}
-      title="Escolha uma data e um horário"
-      description={`${draft.space.name}. Informe início e fim com precisão de minutos.`}
-    >
-      {hours.data && (
-        <Notice tone="info">{formatOperatingHours(hours.data)}</Notice>
-      )}
+    <StepPage step={2} title="Escolha o horário" description={draft.space.name}>
+      {hours.data && <p>{formatOperatingHours(hours.data)}</p>}
       <PeriodForm
         spaceId={draft.space.id}
         period={selectedPeriod}

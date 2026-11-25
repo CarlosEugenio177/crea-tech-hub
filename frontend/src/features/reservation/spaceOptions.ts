@@ -1,50 +1,14 @@
-import workstation from '../../shared/assets/mulher-mesa.svg'
 import { capacityLabel } from '../../shared/format/capacityLabel.ts'
-import sharedTable from './assets/aperto-de-maos.svg'
-import podcast from './assets/podcast.svg'
 import type { PublicSpace } from './publicSpacesApi.ts'
 
-export type SpaceOption = {
-  id: string
-  name: string
-  description: string
-  tag: string
-  illustration: string
-  illustrationAlt: string
-  photoUrl?: string
-}
+const labels = {
+  ROOM: 'Sala',
+  SHARED_TABLE: 'Mesa colaborativa',
+  WORKSTATION: 'Estação individual',
+} satisfies Record<PublicSpace['type'], string>
 
-const presentationByType = {
-  ROOM: {
-    tag: 'Sala',
-    illustration: podcast,
-    illustrationAlt: 'Fones de ouvido e microfone',
-  },
-  SHARED_TABLE: {
-    tag: 'Mesa colaborativa',
-    illustration: sharedTable,
-    illustrationAlt: 'Aperto de mãos',
-  },
-  WORKSTATION: {
-    tag: 'Estação individual',
-    illustration: workstation,
-    illustrationAlt: 'Pessoa trabalhando em uma mesa',
-  },
-} satisfies Record<
-  PublicSpace['type'],
-  Pick<SpaceOption, 'tag' | 'illustration' | 'illustrationAlt'>
->
-
-export function toSpaceOption(space: PublicSpace): SpaceOption {
-  const presentation = presentationByType[space.type]
-
-  return {
-    id: space.id,
-    name: space.name,
-    description: space.description ?? 'Espaço disponível para solicitação.',
-    tag: `${presentation.tag} · ${capacityLabel(space.capacity)}`,
-    illustration: presentation.illustration,
-    illustrationAlt: presentation.illustrationAlt,
-    photoUrl: space.photoUrl,
-  }
+export function spaceDetails(space: PublicSpace) {
+  return space.bookingMode === 'PER_STATION'
+    ? 'Reserva por estação'
+    : `${labels[space.type]} · ${capacityLabel(space.capacity)}`
 }

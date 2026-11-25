@@ -2089,6 +2089,7 @@ export interface operations {
             query?: {
                 page?: number;
                 size?: number;
+                topLevelOnly?: boolean;
             };
             header?: never;
             path?: never;

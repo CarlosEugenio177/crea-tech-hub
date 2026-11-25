@@ -10,6 +10,7 @@ import {
   problem,
 } from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
+import { selectTime } from '../../test/timeControls.ts'
 
 const SESSION = 'GET /api/v1/admin/auth/me'
 const SPACES = 'GET /api/v1/admin/spaces'
@@ -126,9 +127,9 @@ test('shows the reservation conflict and lets the operator adjust the weekly ser
 
   await user.selectOptions(await screen.findByLabelText('Espaço'), SPACE_ID)
   await user.type(screen.getByLabelText('Data de início'), '10032027')
-  await user.type(screen.getByLabelText('Hora de início'), '0915')
+  await selectTime(user, 'Início', '09:15')
   await user.type(screen.getByLabelText('Data de fim'), '10032027')
-  await user.type(screen.getByLabelText('Hora de fim'), '1230')
+  await selectTime(user, 'Fim', '12:30')
   await user.click(
     screen.getByRole('checkbox', { name: 'Repetir toda semana' }),
   )
@@ -140,9 +141,7 @@ test('shows the reservation conflict and lets the operator adjust the weekly ser
   expect(screen.getByLabelText('Motivo')).toHaveValue('  Manutenção  ')
   expect(screen.getByLabelText('Data de início')).toHaveValue('10/03/2027')
   expect(screen.getByLabelText('Repetir até')).toHaveValue('24/03/2027')
-  const start = screen.getByLabelText('Hora de início')
-  await user.clear(start)
-  await user.type(start, '1015')
+  await selectTime(user, 'Início', '10:15')
   await user.click(screen.getByRole('button', { name: 'Bloquear horário' }))
 
   expect(
@@ -205,9 +204,9 @@ test('rejects an end timestamp that is not after start', async () => {
 
   await user.selectOptions(await screen.findByLabelText('Espaço'), SPACE_ID)
   await user.type(screen.getByLabelText('Data de início'), '10/03/2027')
-  await user.type(screen.getByLabelText('Hora de início'), '12:30')
+  await selectTime(user, 'Início', '12:30')
   await user.type(screen.getByLabelText('Data de fim'), '10/03/2027')
-  await user.type(screen.getByLabelText('Hora de fim'), '12:30')
+  await selectTime(user, 'Fim', '12:30')
   await user.type(screen.getByLabelText('Motivo'), 'Reunião da diretoria')
   await user.click(screen.getByRole('button', { name: 'Bloquear horário' }))
 

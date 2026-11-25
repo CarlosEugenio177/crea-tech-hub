@@ -1,16 +1,26 @@
 import type { ReactNode } from 'react'
 import type { FieldErrors, UseFormRegisterReturn } from 'react-hook-form'
 import { TextField } from '../../shared/ui/TextField.tsx'
-import { maskDate, maskTime, withMask } from './inputMasks.ts'
+import { TimeField, type TimeFieldControl } from '../../shared/ui/TimeField.tsx'
+import { maskDate, withMask } from './inputMasks.ts'
+import styles from './PeriodFields.module.css'
 import type { ReservationPeriod } from './reservationDraft.ts'
 
 type PeriodFieldsProps = {
-  fields: Record<keyof ReservationPeriod, UseFormRegisterReturn>
+  date: UseFormRegisterReturn<'date'>
+  start: TimeFieldControl
+  end: TimeFieldControl
   errors: FieldErrors<ReservationPeriod>
   children?: ReactNode
 }
 
-export function PeriodFields({ fields, errors, children }: PeriodFieldsProps) {
+export function PeriodFields({
+  date,
+  start,
+  end,
+  errors,
+  children,
+}: PeriodFieldsProps) {
   return (
     <>
       <TextField
@@ -19,31 +29,14 @@ export function PeriodFields({ fields, errors, children }: PeriodFieldsProps) {
         autoComplete="off"
         placeholder="dd/mm/aaaa"
         maxLength={10}
-        hint="Dia, mês e ano, por exemplo 10/03/2027."
         error={errors.date?.message}
-        {...withMask(fields.date, maskDate)}
+        {...withMask(date, maskDate)}
       />
+      <div className={styles.times}>
+        <TimeField label="Início" error={errors.start?.message} {...start} />
+        <TimeField label="Fim" error={errors.end?.message} {...end} />
+      </div>
       {children}
-      <TextField
-        label="Início"
-        inputMode="numeric"
-        autoComplete="off"
-        placeholder="hh:mm"
-        maxLength={5}
-        hint="Horário de 24 horas, por exemplo 14:30."
-        error={errors.start?.message}
-        {...withMask(fields.start, maskTime)}
-      />
-      <TextField
-        label="Fim"
-        inputMode="numeric"
-        autoComplete="off"
-        placeholder="hh:mm"
-        maxLength={5}
-        hint="Informe o horário local do Hub."
-        error={errors.end?.message}
-        {...withMask(fields.end, maskTime)}
-      />
     </>
   )
 }

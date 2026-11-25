@@ -2,6 +2,7 @@ package br.com.mutua.createchhub.space;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,15 +23,16 @@ class SpaceServiceTests {
   @Test
   void listsOnlyActiveSpacesWithThePublicCatalogSort() {
     var space = new Space("Sala aberta", SpaceType.ROOM, 8, "Projetor");
-    when(spaces.findPublic(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(space)));
+    when(spaces.findPublic(eq(false), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(space)));
 
-    var result = new SpaceService(spaces).listPublic(2, 10);
+    var result = new SpaceService(spaces).listPublic(2, 10, false);
 
     assertThat(result.getContent())
         .extracting(response -> response.name())
         .containsExactly("Sala aberta");
     var pageable = ArgumentCaptor.forClass(Pageable.class);
-    verify(spaces).findPublic(pageable.capture());
+    verify(spaces).findPublic(eq(false), pageable.capture());
     assertThat(pageable.getValue().getPageNumber()).isEqualTo(2);
     assertThat(pageable.getValue().getPageSize()).isEqualTo(10);
     assertThat(pageable.getValue().getSort().getOrderFor("name")).isNotNull();

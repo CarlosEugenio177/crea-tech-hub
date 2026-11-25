@@ -25,9 +25,9 @@ public class SpaceService {
     return result.map(space -> SpaceResponse.from(space));
   }
 
-  public Page<PublicSpaceResponse> listPublic(int page, int size) {
+  public Page<PublicSpaceResponse> listPublic(int page, int size, boolean topLevelOnly) {
     var pageable = PageRequest.of(page, size, Sort.by("name", "id"));
-    return spaces.findPublic(pageable).map(space -> PublicSpaceResponse.from(space));
+    return spaces.findPublic(topLevelOnly, pageable).map(PublicSpaceResponse::from);
   }
 
   public SpaceResponse find(UUID id) {

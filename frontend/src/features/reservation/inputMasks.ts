@@ -15,10 +15,6 @@ export function maskDate(value: string) {
   return groupDigits(value, [2, 2, 4], '/')
 }
 
-export function maskTime(value: string) {
-  return groupDigits(value, [2, 2], ':')
-}
-
 export function withMask<Name extends string>(
   registration: UseFormRegisterReturn<Name>,
   mask: (value: string) => string,
