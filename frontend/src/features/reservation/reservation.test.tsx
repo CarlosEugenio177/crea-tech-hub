@@ -213,6 +213,30 @@ test('cancels a reservation from the individual link and shows confirmation', as
   })
 })
 
+test('shows the message from the team on the private tracking page', async () => {
+  const token = 'a'.repeat(43)
+  const api = fakeApi({
+    [RECEIPT]: () =>
+      json({
+        protocol: '33a3edb4-3848-4d4d-b5d3-0cdbba265eed',
+        spaceName: 'Sala de estudo',
+        startsAt: '2099-03-10T09:00',
+        endsAt: '2099-03-10T10:00',
+        status: 'REJECTED',
+        cancellable: false,
+        lateCancellationWarning: false,
+        lateCancellation: false,
+        decisionNote: 'A sala estará em manutenção.',
+      }),
+  })
+  renderApp(`/acompanhar#${token}`)
+  expect(
+    await screen.findByRole('heading', { name: 'Solicitação recusada' }),
+  ).toBeInTheDocument()
+  expect(screen.getByText('A sala estará em manutenção.')).toBeVisible()
+  expect(api.sent(RECEIPT)[0].headers.get('X-Reservation-Token')).toBe(token)
+})
+
 test('warns before confirming a late cancellation within 24 hours', async () => {
   const user = userEvent.setup()
   const token = 'd'.repeat(43)

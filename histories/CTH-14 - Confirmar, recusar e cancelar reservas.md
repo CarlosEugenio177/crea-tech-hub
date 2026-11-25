@@ -27,11 +27,19 @@ Permitir que a equipe decida sobre cada reserva e registre uma observação para
 
 ## Critérios de aceite
 
-- [ ] Toda reserva entra para **análise da equipe** antes da confirmação definitiva.
-- [ ] A equipe pode **confirmar**, **recusar** ou **cancelar** uma reserva no painel administrativo.
-- [ ] Cada decisão permite registrar uma **observação para o usuário**.
-- [ ] A **observação** fica visível ao usuário e registrada no histórico da reserva.
-- [ ] Reservas do **público externo** têm o **motivo analisado** antes da confirmação.
-- [ ] A **situação de mutualista** do solicitante **não é motivo de recusa** automática; a equipe entra em contato para regularizar.
-- [ ] Recusas e cancelamentos **liberam o horário** na disponibilidade.
-- [ ] O usuário é **notificado** da decisão por **WhatsApp e e-mail**.
+A equipe usa a permissão `MANAGE_SPACES`. Pedidos pendentes permitem confirmação, recusa
+ou cancelamento. Para reservas confirmadas, a equipe pode cancelar. Cada mudança grava
+o responsável, a data, a decisão e a mensagem opcional no histórico. O link individual
+mostra a mensagem da decisão mais recente.
+
+Recusas e cancelamentos liberam o horário. Cancelamentos feitos pela equipe ficam no
+histórico administrativo, sem atribuir atraso ao solicitante.
+
+- [x] Toda reserva entra para **análise da equipe** antes da confirmação definitiva.
+- [x] A equipe pode **confirmar**, **recusar** ou **cancelar** uma reserva no painel administrativo.
+- [x] Cada decisão permite registrar uma **observação para o usuário**.
+- [x] A **observação** fica visível ao usuário e registrada no histórico da reserva.
+- [x] Reservas do **público externo** têm o **motivo analisado** antes da confirmação.
+- [x] A **situação de mutualista** do solicitante **não é motivo de recusa** automática; a equipe entra em contato para regularizar.
+- [x] Recusas e cancelamentos **liberam o horário** na disponibilidade.
+- [ ] O usuário é **notificado** da decisão por **WhatsApp e e-mail** (CTH-10).

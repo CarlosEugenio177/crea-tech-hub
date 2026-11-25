@@ -74,6 +74,7 @@ public class ReservationService {
             cancellable,
             cancellable && isLate(startsAt, nowLocal),
             false,
+            null,
             null);
     byte[] secret = new byte[32];
     random.nextBytes(secret);
@@ -126,7 +127,8 @@ public class ReservationService {
             row.endsAt(),
             ReservationStatus.CANCELLED,
             now,
-            late),
+            late,
+            row.decisionNote()),
         nowLocal);
   }
 
@@ -149,7 +151,8 @@ public class ReservationService {
         cancellable,
         cancellable && isLate(row.startsAt(), nowLocal),
         row.lateCancellation(),
-        row.cancelledAt());
+        row.cancelledAt(),
+        row.decisionNote());
   }
 
   private Scope lockScope(ReservationRequest request) {

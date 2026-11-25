@@ -119,6 +119,14 @@ export function TrackingPage() {
                 <dt className={styles.term}>Situação</dt>
                 <dd className={styles.value}>{statusLabel(data)}</dd>
               </div>
+              {data.decisionNote ? (
+                <div className={styles.row}>
+                  <dt className={styles.term}>Mensagem da equipe</dt>
+                  <dd className={`${styles.value} ${styles.note}`}>
+                    {data.decisionNote}
+                  </dd>
+                </div>
+              ) : null}
               {data.cancelledAt ? (
                 <div className={styles.row}>
                   <dt className={styles.term}>Cancelada em</dt>

@@ -141,6 +141,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar solicitações de reserva */
+        get: operations["listAdminReservations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reservations/{id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar decisão sobre a reserva */
+        post: operations["decideAdminReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/space-blocks": {
         parameters: {
             query?: never;
@@ -636,6 +670,43 @@ export interface components {
         AdminPermissionsRequest: {
             permissions: components["schemas"]["AdminPermission"][];
         };
+        /** @enum {string} */
+        AdminReservationAction: "CONFIRM" | "REJECT" | "CANCEL";
+        AdminReservationDecisionRequest: {
+            action: components["schemas"]["AdminReservationAction"];
+            expectedStatus: components["schemas"]["ReservationStatus"];
+            note?: string;
+        };
+        AdminReservationEntry: {
+            email: string;
+            /** Format: date-time */
+            endsAt: string;
+            fullName: string;
+            lateCancellation: boolean;
+            notes: string;
+            profile: components["schemas"]["Profile"];
+            /** Format: uuid */
+            protocol: string;
+            reason: string;
+            spaceName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: int32 */
+            stationNumber?: number;
+            status: components["schemas"]["ReservationStatus"];
+            whatsapp: string;
+        };
+        AdminReservationPage: {
+            items: components["schemas"]["AdminReservationEntry"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
         AdminStatusRequest: {
             active: boolean;
         };
@@ -767,6 +838,7 @@ export interface components {
             cancellable: boolean;
             /** Format: date-time */
             cancelledAt?: string;
+            decisionNote?: string;
             /** Format: date-time */
             endsAt: string;
             lateCancellation: boolean;
@@ -1174,6 +1246,61 @@ export interface operations {
                     "application/json": components["schemas"]["OperatingHours"];
                 };
             };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listAdminReservations: {
+        parameters: {
+            query?: {
+                search?: string;
+                space?: string;
+                date?: string;
+                status?: components["schemas"]["ReservationStatus"];
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReservationPage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    decideAdminReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReservationDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
             default: components["responses"]["Problem"];
         };
     };

@@ -1,0 +1,11 @@
+.form {
+  display: grid;
+  justify-items: stretch;
+  gap: 12px;
+  max-width: 420px;
+  margin-block: 12px 4px;
+}
+
+.form button {
+  justify-self: start;
+}
