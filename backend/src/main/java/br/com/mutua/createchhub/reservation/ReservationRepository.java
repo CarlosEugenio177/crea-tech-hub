@@ -102,10 +102,45 @@ public class ReservationRepository {
             .addValue("lateCancellation", lateCancellation));
   }
 
+  Optional<ReservationStatus> findStatusForUpdate(UUID id) {
+    return jdbc
+        .query(
+            "SELECT status FROM reservations WHERE id = :id FOR UPDATE",
+            Map.of("id", id),
+            (row, index) -> ReservationStatus.valueOf(row.getString("status")))
+        .stream()
+        .findFirst();
+  }
+
+  void recordDecision(UUID id, UUID adminId, ReservationStatus status, String note, Instant now) {
+    var params =
+        new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("adminId", adminId)
+            .addValue("status", status.name())
+            .addValue("note", note)
+            .addValue("now", OffsetDateTime.ofInstant(now, ZoneOffset.UTC));
+    jdbc.update(
+        """
+        UPDATE reservations
+        SET status = :status, cancelled_at = CASE WHEN :status = 'CANCELLED' THEN :now END
+        WHERE id = :id
+        """,
+        params);
+    jdbc.update(
+        """
+        INSERT INTO reservation_decisions (reservation_id, decided_by, status, note, decided_at)
+        VALUES (:id, :adminId, :status, :note, :now)
+        """,
+        params);
+  }
+
   private Optional<StoredReservation> queryByHash(String hash, boolean forUpdate) {
     var sql =
         """
-        SELECT id, space_name, station_number, starts_at, ends_at, status, cancelled_at, late_cancellation
+        SELECT id, space_name, station_number, starts_at, ends_at, status, cancelled_at, late_cancellation,
+          (SELECT note FROM reservation_decisions WHERE reservation_id = reservations.id
+            ORDER BY id DESC LIMIT 1) AS decision_note
         FROM reservations WHERE tracking_hash = :hash
         """
             + (forUpdate ? " FOR UPDATE" : "");
@@ -123,7 +158,8 @@ public class ReservationRepository {
                   row.getObject("ends_at", LocalDateTime.class),
                   ReservationStatus.valueOf(row.getString("status")),
                   cancelled == null ? null : cancelled.toInstant(),
-                  row.getBoolean("late_cancellation"));
+                  row.getBoolean("late_cancellation"),
+                  row.getString("decision_note"));
             })
         .stream()
         .findFirst();
@@ -137,5 +173,6 @@ public class ReservationRepository {
       LocalDateTime endsAt,
       ReservationStatus status,
       Instant cancelledAt,
-      boolean lateCancellation) {}
+      boolean lateCancellation,
+      String decisionNote) {}
 }

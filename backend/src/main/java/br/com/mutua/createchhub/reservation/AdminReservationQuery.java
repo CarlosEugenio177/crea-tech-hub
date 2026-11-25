@@ -50,7 +50,7 @@ public class AdminReservationQuery {
         jdbc.query(
             """
         SELECT id, space_name, station_number, starts_at, ends_at, status, full_name, email,
-               whatsapp, reason, notes, late_cancellation
+               whatsapp, reason, profile, notes, late_cancellation
         """
                 + from
                 + " ORDER BY starts_at DESC, id DESC LIMIT :size OFFSET :offset",
@@ -67,6 +67,7 @@ public class AdminReservationQuery {
                     row.getString("email"),
                     row.getString("whatsapp"),
                     row.getString("reason"),
+                    ReservationRequest.Profile.valueOf(row.getString("profile")),
                     row.getString("notes"),
                     row.getBoolean("late_cancellation")));
     return new AdminReservationPage(

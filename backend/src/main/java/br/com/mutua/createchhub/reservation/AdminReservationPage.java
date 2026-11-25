@@ -24,6 +24,7 @@ public record AdminReservationPage(
         "email",
         "whatsapp",
         "reason",
+        "profile",
         "notes",
         "lateCancellation"
       })
@@ -38,6 +39,7 @@ public record AdminReservationPage(
       String email,
       String whatsapp,
       String reason,
+      ReservationRequest.Profile profile,
       String notes,
       boolean lateCancellation) {}
 }

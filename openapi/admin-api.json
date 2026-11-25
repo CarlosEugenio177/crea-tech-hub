@@ -329,6 +329,50 @@
         "tags" : [ "admin-reservation-controller" ]
       }
     },
+    "/api/v1/admin/reservations/{id}/decisions" : {
+      "post" : {
+        "operationId" : "decideAdminReservation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminReservationDecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Registrar decisão sobre a reserva",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
     "/api/v1/admin/space-blocks" : {
       "get" : {
         "operationId" : "listSpaceBlocks",
@@ -1738,6 +1782,27 @@
         },
         "required" : [ "permissions" ]
       },
+      "AdminReservationAction" : {
+        "type" : "string",
+        "enum" : [ "CONFIRM", "REJECT", "CANCEL" ]
+      },
+      "AdminReservationDecisionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "$ref" : "#/components/schemas/AdminReservationAction"
+          },
+          "expectedStatus" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 1000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "action", "expectedStatus" ]
+      },
       "AdminReservationEntry" : {
         "type" : "object",
         "properties" : {
@@ -1756,6 +1821,9 @@
           },
           "notes" : {
             "type" : "string"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
           },
           "protocol" : {
             "type" : "string",
@@ -1782,7 +1850,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "email", "endsAt", "fullName", "lateCancellation", "notes", "protocol", "reason", "spaceName", "startsAt", "status", "whatsapp" ]
+        "required" : [ "email", "endsAt", "fullName", "lateCancellation", "notes", "profile", "protocol", "reason", "spaceName", "startsAt", "status", "whatsapp" ]
       },
       "AdminReservationPage" : {
         "type" : "object",
@@ -2207,6 +2275,9 @@
           "cancelledAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "decisionNote" : {
+            "type" : "string"
           },
           "endsAt" : {
             "type" : "string",
