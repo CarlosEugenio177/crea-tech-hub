@@ -141,6 +141,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar solicitações de reserva */
+        get: operations["listAdminReservations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/space-blocks": {
         parameters: {
             query?: never;
@@ -635,6 +652,35 @@ export interface components {
         AdminPermission: "MANAGE_ACCESS" | "MANAGE_SPACES";
         AdminPermissionsRequest: {
             permissions: components["schemas"]["AdminPermission"][];
+        };
+        AdminReservationEntry: {
+            email: string;
+            /** Format: date-time */
+            endsAt: string;
+            fullName: string;
+            lateCancellation: boolean;
+            notes: string;
+            /** Format: uuid */
+            protocol: string;
+            reason: string;
+            spaceName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: int32 */
+            stationNumber?: number;
+            status: components["schemas"]["ReservationStatus"];
+            whatsapp: string;
+        };
+        AdminReservationPage: {
+            items: components["schemas"]["AdminReservationEntry"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         AdminStatusRequest: {
             active: boolean;
@@ -1172,6 +1218,34 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperatingHours"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listAdminReservations: {
+        parameters: {
+            query?: {
+                search?: string;
+                space?: string;
+                date?: string;
+                status?: components["schemas"]["ReservationStatus"];
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReservationPage"];
                 };
             };
             default: components["responses"]["Problem"];
