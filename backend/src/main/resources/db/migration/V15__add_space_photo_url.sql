@@ -1,0 +1,1 @@
+ALTER TABLE spaces ADD COLUMN photo_url VARCHAR(2048);

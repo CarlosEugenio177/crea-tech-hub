@@ -54,6 +54,9 @@ public class Space {
   @Column(length = 2000)
   private String description;
 
+  @Column(name = "photo_url", length = 2048)
+  private String photoUrl;
+
   @Column(name = "room_id")
   private UUID roomId;
 
@@ -109,6 +112,10 @@ public class Space {
     }
     this.capacity = capacity;
     this.description = description == null ? null : description.strip();
+  }
+
+  void changePhoto(String url) {
+    if (url != null) photoUrl = url.isBlank() ? null : url.strip();
   }
 
   void changeStatus(boolean active) {
@@ -184,6 +191,10 @@ public class Space {
 
   public String getDescription() {
     return description;
+  }
+
+  public String getPhotoUrl() {
+    return photoUrl;
   }
 
   public boolean isActive() {

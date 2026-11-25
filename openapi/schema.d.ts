@@ -852,6 +852,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            photoUrl?: string;
             roomDimensions?: components["schemas"]["RoomDimensions"];
             type: components["schemas"]["SpaceType"];
         };
@@ -947,6 +948,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            photoUrl?: string;
             roomDimensions?: components["schemas"]["RoomDimensions"];
             stationPlacement?: components["schemas"]["StationPlacement"];
             type: components["schemas"]["SpaceType"];
@@ -1044,6 +1046,8 @@ export interface components {
             capacity: number;
             description?: string | null;
             name: string;
+            /** @description URL HTTPS pública da foto. No PUT, valor vazio remove a foto. */
+            photoUrl?: string;
             type: components["schemas"]["SpaceType"];
         };
         SpaceStatusRequest: {

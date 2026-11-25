@@ -16,13 +16,21 @@
   box-shadow: var(--shadow-raised);
 }
 
-.illustration {
+.illustration,
+.photo {
   width: 100%;
   height: 168px;
-  padding: 12px;
   border-radius: var(--radius-field);
   background: var(--color-info-background);
+}
+
+.illustration {
+  padding: 12px;
   object-fit: contain;
+}
+
+.photo {
+  object-fit: cover;
 }
 
 .name {

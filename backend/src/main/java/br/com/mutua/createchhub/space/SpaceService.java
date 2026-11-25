@@ -38,6 +38,7 @@ public class SpaceService {
   public SpaceResponse create(SpaceRequest request) {
     var space =
         new Space(request.name(), request.type(), request.capacity(), request.description());
+    space.changePhoto(request.photoUrl());
     return SpaceResponse.from(spaces.saveAndFlush(space));
   }
 
@@ -49,6 +50,7 @@ public class SpaceService {
           "Uma sala com estações vinculadas não pode mudar de tipo.");
     }
     space.update(request.name(), request.type(), request.capacity(), request.description());
+    space.changePhoto(request.photoUrl());
     spaces.flush();
     return SpaceResponse.from(space);
   }
