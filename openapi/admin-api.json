@@ -1288,6 +1288,50 @@
         "tags" : [ "public-reservation-controller" ]
       }
     },
+    "/api/v1/reservations/cancel" : {
+      "post" : {
+        "operationId" : "cancelReservation",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Reservation-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "[A-Za-z0-9_-]{43}"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReservationCancellationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationReceipt"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ]
+        } ],
+        "summary" : "Cancelar reserva pelo código privado",
+        "tags" : [ "public-reservation-controller" ]
+      }
+    },
     "/api/v1/reservations/receipt" : {
       "get" : {
         "operationId" : "getReservationReceipt",
@@ -1991,12 +2035,34 @@
         },
         "required" : [ "cpf", "email", "fullName", "notes", "onBehalfOfOthers", "profile", "reason", "whatsapp" ]
       },
+      "ReservationCancellationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "confirmLateCancellation" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "confirmLateCancellation" ]
+      },
       "ReservationReceipt" : {
         "type" : "object",
         "properties" : {
+          "cancellable" : {
+            "type" : "boolean"
+          },
+          "cancelledAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "endsAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "lateCancellation" : {
+            "type" : "boolean"
+          },
+          "lateCancellationWarning" : {
+            "type" : "boolean"
           },
           "protocol" : {
             "type" : "string",
@@ -2014,10 +2080,10 @@
             "format" : "int32"
           },
           "status" : {
-            "type" : "string"
+            "$ref" : "#/components/schemas/ReservationStatus"
           }
         },
-        "required" : [ "endsAt", "protocol", "spaceName", "startsAt", "status" ]
+        "required" : [ "cancellable", "endsAt", "lateCancellation", "lateCancellationWarning", "protocol", "spaceName", "startsAt", "status" ]
       },
       "ReservationRequest" : {
         "type" : "object",
@@ -2048,6 +2114,10 @@
           }
         },
         "required" : [ "endsAt", "requester", "rulesAccepted", "spaceId", "startsAt" ]
+      },
+      "ReservationStatus" : {
+        "type" : "string",
+        "enum" : [ "PENDING", "CONFIRMED", "REJECTED", "CANCELLED" ]
       },
       "ReservationSubmission" : {
         "type" : "object",

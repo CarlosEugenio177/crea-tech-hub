@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SpaceAvailabilityService {
-  private static final ZoneId HUB_ZONE = ZoneId.of("America/Fortaleza");
+  public static final ZoneId HUB_ZONE = ZoneId.of("America/Fortaleza");
   private final SpaceRepository spaces;
   private final SpaceBlockRepository blocks;
   private final OperatingHoursService hours;

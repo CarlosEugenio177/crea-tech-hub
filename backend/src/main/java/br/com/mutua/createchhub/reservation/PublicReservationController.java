@@ -42,4 +42,15 @@ public class PublicReservationController {
         .cacheControl(CacheControl.noStore())
         .body(reservations.receipt(token));
   }
+
+  @Operation(operationId = "cancelReservation", summary = "Cancelar reserva pelo código privado")
+  @PostMapping("/api/v1/reservations/cancel")
+  public ResponseEntity<ReservationReceipt> cancel(
+      @RequestHeader(name = "X-Reservation-Token") @Pattern(regexp = "[A-Za-z0-9_-]{43}")
+          String token,
+      @Valid @RequestBody ReservationCancellationRequest body) {
+    return ResponseEntity.ok()
+        .cacheControl(CacheControl.noStore())
+        .body(reservations.cancel(token, body));
+  }
 }

@@ -502,6 +502,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reservations/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancelar reserva pelo código privado */
+        post: operations["cancelReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reservations/receipt": {
         parameters: {
             query?: never;
@@ -743,9 +760,17 @@ export interface components {
             reason: string;
             whatsapp: string;
         };
+        ReservationCancellationRequest: {
+            confirmLateCancellation: boolean;
+        };
         ReservationReceipt: {
+            cancellable: boolean;
+            /** Format: date-time */
+            cancelledAt?: string;
             /** Format: date-time */
             endsAt: string;
+            lateCancellation: boolean;
+            lateCancellationWarning: boolean;
             /** Format: uuid */
             protocol: string;
             spaceName: string;
@@ -753,7 +778,7 @@ export interface components {
             startsAt: string;
             /** Format: int32 */
             stationNumber?: number;
-            status: string;
+            status: components["schemas"]["ReservationStatus"];
         };
         ReservationRequest: {
             endsAt: string;
@@ -765,6 +790,8 @@ export interface components {
             /** Format: uuid */
             stationId?: string;
         };
+        /** @enum {string} */
+        ReservationStatus: "PENDING" | "CONFIRMED" | "REJECTED" | "CANCELLED";
         ReservationSubmission: {
             receipt: components["schemas"]["ReservationReceipt"];
             trackingToken: string;
@@ -1771,6 +1798,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReservationSubmission"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    cancelReservation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Reservation-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReservationCancellationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationReceipt"];
                 };
             };
             default: components["responses"]["Problem"];

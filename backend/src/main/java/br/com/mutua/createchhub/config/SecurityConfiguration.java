@@ -62,6 +62,7 @@ public class SecurityConfiguration {
                   .requestMatchers(
                       HttpMethod.POST,
                       "/api/v1/reservations",
+                      "/api/v1/reservations/cancel",
                       "/api/v1/admin/auth/login",
                       "/api/v1/admin/auth/password/forgot",
                       "/api/v1/admin/auth/password/reset")
