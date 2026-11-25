@@ -41,23 +41,14 @@ public class SpaceAvailabilityService {
 
   @Transactional(readOnly = true)
   public SpaceAvailability check(UUID id, String startsAt, String endsAt) {
-    var start = parse(startsAt);
-    var end = parse(endsAt);
-    if (!end.isAfter(start)) {
-      throw new InvalidRequestException("O fim deve ser depois do início.");
-    }
-    if (start.isBefore(LocalDateTime.now(clock.withZone(HUB_ZONE)).withSecond(0).withNano(0))) {
-      throw new InvalidRequestException("Escolha um horário a partir de agora.");
-    }
+    var interval = parseInterval(startsAt, endsAt);
     var space = findActive(id);
     if (space.getRoomId() != null) findActive(space.getRoomId());
-    var schedule = hours.current();
-    if (!start.toLocalDate().equals(end.toLocalDate())
-        || !schedule.daysOfWeek().contains(start.getDayOfWeek())
-        || start.toLocalTime().isBefore(LocalTime.parse(schedule.openingTime()))
-        || end.toLocalTime().isAfter(LocalTime.parse(schedule.closingTime()))) {
+    if (!isHubOpen(interval)) {
       return new SpaceAvailability(SpaceAvailability.Status.CLOSED, List.of());
     }
+    var start = interval.start();
+    var end = interval.end();
     boolean perStation = space.getBookingMode() == BookingMode.PER_STATION;
     var stations =
         perStation ? spaces.findByRoomIdAndActiveTrueOrderByStationNumber(id) : List.<Space>of();
@@ -89,6 +80,30 @@ public class SpaceAvailabilityService {
     return new SpaceAvailability(
         available ? SpaceAvailability.Status.AVAILABLE : SpaceAvailability.Status.UNAVAILABLE,
         options);
+  }
+
+  record LocalInterval(LocalDateTime start, LocalDateTime end) {}
+
+  LocalInterval parseInterval(String startsAt, String endsAt) {
+    var start = parse(startsAt);
+    var end = parse(endsAt);
+    if (!end.isAfter(start)) {
+      throw new InvalidRequestException("O fim deve ser depois do início.");
+    }
+    if (start.isBefore(LocalDateTime.now(clock.withZone(HUB_ZONE)).withSecond(0).withNano(0))) {
+      throw new InvalidRequestException("Escolha um horário a partir de agora.");
+    }
+    return new LocalInterval(start, end);
+  }
+
+  boolean isHubOpen(LocalInterval interval) {
+    var schedule = hours.current();
+    var start = interval.start();
+    var end = interval.end();
+    return start.toLocalDate().equals(end.toLocalDate())
+        && schedule.daysOfWeek().contains(start.getDayOfWeek())
+        && !start.toLocalTime().isBefore(LocalTime.parse(schedule.openingTime()))
+        && !end.toLocalTime().isAfter(LocalTime.parse(schedule.closingTime()));
   }
 
   private Space findActive(UUID id) {

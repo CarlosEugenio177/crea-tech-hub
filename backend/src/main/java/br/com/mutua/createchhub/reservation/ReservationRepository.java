@@ -22,6 +22,7 @@ public class ReservationRepository {
   }
 
   public Set<UUID> occupied(List<UUID> ids, LocalDateTime start, LocalDateTime end) {
+    if (ids.isEmpty()) return Set.of();
     return Set.copyOf(
         jdbc.queryForList(
             """
@@ -30,6 +31,19 @@ public class ReservationRepository {
           AND starts_at < :end AND ends_at > :start
         """,
             Map.of("ids", ids, "start", start, "end", end),
+            UUID.class));
+  }
+
+  public Set<UUID> occupiedRooms(List<UUID> rooms, LocalDateTime start, LocalDateTime end) {
+    if (rooms.isEmpty()) return Set.of();
+    return Set.copyOf(
+        jdbc.queryForList(
+            """
+        SELECT DISTINCT room_id FROM reservations
+        WHERE room_id IN (:rooms) AND status IN ('PENDING', 'CONFIRMED')
+          AND starts_at < :end AND ends_at > :start
+        """,
+            Map.of("rooms", rooms, "start", start, "end", end),
             UUID.class));
   }
 

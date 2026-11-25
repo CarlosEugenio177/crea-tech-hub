@@ -13,6 +13,19 @@ livre. Consultar ou escolher não segura o horário. Ao registrar o pedido,
 o backend verifica de novo a disponibilidade e os pedidos pendentes ou
 confirmados ocupam seus respectivos intervalos.
 
+`GET /api/v1/spaces/recommendations` recebe `participants` (inteiro positivo),
+`startsAt` e `endsAt` no mesmo formato local do Hub. A consulta considera
+somente ambientes ativos disponíveis no intervalo (excluindo bloqueios ativos e
+reservas `PENDING` ou `CONFIRMED`), respeita o funcionamento do Hub e ordena os
+ambientes elegíveis pela menor capacidade suficiente para o grupo, destacando o
+primeiro item em `recommended` e listando todos os disponíveis em `spaces`.
+Ambientes `PER_STATION` atendem reservas individuais (`participants = 1`) quando
+houver ao menos uma estação ativa livre; ambientes `WHOLE_SPACE` atendem grupos
+até sua `capacity` (sem trava de mínimo de pessoas nesta fase). Quando o Hub
+estiver fechado (`CLOSED`) ou nenhum ambiente atender (`UNAVAILABLE`), `spaces`
+retorna vazio acompanhado de `message` orientando ajustar data, horário ou
+número de pessoas.
+
 ## Cadastro e posição
 
 Esta parte do CTH-15 organiza as estações existentes dentro de salas. Cada estação

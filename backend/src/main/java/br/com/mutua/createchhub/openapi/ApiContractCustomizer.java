@@ -31,6 +31,7 @@ public class ApiContractCustomizer implements OpenApiCustomizer {
           "/api/v1/hub/usage-rules",
           "/api/v1/reservations",
           "/api/v1/reservations/receipt",
+          "/api/v1/spaces/recommendations",
           "/api/v1/spaces/{roomId}/stations",
           "/api/v1/spaces/{id}/availability",
           "/api/v1/spaces");
