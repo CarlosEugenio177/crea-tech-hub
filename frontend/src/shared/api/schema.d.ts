@@ -621,6 +621,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/spaces/{id}/availability/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar a agenda pública de um dia */
+        get: operations["getSpaceDayAgenda"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces/{roomId}/stations": {
         parameters: {
             query?: never;
@@ -973,6 +990,17 @@ export interface components {
              * @example 2027-03-10T09:15
              */
             startsAt: string;
+        };
+        SpaceDayAgenda: {
+            closed: boolean;
+            periods: components["schemas"]["SpaceDayPeriod"][];
+        };
+        SpaceDayPeriod: {
+            available: boolean;
+            /** @example 10:45 */
+            end: string;
+            /** @example 09:30 */
+            start: string;
         };
         SpacePage: {
             items: components["schemas"]["Space"][];
@@ -2074,6 +2102,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SpaceAvailability"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getSpaceDayAgenda: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceDayAgenda"];
                 };
             };
             default: components["responses"]["Problem"];

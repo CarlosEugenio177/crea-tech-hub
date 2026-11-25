@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
+import { DayAgenda } from './DayAgenda.tsx'
 import { maskDate, maskTime, withMask } from './inputMasks.ts'
 import {
   BRAZILIAN_DATE,
@@ -45,16 +46,38 @@ const schema = z
   )
 
 type PeriodFormProps = {
+  spaceId: string
   period?: ReservationPeriod
   onSubmit: (period: ReservationPeriod) => void
   onEdit: () => void
 }
 
-export function PeriodForm({ period, onSubmit, onEdit }: PeriodFormProps) {
-  const { register, handleSubmit, formState } = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: period && { ...period, date: toBrazilianDate(period.date) },
-  })
+export function PeriodForm({
+  spaceId,
+  period,
+  onSubmit,
+  onEdit,
+}: PeriodFormProps) {
+  const { register, handleSubmit, formState, control, setValue, setFocus } =
+    useForm({
+      resolver: zodResolver(schema),
+      defaultValues: period && {
+        ...period,
+        date: toBrazilianDate(period.date),
+      },
+    })
+
+  const typedDate = useWatch({ control, name: 'date' })
+  const date = typedDate ? toIsoDate(typedDate) : today()
+  const showAgenda =
+    (!typedDate || BRAZILIAN_DATE.test(typedDate)) &&
+    isCalendarDate(date) &&
+    date >= today()
+
+  function changeDate(next: string) {
+    setValue('date', toBrazilianDate(next), { shouldValidate: true })
+    onEdit()
+  }
 
   return (
     <FormCard onSubmit={handleSubmit(onSubmit)} onChange={onEdit}>
@@ -68,6 +91,19 @@ export function PeriodForm({ period, onSubmit, onEdit }: PeriodFormProps) {
         error={formState.errors.date?.message}
         {...withMask(register('date'), maskDate)}
       />
+      {showAgenda && (
+        <DayAgenda
+          spaceId={spaceId}
+          date={date}
+          onDateChange={changeDate}
+          onChoose={(selected) => {
+            changeDate(selected.date)
+            setValue('start', selected.start, { shouldValidate: true })
+            setValue('end', selected.end, { shouldValidate: true })
+            setFocus('start')
+          }}
+        />
+      )}
       <TextField
         label="Início"
         inputMode="numeric"

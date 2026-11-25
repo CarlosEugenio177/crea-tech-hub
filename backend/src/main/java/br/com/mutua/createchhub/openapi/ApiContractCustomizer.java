@@ -34,6 +34,7 @@ public class ApiContractCustomizer implements OpenApiCustomizer {
           "/api/v1/reservations/receipt",
           "/api/v1/spaces/{roomId}/stations",
           "/api/v1/spaces/{id}/availability",
+          "/api/v1/spaces/{id}/availability/day",
           "/api/v1/spaces");
 
   @Override

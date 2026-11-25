@@ -1,0 +1,65 @@
+package br.com.mutua.createchhub.space;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+final class SpaceDayTimeline {
+  private SpaceDayTimeline() {}
+
+  static List<SpaceDayAgenda.Period> periods(
+      LocalDateTime open,
+      LocalDateTime close,
+      LocalDateTime bookableFrom,
+      List<List<SpaceBusyIntervals.Interval>> busyByResource) {
+    var free = new ArrayList<Window>();
+    if (bookableFrom.isBefore(close)) {
+      for (var busy : busyByResource) {
+        free.addAll(findGaps(bookableFrom, close, busy));
+      }
+    }
+    free.sort(Comparator.comparing(Window::start));
+    return partition(open, close, free);
+  }
+
+  private static List<Window> findGaps(
+      LocalDateTime start, LocalDateTime end, List<SpaceBusyIntervals.Interval> busy) {
+    var ordered =
+        busy.stream().sorted(Comparator.comparing(SpaceBusyIntervals.Interval::startsAt)).toList();
+    var free = new ArrayList<Window>();
+    var cursor = start;
+    for (var interval : ordered) {
+      if (!interval.endsAt().isAfter(cursor)) continue;
+      if (interval.startsAt().isAfter(cursor)) {
+        free.add(new Window(cursor, interval.startsAt()));
+      }
+      cursor = interval.endsAt();
+    }
+    if (cursor.isBefore(end)) free.add(new Window(cursor, end));
+    return free;
+  }
+
+  private static List<SpaceDayAgenda.Period> partition(
+      LocalDateTime open, LocalDateTime close, List<Window> free) {
+    var periods = new ArrayList<SpaceDayAgenda.Period>();
+    var cursor = open;
+    int next = 0;
+    while (cursor.isBefore(close)) {
+      var until = cursor;
+      while (next < free.size() && !free.get(next).start().isAfter(cursor)) {
+        var candidate = free.get(next++).end();
+        if (candidate.isAfter(until)) until = candidate;
+      }
+      boolean available = until.isAfter(cursor);
+      if (!available) until = next < free.size() ? free.get(next).start() : close;
+      periods.add(
+          new SpaceDayAgenda.Period(
+              cursor.toLocalTime().toString(), until.toLocalTime().toString(), available));
+      cursor = until;
+    }
+    return periods;
+  }
+
+  private record Window(LocalDateTime start, LocalDateTime end) {}
+}

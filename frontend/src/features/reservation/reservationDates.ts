@@ -1,3 +1,9 @@
+const hubDate = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  timeZone: 'America/Fortaleza',
+})
 const fullDate = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' })
 const hubDateTime = new Intl.DateTimeFormat('pt-BR', {
   dateStyle: 'short',
@@ -9,10 +15,16 @@ export const BRAZILIAN_DATE = /^\d{2}\/\d{2}\/\d{4}$/
 export const TIME_24H = /^([01]\d|2[0-3]):[0-5]\d$/
 
 export function today() {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${now.getFullYear()}-${month}-${day}`
+  const parts = Object.fromEntries(
+    hubDate.formatToParts().map(({ type, value }) => [type, value]),
+  )
+  return `${parts.year}-${parts.month}-${parts.day}`
+}
+
+export function shiftDate(date: string, days: number) {
+  const time = new Date(`${date}T12:00:00Z`)
+  time.setUTCDate(time.getUTCDate() + days)
+  return time.toISOString().slice(0, 10)
 }
 
 export function formatDate(date: string) {

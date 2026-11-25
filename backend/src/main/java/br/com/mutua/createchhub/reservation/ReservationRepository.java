@@ -33,17 +33,6 @@ public class ReservationRepository {
             UUID.class));
   }
 
-  public boolean hasOccupiedStations(UUID room, LocalDateTime start, LocalDateTime end) {
-    return Boolean.TRUE.equals(
-        jdbc.queryForObject(
-            """
-        SELECT EXISTS (SELECT 1 FROM reservations WHERE room_id = :room
-          AND status IN ('PENDING', 'CONFIRMED') AND starts_at < :end AND ends_at > :start)
-        """,
-            Map.of("room", room, "start", start, "end", end),
-            Boolean.class));
-  }
-
   public boolean hasConflictForBlock(UUID spaceId, LocalDateTime start, LocalDateTime end) {
     return Boolean.TRUE.equals(
         jdbc.queryForObject(

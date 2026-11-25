@@ -55,7 +55,8 @@ public class SecurityConfiguration {
                       "/api/v1/hub/usage-rules",
                       "/api/v1/reservations/receipt",
                       "/api/v1/spaces/*/stations",
-                      "/api/v1/spaces/*/availability")
+                      "/api/v1/spaces/*/availability",
+                      "/api/v1/spaces/*/availability/day")
                   .permitAll()
                   .requestMatchers(HttpMethod.GET, "/api/v1/spaces")
                   .permitAll()
