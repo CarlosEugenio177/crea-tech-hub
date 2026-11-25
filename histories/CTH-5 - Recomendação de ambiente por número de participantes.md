@@ -28,9 +28,17 @@ Ajudar quem não sabe qual espaço escolher: o usuário informa quantas pessoas 
 
 ## Critérios de aceite
 
-- [ ] O usuário pode iniciar a reserva **escolhendo o tipo de espaço** ou **informando o número de participantes**.
-- [ ] Com a data e o horário escolhidos, o sistema lista os **ambientes disponíveis** e **recomenda o mais adequado** à quantidade de pessoas.
-- [ ] A recomendação considera a **capacidade** do ambiente (definida no Framer); trava por **mínimo de pessoas** não precisa ser exigida por enquanto.
-- [ ] Ambientes **indisponíveis ou bloqueados** não são recomendados.
-- [ ] O usuário pode **escolher outro ambiente** da lista em vez do recomendado.
-- [ ] Se nenhum ambiente atende, o sistema informa isso com clareza e sugere ajustar data, horário ou número de pessoas.
+Na escolha de espaço, **Buscar por número de pessoas** abre o formulário com
+data, início e fim. A página destaca a sugestão principal e lista alternativas.
+A escolha leva o mesmo período à agenda para uma nova verificação. Ao voltar às
+sugestões, os critérios ficam preenchidos.
+
+A recomendação usa a capacidade cadastrada no painel. A equipe ainda precisa
+conferir as capacidades e os dados reais do catálogo com o material do Framer.
+
+- [x] O usuário pode iniciar a reserva **escolhendo o tipo de espaço** ou **informando o número de participantes**.
+- [x] Com a data e o horário escolhidos, o sistema lista os **ambientes disponíveis** e **recomenda o mais adequado** à quantidade de pessoas.
+- [x] A recomendação considera a **capacidade cadastrada** do ambiente; trava por **mínimo de pessoas** não precisa ser exigida por enquanto.
+- [x] Ambientes **indisponíveis ou bloqueados** não são recomendados.
+- [x] O usuário pode **escolher outro ambiente** da lista em vez do recomendado.
+- [x] Se nenhum ambiente atende, o sistema informa isso com clareza e sugere ajustar data, horário ou número de pessoas.

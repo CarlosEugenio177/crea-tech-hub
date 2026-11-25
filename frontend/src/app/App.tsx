@@ -41,11 +41,13 @@ import {
 import { AdminReservationsPage } from '../features/reservation/AdminReservationsPage.tsx'
 import { ChooseSpacePage } from '../features/reservation/ChooseSpacePage.tsx'
 import { ChooseTimePage } from '../features/reservation/ChooseTimePage.tsx'
+import { RecommendationPage } from '../features/reservation/RecommendationPage.tsx'
 import { RequesterPage } from '../features/reservation/RequesterPage.tsx'
 import { ReservationFlow } from '../features/reservation/ReservationFlow.tsx'
 import {
   ADMIN_RESERVATIONS,
   RESERVE,
+  RESERVE_RECOMMENDATION,
   RESERVE_REQUESTER,
   RESERVE_REVIEW,
   RESERVE_TIME,
@@ -66,6 +68,10 @@ export function App() {
         <Route index element={<HomePage />} />
         <Route path={RESERVE} element={<ReservationFlow />}>
           <Route index element={<ChooseSpacePage />} />
+          <Route
+            path={RESERVE_RECOMMENDATION}
+            element={<RecommendationPage />}
+          />
           <Route path={RESERVE_TIME} element={<ChooseTimePage />} />
           <Route path={RESERVE_REQUESTER} element={<RequesterPage />} />
           <Route path={RESERVE_REVIEW} element={<ReviewPage />} />

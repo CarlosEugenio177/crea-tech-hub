@@ -9,14 +9,21 @@ import {
   useReservationDraft,
   type ReservationPeriod,
 } from './reservationDraft.ts'
-import { RESERVE, RESERVE_REQUESTER } from './reservationRoutes.ts'
+import {
+  RESERVE,
+  RESERVE_RECOMMENDATION,
+  RESERVE_REQUESTER,
+} from './reservationRoutes.ts'
 import { StepPage } from './StepPage.tsx'
 
 export function ChooseTimePage() {
   const navigate = useNavigate()
   const { draft, update } = useReservationDraft()
   const hours = usePublicOperatingHours()
-  const [period, setPeriod] = useState<ReservationPeriod>()
+  const selectedPeriod = draft.period ?? draft.recommendation?.period
+  const [period, setPeriod] = useState<ReservationPeriod | undefined>(
+    draft.recommendation ? selectedPeriod : undefined,
+  )
   const [lookup, setLookup] = useState(0)
 
   if (!draft.space) return <Navigate to={RESERVE} replace />
@@ -32,7 +39,12 @@ export function ChooseTimePage() {
       )}
       <PeriodForm
         spaceId={draft.space.id}
-        period={draft.period}
+        period={selectedPeriod}
+        back={
+          draft.recommendation
+            ? { path: RESERVE_RECOMMENDATION, label: 'Voltar às sugestões' }
+            : undefined
+        }
         onSubmit={(nextPeriod) => {
           setPeriod(nextPeriod)
           setLookup((current) => current + 1)
