@@ -24,6 +24,10 @@
   color: var(--color-text-muted);
 }
 
+.note {
+  white-space: pre-wrap;
+}
+
 .value {
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;

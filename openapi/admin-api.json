@@ -249,6 +249,130 @@
         "tags" : [ "operating-hours-controller" ]
       }
     },
+    "/api/v1/admin/reservations" : {
+      "get" : {
+        "operationId" : "listAdminReservations",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "search",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "space",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminReservationPage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar solicitações de reserva",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
+    "/api/v1/admin/reservations/{id}/decisions" : {
+      "post" : {
+        "operationId" : "decideAdminReservation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminReservationDecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Registrar decisão sobre a reserva",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
     "/api/v1/admin/space-blocks" : {
       "get" : {
         "operationId" : "listSpaceBlocks",
@@ -1658,6 +1782,104 @@
         },
         "required" : [ "permissions" ]
       },
+      "AdminReservationAction" : {
+        "type" : "string",
+        "enum" : [ "CONFIRM", "REJECT", "CANCEL" ]
+      },
+      "AdminReservationDecisionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "$ref" : "#/components/schemas/AdminReservationAction"
+          },
+          "expectedStatus" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 1000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "action", "expectedStatus" ]
+      },
+      "AdminReservationEntry" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "fullName" : {
+            "type" : "string"
+          },
+          "lateCancellation" : {
+            "type" : "boolean"
+          },
+          "notes" : {
+            "type" : "string"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "protocol" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "spaceName" : {
+            "type" : "string"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "stationNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          },
+          "whatsapp" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "endsAt", "fullName", "lateCancellation", "notes", "profile", "protocol", "reason", "spaceName", "startsAt", "status", "whatsapp" ]
+      },
+      "AdminReservationPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminReservationEntry"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
+      },
       "AdminStatusRequest" : {
         "type" : "object",
         "properties" : {
@@ -2053,6 +2275,9 @@
           "cancelledAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "decisionNote" : {
+            "type" : "string"
           },
           "endsAt" : {
             "type" : "string",

@@ -39,7 +39,8 @@ class ReservationServiceTests {
                     ENDS_AT,
                     ReservationStatus.CONFIRMED,
                     null,
-                    false)));
+                    false,
+                    null)));
 
     var atBoundary =
         new ReservationService(
@@ -63,7 +64,8 @@ class ReservationServiceTests {
                     ENDS_AT,
                     ReservationStatus.CONFIRMED,
                     null,
-                    false)));
+                    false,
+                    null)));
     var oneSecondLate = exact24h.plusSeconds(1);
     var afterBoundary =
         new ReservationService(
@@ -91,7 +93,15 @@ class ReservationServiceTests {
         .thenReturn(
             Optional.of(
                 new ReservationRepository.StoredReservation(
-                    id, "Sala", 1, STARTS_AT, ENDS_AT, ReservationStatus.CONFIRMED, null, false)));
+                    id,
+                    "Sala",
+                    1,
+                    STARTS_AT,
+                    ENDS_AT,
+                    ReservationStatus.CONFIRMED,
+                    null,
+                    false,
+                    null)));
     var duringSlot =
         new ReservationService(
             mock(SpaceRepository.class),

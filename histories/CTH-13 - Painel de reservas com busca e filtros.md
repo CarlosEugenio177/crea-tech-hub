@@ -28,9 +28,15 @@ Dar à equipe uma visão única de todas as reservas, para acompanhar o uso do H
 
 ## Critérios de aceite
 
-- [ ] O painel lista **todas as reservas**, organizadas por **dia**, **ambiente** e **status**.
-- [ ] Há **busca** (ex.: por nome do solicitante) e **filtros** por data, ambiente e status.
-- [ ] Cada reserva mostra os **dados do solicitante** e o **motivo** (quando houver).
+A fila administrativa usa `GET /api/v1/admin/reservations` e exige
+`MANAGE_SPACES`. A consulta é paginada e filtra pelo dia de início, ambiente
+ou situação. A busca encontra nomes e protocolos. Os detalhes mostram
+contatos, motivo e observações. A resposta não inclui CPF nem o token privado
+de acompanhamento. Confirmar, recusar e cancelar pelo painel pertence à CTH-14.
+
+- [x] O painel lista **todas as reservas**, com dia, ambiente e status.
+- [x] Há **busca** por nome ou protocolo e **filtros** por data, ambiente e status.
+- [x] Cada reserva mostra os **contatos do solicitante** e o **motivo** (quando houver).
 - [ ] A partir da reserva, a equipe acessa as ações de **confirmar, recusar e cancelar** (CTH-14).
-- [ ] Os contatos (WhatsApp e e-mail) ficam à vista para a equipe **entrar em contato**.
-- [ ] Reservas **canceladas** continuam consultáveis, com a indicação de cancelamento tardio, quando for o caso.
+- [x] A equipe pode ver os contatos de WhatsApp e e-mail nos detalhes.
+- [x] Reservas **canceladas** continuam consultáveis, com a indicação de cancelamento tardio, quando for o caso.

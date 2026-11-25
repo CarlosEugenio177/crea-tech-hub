@@ -29,6 +29,7 @@ const MENU: MenuItem[] = [
     to: ADMIN_RESERVATIONS,
     label: 'Reservas',
     description: 'Solicitações recebidas e decisões da equipe.',
+    permission: 'MANAGE_SPACES',
   },
   {
     to: ADMIN_SPACES,
