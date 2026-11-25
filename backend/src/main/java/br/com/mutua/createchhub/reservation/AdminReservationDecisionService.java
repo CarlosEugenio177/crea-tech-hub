@@ -13,7 +13,7 @@ public class AdminReservationDecisionService {
   private final Clock clock;
   private final ReservationEmailQueue emails;
 
-  public AdminReservationDecisionService(
+  AdminReservationDecisionService(
       ReservationRepository reservations, Clock clock, ReservationEmailQueue emails) {
     this.reservations = reservations;
     this.clock = clock;

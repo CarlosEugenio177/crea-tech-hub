@@ -28,7 +28,7 @@ public class ReservationService {
   private final ReservationEmailQueue emails;
   private final SecureRandom random = new SecureRandom();
 
-  public ReservationService(
+  ReservationService(
       SpaceRepository spaces,
       SpaceAvailabilityService availability,
       ReservationRepository reservations,

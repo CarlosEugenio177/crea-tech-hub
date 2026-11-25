@@ -32,24 +32,17 @@ final class ResendReservationSender {
     var space = message.spaceName();
     if (message.stationNumber() != null) space += " · Estação " + message.stationNumber();
     var text =
-        """
-        %s
-
-        Protocolo: %s
-        Ambiente: %s
-        Início: %s
-        Fim: %s
-
-        Veja a situação atual, a mensagem da equipe e as opções de cancelamento no seu link individual:
-        %s
-        """
-            .formatted(
-                title,
-                message.reservationId(),
-                space,
-                DATE_TIME.format(message.startsAt()),
-                DATE_TIME.format(message.endsAt()),
-                link);
+        String.join(
+            "\n",
+            title,
+            "",
+            "Protocolo: " + message.reservationId(),
+            "Ambiente: " + space,
+            "Início: " + DATE_TIME.format(message.startsAt()),
+            "Fim: " + DATE_TIME.format(message.endsAt()),
+            "",
+            "Veja a situação atual, a mensagem da equipe e as opções de cancelamento no seu link individual:",
+            link.toString());
     try {
       client
           .post()
