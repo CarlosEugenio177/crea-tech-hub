@@ -474,6 +474,9 @@
             },
             "description" : "Created"
           },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
           "default" : {
             "$ref" : "#/components/responses/Problem"
           }

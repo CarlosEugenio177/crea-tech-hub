@@ -27,16 +27,15 @@ Travar horários em que um ambiente não pode ser reservado, inclusive de forma 
 
 ## Critérios de aceite
 
-**Entrega parcial:** APIs administrativas de criação, consulta paginada e cancelamento
-de bloqueios pontuais implementadas, com histórico e herança dos bloqueios da sala
-para suas estações. Ver [Bloqueios de horário](../docs/21-bloqueios-de-horario.md).
-Telas, recorrência, disponibilidade pública, edição e tratamento de conflitos com
-reservas existentes continuam pendentes; corrigir um bloqueio nesta API exige cancelar
-e criar outro. Os critérios completos abaixo permanecem abertos.
+O painel permite criar, consultar e cancelar bloqueios pontuais, com histórico
+e herança dos bloqueios da sala para suas estações. A disponibilidade pública
+considera os bloqueios ativos. O painel avisa e preserva a reserva se houver
+conflito. Recorrência e edição continuam pendentes. Para corrigir um bloqueio,
+cancele e crie outro. Ver [Bloqueios de horário](../docs/21-bloqueios-de-horario.md).
 
-- [ ] Posso criar um bloqueio informando **ambiente**, **data(s)** e **horário**.
+- [x] Posso criar um bloqueio informando **ambiente**, **data(s)** e **horário**.
 - [ ] Posso criar bloqueios **recorrentes** (ex.: as tardes de reunião da diretoria definidas no início do ano).
-- [ ] Horários bloqueados aparecem como **indisponíveis** na consulta e **não aceitam reservas** (CTH-2, CTH-4).
+- [x] Horários bloqueados aparecem como **indisponíveis** na consulta e **não aceitam reservas** (CTH-2, CTH-4).
 - [ ] **Fora** dos horários fixos, as salas da diretoria **podem ser liberadas** ao público quando estiverem livres.
 - [ ] Posso **editar e remover** bloqueios; remover libera o horário.
-- [ ] Ao criar um bloqueio sobre **reservas já existentes**, o sistema **avisa** a equipe do conflito antes de salvar.
+- [x] Ao criar um bloqueio sobre **reservas já existentes**, o sistema **avisa** a equipe do conflito antes de salvar.

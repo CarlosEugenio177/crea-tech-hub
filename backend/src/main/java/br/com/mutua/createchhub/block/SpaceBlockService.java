@@ -1,6 +1,8 @@
 package br.com.mutua.createchhub.block;
 
+import br.com.mutua.createchhub.reservation.ReservationRepository;
 import br.com.mutua.createchhub.shared.error.InvalidRequestException;
+import br.com.mutua.createchhub.shared.error.ResourceConflictException;
 import br.com.mutua.createchhub.shared.error.ResourceNotFoundException;
 import br.com.mutua.createchhub.space.SpaceRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -21,10 +23,13 @@ public class SpaceBlockService {
 
   private final SpaceBlockRepository blocks;
   private final SpaceRepository spaces;
+  private final ReservationRepository reservations;
 
-  public SpaceBlockService(SpaceBlockRepository blocks, SpaceRepository spaces) {
+  SpaceBlockService(
+      SpaceBlockRepository blocks, SpaceRepository spaces, ReservationRepository reservations) {
     this.blocks = blocks;
     this.spaces = spaces;
+    this.reservations = reservations;
   }
 
   public SpaceBlockPage list(
@@ -57,6 +62,11 @@ public class SpaceBlockService {
             LocalDateTime.parse(request.endsAt()),
             request.reason(),
             actor);
+    if (reservations.hasConflictForBlock(
+        block.getSpaceId(), block.getStartsAt(), block.getEndsAt())) {
+      throw new ResourceConflictException(
+          "Já existe uma reserva pendente ou confirmada nesse horário. Confira a fila de reservas ou ajuste o intervalo.");
+    }
     return SpaceBlockResponse.from(blocks.saveAndFlush(block));
   }
 
