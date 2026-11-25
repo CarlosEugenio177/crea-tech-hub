@@ -505,7 +505,7 @@ test('sends visitors who open a later step directly back to the first one', () =
 
   expect(
     screen.getByRole('heading', {
-      name: 'Qual espaço acompanha seu próximo projeto?',
+      name: 'Escolha um espaço',
     }),
   ).toBeInTheDocument()
 })

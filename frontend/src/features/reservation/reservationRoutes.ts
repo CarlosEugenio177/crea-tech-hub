@@ -1,4 +1,5 @@
 export const RESERVE = '/reservar'
+export const RESERVE_RECOMMENDATION = '/reservar/recomendacao'
 export const RESERVE_TIME = '/reservar/horario'
 export const RESERVE_REQUESTER = '/reservar/dados'
 export const RESERVE_REVIEW = '/reservar/revisao'

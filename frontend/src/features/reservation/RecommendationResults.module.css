@@ -1,0 +1,17 @@
+.results {
+  display: grid;
+  gap: 12px;
+}
+
+.results > h2 {
+  margin: 0;
+  font: var(--font-section-title);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
