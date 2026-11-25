@@ -137,6 +137,59 @@ class SpaceBlockApiTests {
   }
 
   @Test
+  void createsAWeeklySeriesAndCancelsAnOccurrenceOrTheRemainingSeries() throws Exception {
+    try (var operator = admin()) {
+      var csrf = operator.csrf();
+      var request = new HashMap<>(block(room, "09:00", "10:00"));
+      request.put("repeatUntil", "2099-03-24");
+      var created = operator.json("POST", PATH, request, csrf);
+      assertThat(created.statusCode()).isEqualTo(201);
+      var first = json.readTree(created.body());
+      var seriesId = first.path("seriesId").asString();
+      assertThat(seriesId).isNotBlank();
+      var occurrences = json.readTree(operator.get(PATH).body()).path("items");
+      assertThat(occurrences.size()).isEqualTo(3);
+      assertThat(occurrences.get(0).path("startsAt").asString()).isEqualTo("2099-03-10T09:00");
+      assertThat(occurrences.get(1).path("startsAt").asString()).isEqualTo("2099-03-17T09:00");
+      assertThat(occurrences.get(2).path("startsAt").asString()).isEqualTo("2099-03-24T09:00");
+      assertThat(occurrences.get(2).path("seriesId").asString()).isEqualTo(seriesId);
+
+      var individualPath = PATH + "/" + occurrences.get(1).path("id").asString() + "/cancel";
+      var seriesPath = PATH + "/series/" + seriesId + "/cancel";
+      assertThat(operator.json("POST", individualPath, null, csrf).statusCode()).isEqualTo(200);
+      assertThat(count(operator, room, true)).isEqualTo(2);
+      assertThat(operator.json("POST", seriesPath, null, null).statusCode()).isEqualTo(403);
+      assertThat(operator.json("POST", seriesPath, null, csrf).statusCode()).isEqualTo(204);
+      assertThat(operator.json("POST", seriesPath, null, csrf).statusCode()).isEqualTo(204);
+      assertThat(count(operator, room, true)).isZero();
+      assertThat(count(operator, room, false)).isEqualTo(3);
+    }
+  }
+
+  @Test
+  void identifiesTheConflictingDateAndDoesNotSavePartOfASeries() throws Exception {
+    try (var visitor = new SessionClient(port);
+        var operator = admin()) {
+      var reserved = reservation(null);
+      reserved.put("startsAt", "2099-03-17T09:00");
+      reserved.put("endsAt", "2099-03-17T10:00");
+      assertThat(
+              visitor.json("POST", "/api/v1/reservations", reserved, visitor.csrf()).statusCode())
+          .isEqualTo(201);
+
+      var request = new HashMap<>(block(room, "09:00", "10:00"));
+      var csrf = operator.csrf();
+      request.put("repeatUntil", "2120-03-17");
+      assertThat(operator.json("POST", PATH, request, csrf).statusCode()).isEqualTo(400);
+      request.put("repeatUntil", "2099-03-24");
+      var response = operator.json("POST", PATH, request, csrf);
+      assertThat(response.statusCode()).isEqualTo(409);
+      assertThat(json.readTree(response.body()).path("detail").asString()).contains("17/03/2099");
+      assertThat(blocks.count()).isZero();
+    }
+  }
+
+  @Test
   void protectsPendingAndConfirmedReservationsAndKeepsAdjacentTimesFree() throws Exception {
     try (var visitor = new SessionClient(port);
         var operator = admin()) {
@@ -440,7 +493,8 @@ class SpaceBlockApiTests {
 
   private SpaceBlockResponse create(UUID space, String start, String end) {
     return service.create(
-        new SpaceBlockRequest(space, "2027-03-10T" + start, "2027-03-10T" + end, "Manutenção"),
+        new SpaceBlockRequest(
+            space, "2027-03-10T" + start, "2027-03-10T" + end, "Manutenção", null),
         actor);
   }
 

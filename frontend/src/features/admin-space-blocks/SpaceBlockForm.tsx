@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
+import { CheckboxField } from '../../shared/ui/CheckboxField.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { SelectField } from '../../shared/ui/SelectField.tsx'
@@ -41,6 +42,8 @@ const schema = z
     startTime: timeField('Informe o horário de início.'),
     endDate: dateField('Informe a data de fim.'),
     endTime: timeField('Informe o horário de fim.'),
+    repeatWeekly: z.boolean(),
+    repeatUntil: z.string(),
     reason: z
       .string()
       .trim()
@@ -54,6 +57,18 @@ const schema = z
     {
       path: ['endTime'],
       message: 'O fim deve ser depois do início.',
+    },
+  )
+  .refine(
+    (values) => {
+      if (!values.repeatWeekly) return true
+      if (!BRAZILIAN_DATE.test(values.repeatUntil)) return false
+      const date = toIsoDate(values.repeatUntil)
+      return isCalendarDate(date) && date > values.startDate
+    },
+    {
+      path: ['repeatUntil'],
+      message: 'Informe uma data válida depois do início.',
     },
   )
 
@@ -70,7 +85,7 @@ export function SpaceBlockForm({
   isPending,
   onSubmit,
 }: SpaceBlockFormProps) {
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, formState, control } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       spaceId: '',
@@ -78,9 +93,13 @@ export function SpaceBlockForm({
       startTime: '',
       endDate: '',
       endTime: '',
+      repeatWeekly: false,
+      repeatUntil: '',
       reason: '',
     },
   })
+
+  const repeatWeekly = useWatch({ control, name: 'repeatWeekly' })
 
   const submit = handleSubmit((values) => {
     onSubmit({
@@ -88,6 +107,9 @@ export function SpaceBlockForm({
       startsAt: `${values.startDate}T${values.startTime}`,
       endsAt: `${values.endDate}T${values.endTime}`,
       reason: values.reason,
+      repeatUntil: values.repeatWeekly
+        ? toIsoDate(values.repeatUntil)
+        : undefined,
     })
   })
 
@@ -146,6 +168,22 @@ export function SpaceBlockForm({
           {...withMask(register('endTime'), maskTime)}
         />
       </div>
+      <CheckboxField
+        label="Repetir toda semana"
+        {...register('repeatWeekly')}
+      />
+      {repeatWeekly && (
+        <TextField
+          label="Repetir até"
+          hint="Inclui até 52 ocorrências, sempre no dia da semana em que o bloqueio começa."
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="dd/mm/aaaa"
+          maxLength={10}
+          error={formState.errors.repeatUntil?.message}
+          {...withMask(register('repeatUntil'), maskDate)}
+        />
+      )}
       <TextAreaField
         label="Motivo"
         rows={3}
