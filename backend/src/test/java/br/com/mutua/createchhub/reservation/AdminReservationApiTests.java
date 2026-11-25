@@ -11,7 +11,11 @@ import br.com.mutua.createchhub.user.AccessRole;
 import br.com.mutua.createchhub.user.AdminPermission;
 import br.com.mutua.createchhub.user.UserAccount;
 import br.com.mutua.createchhub.user.UserAccountRepository;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
+import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +27,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -36,6 +41,7 @@ class AdminReservationApiTests {
   @Autowired private UserAccountRepository accounts;
   @Autowired private PasswordEncoder passwords;
   @Autowired private JdbcTemplate jdbc;
+  @Autowired private ReservationRepository reservations;
 
   @AfterEach
   void cleanup() {
@@ -78,6 +84,127 @@ class AdminReservationApiTests {
       assertThat(visitor.get(PATH).statusCode()).isEqualTo(401);
       assertThat(member.get(PATH).statusCode()).isEqualTo(403);
     }
+  }
+
+  @Test
+  void recordsDecisionsAndPublishesOnlyTheNoteOnThePrivateReceipt() throws Exception {
+    var space = spaces.saveAndFlush(new Space("Sala de estudo", SpaceType.ROOM, 2, null));
+    var rejected = row(space.getId(), "Visitante", "2099-03-10T09:00", "PENDING");
+    var confirmed = row(space.getId(), "Visitante", "2099-03-11T09:00", "PENDING");
+    var token = "a".repeat(43);
+    var hash =
+        HexFormat.of()
+            .formatHex(
+                MessageDigest.getInstance("SHA-256")
+                    .digest(token.getBytes(StandardCharsets.US_ASCII)));
+    jdbc.update("UPDATE reservations SET tracking_hash = ? WHERE id = ?", hash, confirmed);
+
+    try (var operator = signedIn("operator@example.com", AdminPermission.MANAGE_SPACES);
+        var accessManager = signedIn("staff@example.com", AdminPermission.MANAGE_ACCESS)) {
+      var rejectedPath = PATH + "/" + rejected + "/decisions";
+      var confirmedPath = PATH + "/" + confirmed + "/decisions";
+      var csrf = operator.csrf();
+      var confirmation =
+          Map.of("action", "CONFIRM", "expectedStatus", "PENDING", "note", " Aprovada ");
+      assertThat(
+              accessManager
+                  .json("POST", confirmedPath, confirmation, accessManager.csrf())
+                  .statusCode())
+          .isEqualTo(403);
+      assertThat(operator.json("POST", confirmedPath, confirmation, null).statusCode())
+          .isEqualTo(403);
+      assertThat(operator.json("POST", confirmedPath, confirmation, csrf).statusCode())
+          .isEqualTo(204);
+      assertThat(operator.json("POST", confirmedPath, confirmation, csrf).statusCode())
+          .isEqualTo(409);
+      assertThat(
+              operator
+                  .json(
+                      "POST",
+                      confirmedPath,
+                      Map.of("action", "REJECT", "expectedStatus", "CONFIRMED"),
+                      csrf)
+                  .statusCode())
+          .isEqualTo(409);
+      assertThat(
+              operator
+                  .json(
+                      "POST",
+                      confirmedPath,
+                      Map.of(
+                          "action",
+                          "CANCEL",
+                          "expectedStatus",
+                          "CONFIRMED",
+                          "note",
+                          "a".repeat(1001)),
+                      csrf)
+                  .statusCode())
+          .isEqualTo(400);
+
+      var receipt = receipt(token);
+      assertThat(receipt.path("status").asString()).isEqualTo("CONFIRMED");
+      assertThat(receipt.path("decisionNote").asString()).isEqualTo("Aprovada");
+      assertThat(receipt.has("decidedBy")).isFalse();
+      assertThat(occupied(space.getId(), "2099-03-11T09:00")).isTrue();
+
+      assertThat(
+              operator
+                  .json(
+                      "POST",
+                      confirmedPath,
+                      Map.of(
+                          "action",
+                          "CANCEL",
+                          "expectedStatus",
+                          "CONFIRMED",
+                          "note",
+                          "Sala em manutenção"),
+                      csrf)
+                  .statusCode())
+          .isEqualTo(204);
+      assertThat(
+              operator
+                  .json(
+                      "POST",
+                      rejectedPath,
+                      Map.of("action", "REJECT", "expectedStatus", "PENDING"),
+                      csrf)
+                  .statusCode())
+          .isEqualTo(204);
+      var cancelled = receipt(token);
+      assertThat(cancelled.path("status").asString()).isEqualTo("CANCELLED");
+      assertThat(cancelled.path("decisionNote").asString()).isEqualTo("Sala em manutenção");
+      assertThat(cancelled.path("lateCancellation").asBoolean()).isFalse();
+      assertThat(cancelled.has("cancelledAt")).isTrue();
+      assertThat(occupied(space.getId(), "2099-03-10T09:00")).isFalse();
+      assertThat(occupied(space.getId(), "2099-03-11T09:00")).isFalse();
+      assertThat(
+              jdbc.queryForList(
+                  "SELECT status FROM reservation_decisions WHERE reservation_id = ? ORDER BY id",
+                  String.class,
+                  confirmed))
+          .containsExactly("CONFIRMED", "CANCELLED");
+    }
+  }
+
+  private JsonNode receipt(String token) throws Exception {
+    try (var client = new SessionClient(port)) {
+      var response =
+          client.json(
+              "GET",
+              "/api/v1/reservations/receipt",
+              null,
+              null,
+              Map.of("X-Reservation-Token", token));
+      assertThat(response.statusCode()).isEqualTo(200);
+      return json.readTree(response.body());
+    }
+  }
+
+  private boolean occupied(UUID spaceId, String startsAt) {
+    var start = LocalDateTime.parse(startsAt);
+    return reservations.occupied(List.of(spaceId), start, start.plusHours(1)).contains(spaceId);
   }
 
   private SessionClient signedIn(String email, AdminPermission permission) throws Exception {

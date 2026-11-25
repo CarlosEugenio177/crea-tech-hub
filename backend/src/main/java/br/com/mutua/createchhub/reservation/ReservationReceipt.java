@@ -28,4 +28,5 @@ public record ReservationReceipt(
     boolean cancellable,
     boolean lateCancellationWarning,
     boolean lateCancellation,
-    Instant cancelledAt) {}
+    Instant cancelledAt,
+    String decisionNote) {}

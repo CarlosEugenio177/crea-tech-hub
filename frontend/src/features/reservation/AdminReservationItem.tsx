@@ -3,6 +3,7 @@ import {
   type AdminReservationEntry,
 } from './adminReservationsApi.ts'
 import styles from './AdminReservationPage.module.css'
+import { AdminReservationDecisionForm } from './AdminReservationDecisionForm.tsx'
 import { formatDate } from './reservationDates.ts'
 
 export function AdminReservationItem({
@@ -30,6 +31,10 @@ export function AdminReservationItem({
         <dl className={styles.details}>
           <dt>Protocolo</dt>
           <dd>{entry.protocol}</dd>
+          <dt>Perfil informado</dt>
+          <dd>
+            {entry.profile === 'EXTERNAL' ? 'Público externo' : 'Mutualista'}
+          </dd>
           <dt>E-mail</dt>
           <dd>{entry.email}</dd>
           <dt>WhatsApp</dt>
@@ -47,6 +52,10 @@ export function AdminReservationItem({
             </>
           )}
         </dl>
+        <AdminReservationDecisionForm
+          protocol={entry.protocol}
+          status={entry.status}
+        />
       </details>
     </li>
   )

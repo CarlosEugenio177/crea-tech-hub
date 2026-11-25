@@ -158,6 +158,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reservations/{id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar decisão sobre a reserva */
+        post: operations["decideAdminReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/space-blocks": {
         parameters: {
             query?: never;
@@ -653,6 +670,13 @@ export interface components {
         AdminPermissionsRequest: {
             permissions: components["schemas"]["AdminPermission"][];
         };
+        /** @enum {string} */
+        AdminReservationAction: "CONFIRM" | "REJECT" | "CANCEL";
+        AdminReservationDecisionRequest: {
+            action: components["schemas"]["AdminReservationAction"];
+            expectedStatus: components["schemas"]["ReservationStatus"];
+            note?: string;
+        };
         AdminReservationEntry: {
             email: string;
             /** Format: date-time */
@@ -660,6 +684,7 @@ export interface components {
             fullName: string;
             lateCancellation: boolean;
             notes: string;
+            profile: components["schemas"]["Profile"];
             /** Format: uuid */
             protocol: string;
             reason: string;
@@ -813,6 +838,7 @@ export interface components {
             cancellable: boolean;
             /** Format: date-time */
             cancelledAt?: string;
+            decisionNote?: string;
             /** Format: date-time */
             endsAt: string;
             lateCancellation: boolean;
@@ -1248,6 +1274,33 @@ export interface operations {
                     "application/json": components["schemas"]["AdminReservationPage"];
                 };
             };
+            default: components["responses"]["Problem"];
+        };
+    };
+    decideAdminReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReservationDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
             default: components["responses"]["Problem"];
         };
     };
