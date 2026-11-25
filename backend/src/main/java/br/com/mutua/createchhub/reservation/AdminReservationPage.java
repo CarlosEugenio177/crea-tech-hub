@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.reservation;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,5 +42,7 @@ public record AdminReservationPage(
       String reason,
       ReservationRequest.Profile profile,
       String notes,
-      boolean lateCancellation) {}
+      boolean lateCancellation,
+      @JsonInclude(JsonInclude.Include.NON_NULL)
+          ReservationEmailQueue.DeliveryStatus emailDeliveryStatus) {}
 }

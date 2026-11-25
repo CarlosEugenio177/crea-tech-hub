@@ -8,16 +8,12 @@ import br.com.mutua.createchhub.space.SpaceAvailability;
 import br.com.mutua.createchhub.space.SpaceAvailabilityService;
 import br.com.mutua.createchhub.space.SpaceRepository;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -29,17 +25,20 @@ public class ReservationService {
   private final SpaceAvailabilityService availability;
   private final ReservationRepository reservations;
   private final Clock clock;
+  private final ReservationEmailQueue emails;
   private final SecureRandom random = new SecureRandom();
 
   public ReservationService(
       SpaceRepository spaces,
       SpaceAvailabilityService availability,
       ReservationRepository reservations,
-      Clock clock) {
+      Clock clock,
+      ReservationEmailQueue emails) {
     this.spaces = spaces;
     this.availability = availability;
     this.reservations = reservations;
     this.clock = clock;
+    this.emails = emails;
   }
 
   @Transactional
@@ -80,7 +79,13 @@ public class ReservationService {
     random.nextBytes(secret);
     var token = Base64.getUrlEncoder().withoutPadding().encodeToString(secret);
     reservations.persistPending(
-        receipt, resource.getId(), resource.getRoomId(), request.requester(), digest(token), now);
+        receipt,
+        resource.getId(),
+        resource.getRoomId(),
+        request.requester(),
+        ReservationTrackingToken.hash(token),
+        now);
+    emails.enqueue(receipt.protocol(), ReservationStatus.PENDING);
     return new ReservationSubmission(receipt, token);
   }
 
@@ -88,7 +93,7 @@ public class ReservationService {
   public ReservationReceipt receipt(String token) {
     var nowLocal = LocalDateTime.now(clock.withZone(SpaceAvailabilityService.HUB_ZONE));
     return reservations
-        .findByTrackingHash(digest(token))
+        .findByTrackingHash(ReservationTrackingToken.hash(token))
         .map(row -> toReceipt(row, nowLocal))
         .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
   }
@@ -97,7 +102,7 @@ public class ReservationService {
   public ReservationReceipt cancel(String token, ReservationCancellationRequest request) {
     var row =
         reservations
-            .findByTrackingHashForUpdate(digest(token))
+            .findByTrackingHashForUpdate(ReservationTrackingToken.hash(token))
             .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
     var now = clock.instant().truncatedTo(ChronoUnit.MICROS);
     var nowLocal = LocalDateTime.ofInstant(now, SpaceAvailabilityService.HUB_ZONE);
@@ -186,17 +191,6 @@ public class ReservationService {
         .filter(space -> space.getId().equals(id))
         .findFirst()
         .orElseThrow(() -> new ResourceConflictException("O espaço mudou. Escolha outra opção."));
-  }
-
-  private static String digest(String token) {
-    try {
-      return HexFormat.of()
-          .formatHex(
-              MessageDigest.getInstance("SHA-256")
-                  .digest(token.getBytes(StandardCharsets.US_ASCII)));
-    } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException("SHA-256 indisponível.", exception);
-    }
   }
 
   private record Scope(Space selected, Space requestedStation, Space parent) {}

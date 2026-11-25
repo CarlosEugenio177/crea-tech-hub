@@ -679,6 +679,7 @@ export interface components {
         };
         AdminReservationEntry: {
             email: string;
+            emailDeliveryStatus?: components["schemas"]["ReservationEmailDeliveryStatus"];
             /** Format: date-time */
             endsAt: string;
             fullName: string;
@@ -834,6 +835,8 @@ export interface components {
         ReservationCancellationRequest: {
             confirmLateCancellation: boolean;
         };
+        /** @enum {string} */
+        ReservationEmailDeliveryStatus: "QUEUED" | "ACCEPTED" | "FAILED";
         ReservationReceipt: {
             cancellable: boolean;
             /** Format: date-time */

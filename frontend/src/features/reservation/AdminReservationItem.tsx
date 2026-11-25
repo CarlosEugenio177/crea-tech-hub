@@ -6,6 +6,15 @@ import styles from './AdminReservationPage.module.css'
 import { AdminReservationDecisionForm } from './AdminReservationDecisionForm.tsx'
 import { formatDate } from './reservationDates.ts'
 
+const emailStatusLabels: Record<
+  NonNullable<AdminReservationEntry['emailDeliveryStatus']>,
+  string
+> = {
+  QUEUED: 'Aguardando envio',
+  ACCEPTED: 'Aceito pelo serviço de e-mail',
+  FAILED: 'Falha no envio',
+}
+
 export function AdminReservationItem({
   entry,
 }: {
@@ -37,6 +46,12 @@ export function AdminReservationItem({
           </dd>
           <dt>E-mail</dt>
           <dd>{entry.email}</dd>
+          {entry.emailDeliveryStatus && (
+            <>
+              <dt>Último aviso por e-mail</dt>
+              <dd>{emailStatusLabels[entry.emailDeliveryStatus]}</dd>
+            </>
+          )}
           <dt>WhatsApp</dt>
           <dd>{entry.whatsapp}</dd>
           {entry.reason && (

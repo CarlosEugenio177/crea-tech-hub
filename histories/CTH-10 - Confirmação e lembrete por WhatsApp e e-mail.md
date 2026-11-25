@@ -29,6 +29,11 @@ Avisar o usuário sobre a reserva por WhatsApp (canal principal) e e-mail, com c
 
 ## Critérios de aceite
 
+A fila e a integração com Resend cobrem avisos de solicitação e decisão por
+**e-mail**. O envio real aguarda a verificação do domínio. A equipe consulta o
+resultado do último aviso no painel. Ver [E-mail de reservas](../docs/23-email-de-reservas.md).
+Lembretes e WhatsApp ficam pendentes.
+
 - [ ] Ao registrar a reserva, o sistema envia a **confirmação** por **WhatsApp** e/ou **e-mail**.
 - [ ] O sistema envia um **lembrete** antes do horário da reserva.
 - [ ] O **WhatsApp é o canal principal**; o **e-mail** serve para registro formal (ex.: ocorrências).

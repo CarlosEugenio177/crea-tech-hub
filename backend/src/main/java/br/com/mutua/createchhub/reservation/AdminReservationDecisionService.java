@@ -11,10 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminReservationDecisionService {
   private final ReservationRepository reservations;
   private final Clock clock;
+  private final ReservationEmailQueue emails;
 
-  public AdminReservationDecisionService(ReservationRepository reservations, Clock clock) {
+  public AdminReservationDecisionService(
+      ReservationRepository reservations, Clock clock, ReservationEmailQueue emails) {
     this.reservations = reservations;
     this.clock = clock;
+    this.emails = emails;
   }
 
   @Transactional
@@ -42,5 +45,6 @@ public class AdminReservationDecisionService {
 
     var note = request.note() == null || request.note().isBlank() ? null : request.note().strip();
     reservations.recordDecision(id, adminId, next, note, clock.instant());
+    emails.enqueue(id, next);
   }
 }

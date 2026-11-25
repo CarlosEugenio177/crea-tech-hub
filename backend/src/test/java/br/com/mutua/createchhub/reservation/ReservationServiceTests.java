@@ -47,7 +47,8 @@ class ReservationServiceTests {
             mock(SpaceRepository.class),
             mock(SpaceAvailabilityService.class),
             repo,
-            Clock.fixed(exact24h, SpaceAvailabilityService.HUB_ZONE));
+            Clock.fixed(exact24h, SpaceAvailabilityService.HUB_ZONE),
+            mock(ReservationEmailQueue.class));
     var regularReceipt = atBoundary.cancel(TOKEN, new ReservationCancellationRequest(false));
     assertThat(regularReceipt.lateCancellation()).isFalse();
     verify(repo).markCancelled(id, exact24h, false);
@@ -72,7 +73,8 @@ class ReservationServiceTests {
             mock(SpaceRepository.class),
             mock(SpaceAvailabilityService.class),
             repoLate,
-            Clock.fixed(oneSecondLate, SpaceAvailabilityService.HUB_ZONE));
+            Clock.fixed(oneSecondLate, SpaceAvailabilityService.HUB_ZONE),
+            mock(ReservationEmailQueue.class));
 
     assertThatThrownBy(() -> afterBoundary.cancel(TOKEN, new ReservationCancellationRequest(false)))
         .isInstanceOf(ResourceConflictException.class);
@@ -107,7 +109,8 @@ class ReservationServiceTests {
             mock(SpaceRepository.class),
             mock(SpaceAvailabilityService.class),
             repo,
-            Clock.fixed(inProgress, SpaceAvailabilityService.HUB_ZONE));
+            Clock.fixed(inProgress, SpaceAvailabilityService.HUB_ZONE),
+            mock(ReservationEmailQueue.class));
     var cancelled = duringSlot.cancel(TOKEN, new ReservationCancellationRequest(true));
     assertThat(cancelled.status()).isEqualTo(ReservationStatus.CANCELLED);
     assertThat(cancelled.lateCancellation()).isTrue();
@@ -118,7 +121,8 @@ class ReservationServiceTests {
             mock(SpaceRepository.class),
             mock(SpaceAvailabilityService.class),
             repo,
-            Clock.fixed(atEnd, SpaceAvailabilityService.HUB_ZONE));
+            Clock.fixed(atEnd, SpaceAvailabilityService.HUB_ZONE),
+            mock(ReservationEmailQueue.class));
     assertThatThrownBy(() -> endedService.cancel(TOKEN, new ReservationCancellationRequest(true)))
         .isInstanceOf(ResourceConflictException.class);
   }

@@ -1809,6 +1809,9 @@
           "email" : {
             "type" : "string"
           },
+          "emailDeliveryStatus" : {
+            "$ref" : "#/components/schemas/ReservationEmailDeliveryStatus"
+          },
           "endsAt" : {
             "type" : "string",
             "format" : "date-time"
@@ -2265,6 +2268,10 @@
           }
         },
         "required" : [ "confirmLateCancellation" ]
+      },
+      "ReservationEmailDeliveryStatus" : {
+        "type" : "string",
+        "enum" : [ "QUEUED", "ACCEPTED", "FAILED" ]
       },
       "ReservationReceipt" : {
         "type" : "object",

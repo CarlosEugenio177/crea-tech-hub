@@ -1,6 +1,11 @@
 package br.com.mutua.createchhub.reservation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 import br.com.mutua.createchhub.space.Space;
 import br.com.mutua.createchhub.space.SpaceRepository;
@@ -14,6 +19,7 @@ import br.com.mutua.createchhub.user.UserAccountRepository;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +31,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+      "app.reservation-email.enabled=true",
+      "app.reservation-email.api-key=test-key",
+      "app.reservation-email.from=reservas@example.com",
+      "app.reservation-email.public-origin=https://hub.example.com",
+      "app.reservation-email.link-secret=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    })
 @Import(PostgresTestConfiguration.class)
 class AdminReservationApiTests {
   private static final String PATH = "/api/v1/admin/reservations";
@@ -42,6 +61,7 @@ class AdminReservationApiTests {
   @Autowired private PasswordEncoder passwords;
   @Autowired private JdbcTemplate jdbc;
   @Autowired private ReservationRepository reservations;
+  @MockitoBean private ReservationEmailWorker emailWorker;
 
   @AfterEach
   void cleanup() {
@@ -185,6 +205,140 @@ class AdminReservationApiTests {
                   String.class,
                   confirmed))
           .containsExactly("CONFIRMED", "CANCELLED");
+    }
+  }
+
+  @Test
+  void queuesOneEmailPerCommittedSubmissionAndDecision() throws Exception {
+    var space = spaces.saveAndFlush(new Space("Sala inteira", SpaceType.ROOM, 5, null));
+    try (var visitor = new SessionClient(port);
+        var operator = signedIn("queue-ops@example.com", AdminPermission.MANAGE_SPACES)) {
+      var request =
+          Map.of(
+              "spaceId",
+              space.getId(),
+              "startsAt",
+              "2099-03-10T09:00",
+              "endsAt",
+              "2099-03-10T10:00",
+              "rulesAccepted",
+              true,
+              "requester",
+              Map.of(
+                  "cpf",
+                  "52998224725",
+                  "fullName",
+                  "Visitante de teste",
+                  "email",
+                  "visitor@example.com",
+                  "whatsapp",
+                  "86999990000",
+                  "profile",
+                  "EXTERNAL",
+                  "onBehalfOfOthers",
+                  false,
+                  "reason",
+                  "Estudo",
+                  "notes",
+                  ""));
+      var response = visitor.json("POST", "/api/v1/reservations", request, visitor.csrf());
+      assertThat(response.statusCode()).isEqualTo(201);
+      var id =
+          UUID.fromString(
+              json.readTree(response.body()).path("receipt").path("protocol").asString());
+      var path = PATH + "/" + id + "/decisions";
+      var decision = Map.of("action", "CONFIRM", "expectedStatus", "PENDING");
+      var csrf = operator.csrf();
+      assertThat(operator.json("POST", path, decision, csrf).statusCode()).isEqualTo(204);
+      assertThat(operator.json("POST", path, decision, csrf).statusCode()).isEqualTo(409);
+      assertThat(
+              jdbc.queryForList(
+                  "SELECT event_status FROM reservation_emails WHERE reservation_id = ? ORDER BY id",
+                  String.class,
+                  id))
+          .containsExactly("PENDING", "CONFIRMED");
+    }
+  }
+
+  @Test
+  void sendsThroughResendWithStableRetryAndPublishesFailureOnlyToTheTeam() throws Exception {
+    var space = spaces.saveAndFlush(new Space("Sala de estudo", SpaceType.ROOM, 2, null));
+    var id = row(space.getId(), "Visitante", "2099-03-10T09:00", "CONFIRMED");
+    var originalToken = "b".repeat(43);
+    jdbc.update(
+        "UPDATE reservations SET tracking_hash = ? WHERE id = ?",
+        ReservationTrackingToken.hash(originalToken),
+        id);
+
+    var disabled =
+        new ReservationEmailQueue(jdbc, new ReservationEmailSettings(false, "", "", "", ""));
+    disabled.enqueue(id, ReservationStatus.PENDING);
+    assertThat(disabled.claim()).isEmpty();
+
+    var settings =
+        new ReservationEmailSettings(
+            true,
+            "test-key",
+            "Hub <reservas@example.com>",
+            "https://hub.example.com",
+            Base64.getEncoder().encodeToString(new byte[32]));
+    var queue = new ReservationEmailQueue(jdbc, settings);
+    var links = new ReservationEmailLinks(settings);
+    var token = links.token(id);
+    var builder = RestClient.builder().baseUrl("https://api.resend.com");
+    var server = MockRestServiceServer.bindTo(builder).build();
+    var worker =
+        new ReservationEmailWorker(
+            queue, new ResendReservationSender(builder.build(), settings), links);
+    queue.enqueue(id, ReservationStatus.PENDING);
+    queue.enqueue(id, ReservationStatus.PENDING);
+    queue.enqueue(id, ReservationStatus.CONFIRMED);
+
+    var pendingKey = "reservation/" + id + "/PENDING";
+    server
+        .expect(requestTo("https://api.resend.com/emails"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(header("Authorization", "Bearer test-key"))
+        .andExpect(header("Idempotency-Key", pendingKey))
+        .andExpect(jsonPath("$.to[0]").value("visitor@example.com"))
+        .andExpect(
+            jsonPath("$.text")
+                .value(org.hamcrest.Matchers.containsString(links.url(token).toString())))
+        .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS));
+    server
+        .expect(requestTo("https://api.resend.com/emails"))
+        .andExpect(header("Idempotency-Key", pendingKey))
+        .andRespond(withStatus(HttpStatus.OK));
+    server
+        .expect(requestTo("https://api.resend.com/emails"))
+        .andExpect(header("Idempotency-Key", "reservation/" + id + "/CONFIRMED"))
+        .andRespond(withStatus(HttpStatus.FORBIDDEN));
+
+    worker.deliver();
+    assertThat(queue.claim()).isEmpty();
+    jdbc.update("UPDATE reservation_emails SET available_at = now() WHERE reservation_id = ?", id);
+    worker.deliver();
+    server.verify();
+
+    assertThat(
+            jdbc.queryForList(
+                "SELECT state FROM reservation_emails WHERE reservation_id = ? ORDER BY id",
+                String.class,
+                id))
+        .containsExactly("ACCEPTED", "FAILED");
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT email_tracking_hash FROM reservations WHERE id = ?", String.class, id))
+        .isEqualTo(ReservationTrackingToken.hash(token));
+    assertThat(receipt(originalToken).path("protocol").asString()).isEqualTo(id.toString());
+    var byEmail = receipt(token);
+    assertThat(byEmail.path("protocol").asString()).isEqualTo(id.toString());
+    assertThat(byEmail.has("emailDeliveryStatus")).isFalse();
+
+    try (var operator = signedIn("email-ops@example.com", AdminPermission.MANAGE_SPACES)) {
+      var entry = json.readTree(operator.get(PATH).body()).path("items").get(0);
+      assertThat(entry.path("emailDeliveryStatus").asString()).isEqualTo("FAILED");
+      assertThat(entry.has("emailTrackingHash")).isFalse();
     }
   }
 
