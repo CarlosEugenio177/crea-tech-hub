@@ -1,11 +1,8 @@
 package br.com.mutua.createchhub.space;
 
-import br.com.mutua.createchhub.block.SpaceBlockRepository;
-import br.com.mutua.createchhub.reservation.ReservationRepository;
 import br.com.mutua.createchhub.shared.error.InvalidRequestException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,18 +19,13 @@ public class SpaceRecommendationService {
           .thenComparing(Space::getId);
 
   private final SpaceRepository spaces;
-  private final SpaceBlockRepository blocks;
-  private final ReservationRepository reservations;
+  private final SpaceBusyIntervals busy;
   private final SpaceAvailabilityService availability;
 
-  public SpaceRecommendationService(
-      SpaceRepository spaces,
-      SpaceBlockRepository blocks,
-      ReservationRepository reservations,
-      SpaceAvailabilityService availability) {
+  SpaceRecommendationService(
+      SpaceRepository spaces, SpaceBusyIntervals busy, SpaceAvailabilityService availability) {
     this.spaces = spaces;
-    this.blocks = blocks;
-    this.reservations = reservations;
+    this.busy = busy;
     this.availability = availability;
   }
 
@@ -67,22 +59,19 @@ public class SpaceRecommendationService {
     candidates.forEach(space -> allIds.add(space.getId()));
     stationsByRoom.values().forEach(list -> list.forEach(station -> allIds.add(station.getId())));
 
-    var blocked = new HashSet<>(blocks.findBlockedSpaceIds(allIds, start, end));
-    blocked.addAll(reservations.occupied(allIds, start, end));
-
-    var wholeSpaceRoomIds =
+    var wholeRooms =
         candidates.stream()
-            .filter(
-                space ->
-                    space.getBookingMode() == BookingMode.WHOLE_SPACE
-                        && space.getType() == SpaceType.ROOM)
+            .filter(SpaceAvailabilityService::isWholeRoom)
             .map(Space::getId)
             .toList();
-    Set<UUID> roomsWithOccupiedStations = reservations.occupiedRooms(wholeSpaceRoomIds, start, end);
+    var blocked =
+        busy.find(allIds, wholeRooms, start, end).stream()
+            .map(SpaceBusyIntervals.Interval::resourceId)
+            .collect(Collectors.toSet());
 
     var availableSpaces =
         candidates.stream()
-            .filter(space -> isAvailable(space, blocked, stationsByRoom, roomsWithOccupiedStations))
+            .filter(space -> isAvailable(space, blocked, stationsByRoom))
             .sorted(BEST_FIT_ORDER)
             .map(PublicSpaceResponse::from)
             .toList();
@@ -93,10 +82,7 @@ public class SpaceRecommendationService {
   }
 
   private static boolean isAvailable(
-      Space space,
-      Set<UUID> blocked,
-      Map<UUID, List<Space>> stationsByRoom,
-      Set<UUID> roomsWithOccupiedStations) {
+      Space space, Set<UUID> blocked, Map<UUID, List<Space>> stationsByRoom) {
     if (blocked.contains(space.getId())) {
       return false;
     }
@@ -104,7 +90,7 @@ public class SpaceRecommendationService {
       return stationsByRoom.getOrDefault(space.getId(), List.of()).stream()
           .anyMatch(station -> !blocked.contains(station.getId()));
     }
-    return space.getType() != SpaceType.ROOM || !roomsWithOccupiedStations.contains(space.getId());
+    return true;
   }
 
   private static int reservableCapacity(Space space) {

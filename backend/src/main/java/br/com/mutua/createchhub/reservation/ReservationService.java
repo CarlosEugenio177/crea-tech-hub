@@ -8,15 +8,12 @@ import br.com.mutua.createchhub.space.SpaceAvailability;
 import br.com.mutua.createchhub.space.SpaceAvailabilityService;
 import br.com.mutua.createchhub.space.SpaceRepository;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -28,17 +25,20 @@ public class ReservationService {
   private final SpaceAvailabilityService availability;
   private final ReservationRepository reservations;
   private final Clock clock;
+  private final ReservationEmailQueue emails;
   private final SecureRandom random = new SecureRandom();
 
-  public ReservationService(
+  ReservationService(
       SpaceRepository spaces,
       SpaceAvailabilityService availability,
       ReservationRepository reservations,
-      Clock clock) {
+      Clock clock,
+      ReservationEmailQueue emails) {
     this.spaces = spaces;
     this.availability = availability;
     this.reservations = reservations;
     this.clock = clock;
+    this.emails = emails;
   }
 
   @Transactional
@@ -57,14 +57,24 @@ public class ReservationService {
       throw new ResourceConflictException("Esse horário não está mais livre. Escolha outra opção.");
 
     var resource = scope.requestedStation() == null ? scope.selected() : scope.requestedStation();
+    var now = clock.instant();
+    var nowLocal = LocalDateTime.ofInstant(now, SpaceAvailabilityService.HUB_ZONE);
+    var startsAt = LocalDateTime.parse(request.startsAt());
+    var endsAt = LocalDateTime.parse(request.endsAt());
+    boolean cancellable = nowLocal.isBefore(endsAt);
     var receipt =
         new ReservationReceipt(
             UUID.randomUUID(),
             scope.parent() == null ? resource.getName() : scope.parent().getName(),
             resource.getStationNumber(),
-            LocalDateTime.parse(request.startsAt()),
-            LocalDateTime.parse(request.endsAt()),
-            "PENDING");
+            startsAt,
+            endsAt,
+            ReservationStatus.PENDING,
+            cancellable,
+            cancellable && isLate(startsAt, nowLocal),
+            false,
+            null,
+            null);
     byte[] secret = new byte[32];
     random.nextBytes(secret);
     var token = Base64.getUrlEncoder().withoutPadding().encodeToString(secret);
@@ -73,16 +83,81 @@ public class ReservationService {
         resource.getId(),
         resource.getRoomId(),
         request.requester(),
-        digest(token),
-        clock.instant());
+        ReservationTrackingToken.hash(token),
+        now);
+    emails.enqueue(receipt.protocol(), ReservationStatus.PENDING);
     return new ReservationSubmission(receipt, token);
   }
 
   @Transactional(readOnly = true)
   public ReservationReceipt receipt(String token) {
+    var nowLocal = LocalDateTime.now(clock.withZone(SpaceAvailabilityService.HUB_ZONE));
     return reservations
-        .findReceipt(digest(token))
+        .findByTrackingHash(ReservationTrackingToken.hash(token))
+        .map(row -> toReceipt(row, nowLocal))
         .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+  }
+
+  @Transactional
+  public ReservationReceipt cancel(String token, ReservationCancellationRequest request) {
+    var row =
+        reservations
+            .findByTrackingHashForUpdate(ReservationTrackingToken.hash(token))
+            .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+    var now = clock.instant().truncatedTo(ChronoUnit.MICROS);
+    var nowLocal = LocalDateTime.ofInstant(now, SpaceAvailabilityService.HUB_ZONE);
+    if (row.status() == ReservationStatus.CANCELLED) {
+      return toReceipt(row, nowLocal);
+    }
+    if (row.status() == ReservationStatus.REJECTED) {
+      throw new ResourceConflictException(
+          "Esta solicitação foi recusada e não pode ser cancelada.");
+    }
+    if (!nowLocal.isBefore(row.endsAt())) {
+      throw new ResourceConflictException(
+          "O horário desta reserva já encerrou e não pode mais ser cancelado.");
+    }
+    boolean late = isLate(row.startsAt(), nowLocal);
+    if (late && !Boolean.TRUE.equals(request.confirmLateCancellation())) {
+      throw new ResourceConflictException(
+          "Faltam menos de 24 horas para o início da reserva. Confirme o cancelamento tardio para continuar.");
+    }
+    reservations.markCancelled(row.id(), now, late);
+    return toReceipt(
+        new ReservationRepository.StoredReservation(
+            row.id(),
+            row.spaceName(),
+            row.stationNumber(),
+            row.startsAt(),
+            row.endsAt(),
+            ReservationStatus.CANCELLED,
+            now,
+            late,
+            row.decisionNote()),
+        nowLocal);
+  }
+
+  private static boolean isLate(LocalDateTime startsAt, LocalDateTime nowLocal) {
+    return nowLocal.isAfter(startsAt.minusHours(24));
+  }
+
+  private static ReservationReceipt toReceipt(
+      ReservationRepository.StoredReservation row, LocalDateTime nowLocal) {
+    boolean cancellable =
+        (row.status() == ReservationStatus.PENDING || row.status() == ReservationStatus.CONFIRMED)
+            && nowLocal.isBefore(row.endsAt());
+    return new ReservationReceipt(
+        row.id(),
+        row.spaceName(),
+        row.stationNumber(),
+        row.startsAt(),
+        row.endsAt(),
+        row.status(),
+        cancellable,
+        cancellable && isLate(row.startsAt(), nowLocal),
+        row.lateCancellation(),
+        row.cancelledAt(),
+        row.decisionNote());
   }
 
   private Scope lockScope(ReservationRequest request) {
@@ -116,17 +191,6 @@ public class ReservationService {
         .filter(space -> space.getId().equals(id))
         .findFirst()
         .orElseThrow(() -> new ResourceConflictException("O espaço mudou. Escolha outra opção."));
-  }
-
-  private static String digest(String token) {
-    try {
-      return HexFormat.of()
-          .formatHex(
-              MessageDigest.getInstance("SHA-256")
-                  .digest(token.getBytes(StandardCharsets.US_ASCII)));
-    } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException("SHA-256 indisponível.", exception);
-    }
   }
 
   private record Scope(Space selected, Space requestedStation, Space parent) {}

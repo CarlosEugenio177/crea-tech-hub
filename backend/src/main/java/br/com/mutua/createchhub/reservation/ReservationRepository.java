@@ -22,7 +22,6 @@ public class ReservationRepository {
   }
 
   public Set<UUID> occupied(List<UUID> ids, LocalDateTime start, LocalDateTime end) {
-    if (ids.isEmpty()) return Set.of();
     return Set.copyOf(
         jdbc.queryForList(
             """
@@ -34,27 +33,17 @@ public class ReservationRepository {
             UUID.class));
   }
 
-  public Set<UUID> occupiedRooms(List<UUID> rooms, LocalDateTime start, LocalDateTime end) {
-    if (rooms.isEmpty()) return Set.of();
-    return Set.copyOf(
-        jdbc.queryForList(
-            """
-        SELECT DISTINCT room_id FROM reservations
-        WHERE room_id IN (:rooms) AND status IN ('PENDING', 'CONFIRMED')
-          AND starts_at < :end AND ends_at > :start
-        """,
-            Map.of("rooms", rooms, "start", start, "end", end),
-            UUID.class));
-  }
-
-  public boolean hasOccupiedStations(UUID room, LocalDateTime start, LocalDateTime end) {
+  public boolean hasConflictForBlock(UUID spaceId, LocalDateTime start, LocalDateTime end) {
     return Boolean.TRUE.equals(
         jdbc.queryForObject(
             """
-        SELECT EXISTS (SELECT 1 FROM reservations WHERE room_id = :room
-          AND status IN ('PENDING', 'CONFIRMED') AND starts_at < :end AND ends_at > :start)
+        SELECT EXISTS (SELECT 1 FROM reservations
+          WHERE status IN ('PENDING', 'CONFIRMED') AND starts_at < :end AND ends_at > :start
+            AND (space_id = :spaceId OR room_id = :spaceId OR space_id IN (
+              SELECT id FROM spaces WHERE room_id = :spaceId
+            )))
         """,
-            Map.of("room", room, "start", start, "end", end),
+            Map.of("spaceId", spaceId, "start", start, "end", end),
             Boolean.class));
   }
 
@@ -95,23 +84,98 @@ public class ReservationRepository {
         params);
   }
 
-  Optional<ReservationReceipt> findReceipt(String hash) {
+  Optional<StoredReservation> findByTrackingHash(String hash) {
+    return queryByHash(hash, false);
+  }
+
+  Optional<StoredReservation> findByTrackingHashForUpdate(String hash) {
+    return queryByHash(hash, true);
+  }
+
+  void markCancelled(UUID id, Instant cancelledAt, boolean lateCancellation) {
+    jdbc.update(
+        """
+        UPDATE reservations
+        SET status = 'CANCELLED', cancelled_at = :cancelledAt, late_cancellation = :lateCancellation
+        WHERE id = :id
+        """,
+        new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("cancelledAt", OffsetDateTime.ofInstant(cancelledAt, ZoneOffset.UTC))
+            .addValue("lateCancellation", lateCancellation));
+  }
+
+  Optional<ReservationStatus> findStatusForUpdate(UUID id) {
     return jdbc
         .query(
-            """
-        SELECT id, space_name, station_number, starts_at, ends_at, status
-        FROM reservations WHERE tracking_hash = :hash
-        """,
-            Map.of("hash", hash),
-            (row, index) ->
-                new ReservationReceipt(
-                    row.getObject("id", UUID.class),
-                    row.getString("space_name"),
-                    row.getObject("station_number", Integer.class),
-                    row.getObject("starts_at", LocalDateTime.class),
-                    row.getObject("ends_at", LocalDateTime.class),
-                    row.getString("status")))
+            "SELECT status FROM reservations WHERE id = :id FOR UPDATE",
+            Map.of("id", id),
+            (row, index) -> ReservationStatus.valueOf(row.getString("status")))
         .stream()
         .findFirst();
   }
+
+  void recordDecision(UUID id, UUID adminId, ReservationStatus status, String note, Instant now) {
+    var params =
+        new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("adminId", adminId)
+            .addValue("status", status.name())
+            .addValue("note", note)
+            .addValue("now", OffsetDateTime.ofInstant(now, ZoneOffset.UTC));
+    jdbc.update(
+        """
+        UPDATE reservations
+        SET status = :status, cancelled_at = CASE WHEN :status = 'CANCELLED' THEN :now END
+        WHERE id = :id
+        """,
+        params);
+    jdbc.update(
+        """
+        INSERT INTO reservation_decisions (reservation_id, decided_by, status, note, decided_at)
+        VALUES (:id, :adminId, :status, :note, :now)
+        """,
+        params);
+  }
+
+  private Optional<StoredReservation> queryByHash(String hash, boolean forUpdate) {
+    var sql =
+        """
+        SELECT id, space_name, station_number, starts_at, ends_at, status, cancelled_at, late_cancellation,
+          (SELECT note FROM reservation_decisions WHERE reservation_id = reservations.id
+            ORDER BY id DESC LIMIT 1) AS decision_note
+        FROM reservations WHERE tracking_hash = :hash OR email_tracking_hash = :hash
+        """
+            + (forUpdate ? " FOR UPDATE" : "");
+    return jdbc
+        .query(
+            sql,
+            Map.of("hash", hash),
+            (row, index) -> {
+              var cancelled = row.getObject("cancelled_at", OffsetDateTime.class);
+              return new StoredReservation(
+                  row.getObject("id", UUID.class),
+                  row.getString("space_name"),
+                  row.getObject("station_number", Integer.class),
+                  row.getObject("starts_at", LocalDateTime.class),
+                  row.getObject("ends_at", LocalDateTime.class),
+                  ReservationStatus.valueOf(row.getString("status")),
+                  cancelled == null ? null : cancelled.toInstant(),
+                  row.getBoolean("late_cancellation"),
+                  row.getString("decision_note"));
+            })
+        .stream()
+        .findFirst();
+  }
+
+  record StoredReservation(
+      UUID id,
+      String spaceName,
+      Integer stationNumber,
+      LocalDateTime startsAt,
+      LocalDateTime endsAt,
+      ReservationStatus status,
+      Instant cancelledAt,
+      boolean lateCancellation,
+      String decisionNote) {}
 }

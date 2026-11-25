@@ -29,6 +29,12 @@ spring:
       mail.smtp.writetimeout: 5000
 
 app:
+  reservation-email:
+    enabled: ${RESERVATION_EMAIL_ENABLED:false}
+    api-key: ${RESERVATION_EMAIL_RESEND_API_KEY:}
+    from: ${RESERVATION_EMAIL_FROM:}
+    public-origin: ${RESERVATION_EMAIL_PUBLIC_ORIGIN:}
+    link-secret: ${RESERVATION_EMAIL_LINK_SECRET:}
   recovery:
     url: ${RECOVERY_URL:}
     from: ${RECOVERY_MAIL_FROM:}

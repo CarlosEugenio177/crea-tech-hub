@@ -213,15 +213,14 @@ class SpaceRecommendationApiTests {
     try (var admin = admin();
         var visitor = new SessionClient(port)) {
       var visitorCsrf = visitor.csrf();
-      assertThat(
-              visitor
-                  .json(
-                      "POST",
-                      RESERVATIONS_PATH,
-                      reservationBody(coworking.getId(), stations.get(0).id()),
-                      visitorCsrf)
-                  .statusCode())
-          .isEqualTo(201);
+      var reservation =
+          visitor.json(
+              "POST",
+              RESERVATIONS_PATH,
+              reservationBody(coworking.getId(), stations.getFirst().id()),
+              visitorCsrf);
+      assertThat(reservation.statusCode()).isEqualTo(201);
+      var protocol = json.readTree(reservation.body()).path("receipt").path("protocol").asString();
 
       var oneStationFree =
           json.readTree(
@@ -265,23 +264,29 @@ class SpaceRecommendationApiTests {
                   .json("POST", BLOCKS_PATH + "/" + secondBlockId + "/cancel", null, adminCsrf)
                   .statusCode())
           .isEqualTo(200);
+      var roomBlock =
+          Map.of(
+              "spaceId",
+              coworking.getId(),
+              "startsAt",
+              "2099-03-10T09:00",
+              "endsAt",
+              "2099-03-10T10:00",
+              "reason",
+              "Bloqueio da sala");
+      assertThat(admin.json("POST", BLOCKS_PATH, roomBlock, adminCsrf).statusCode()).isEqualTo(409);
+
+      var decision = "/api/v1/admin/reservations/" + protocol + "/decisions";
       assertThat(
               admin
                   .json(
                       "POST",
-                      BLOCKS_PATH,
-                      Map.of(
-                          "spaceId",
-                          coworking.getId(),
-                          "startsAt",
-                          "2099-03-10T09:00",
-                          "endsAt",
-                          "2099-03-10T10:00",
-                          "reason",
-                          "Bloqueio da sala"),
+                      decision,
+                      Map.of("expectedStatus", "PENDING", "action", "CANCEL"),
                       adminCsrf)
                   .statusCode())
-          .isEqualTo(201);
+          .isEqualTo(204);
+      assertThat(admin.json("POST", BLOCKS_PATH, roomBlock, adminCsrf).statusCode()).isEqualTo(201);
 
       var roomBlocked =
           json.readTree(

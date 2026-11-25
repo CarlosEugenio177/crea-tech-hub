@@ -141,6 +141,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar solicitações de reserva */
+        get: operations["listAdminReservations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reservations/{id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar decisão sobre a reserva */
+        post: operations["decideAdminReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/space-blocks": {
         parameters: {
             query?: never;
@@ -153,6 +187,23 @@ export interface paths {
         put?: never;
         /** Criar bloqueio de espaço */
         post: operations["createSpaceBlock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/space-blocks/series/{seriesId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancelar ocorrências futuras e em andamento de uma série */
+        post: operations["cancelSpaceBlockSeries"];
         delete?: never;
         options?: never;
         head?: never;
@@ -502,6 +553,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reservations/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancelar reserva pelo código privado */
+        post: operations["cancelReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reservations/receipt": {
         parameters: {
             query?: never;
@@ -562,6 +630,23 @@ export interface paths {
         };
         /** Consultar disponibilidade no intervalo local do Hub */
         get: operations["getSpaceAvailability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/spaces/{id}/availability/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar a agenda pública de um dia */
+        get: operations["getSpaceDayAgenda"];
         put?: never;
         post?: never;
         delete?: never;
@@ -635,6 +720,44 @@ export interface components {
         AdminPermission: "MANAGE_ACCESS" | "MANAGE_SPACES";
         AdminPermissionsRequest: {
             permissions: components["schemas"]["AdminPermission"][];
+        };
+        /** @enum {string} */
+        AdminReservationAction: "CONFIRM" | "REJECT" | "CANCEL";
+        AdminReservationDecisionRequest: {
+            action: components["schemas"]["AdminReservationAction"];
+            expectedStatus: components["schemas"]["ReservationStatus"];
+            note?: string;
+        };
+        AdminReservationEntry: {
+            email: string;
+            emailDeliveryStatus?: components["schemas"]["ReservationEmailDeliveryStatus"];
+            /** Format: date-time */
+            endsAt: string;
+            fullName: string;
+            lateCancellation: boolean;
+            notes: string;
+            profile: components["schemas"]["Profile"];
+            /** Format: uuid */
+            protocol: string;
+            reason: string;
+            spaceName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: int32 */
+            stationNumber?: number;
+            status: components["schemas"]["ReservationStatus"];
+            whatsapp: string;
+        };
+        AdminReservationPage: {
+            items: components["schemas"]["AdminReservationEntry"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         AdminStatusRequest: {
             active: boolean;
@@ -760,9 +883,20 @@ export interface components {
             reason: string;
             whatsapp: string;
         };
+        ReservationCancellationRequest: {
+            confirmLateCancellation: boolean;
+        };
+        /** @enum {string} */
+        ReservationEmailDeliveryStatus: "QUEUED" | "ACCEPTED" | "FAILED";
         ReservationReceipt: {
+            cancellable: boolean;
+            /** Format: date-time */
+            cancelledAt?: string;
+            decisionNote?: string;
             /** Format: date-time */
             endsAt: string;
+            lateCancellation: boolean;
+            lateCancellationWarning: boolean;
             /** Format: uuid */
             protocol: string;
             spaceName: string;
@@ -770,7 +904,7 @@ export interface components {
             startsAt: string;
             /** Format: int32 */
             stationNumber?: number;
-            status: string;
+            status: components["schemas"]["ReservationStatus"];
         };
         ReservationRequest: {
             endsAt: string;
@@ -782,6 +916,8 @@ export interface components {
             /** Format: uuid */
             stationId?: string;
         };
+        /** @enum {string} */
+        ReservationStatus: "PENDING" | "CONFIRMED" | "REJECTED" | "CANCELLED";
         ReservationSubmission: {
             receipt: components["schemas"]["ReservationReceipt"];
             trackingToken: string;
@@ -836,6 +972,8 @@ export interface components {
             id: string;
             reason: string;
             /** Format: uuid */
+            seriesId?: string;
+            /** Format: uuid */
             spaceId: string;
             startsAt: string;
         };
@@ -857,6 +995,11 @@ export interface components {
              */
             endsAt: string;
             reason: string;
+            /**
+             * @description Última data inclusiva para inícios de uma série semanal.
+             * @example 2027-04-28
+             */
+            repeatUntil?: string;
             /** Format: uuid */
             spaceId: string;
             /**
@@ -864,6 +1007,17 @@ export interface components {
              * @example 2027-03-10T09:15
              */
             startsAt: string;
+        };
+        SpaceDayAgenda: {
+            closed: boolean;
+            periods: components["schemas"]["SpaceDayPeriod"][];
+        };
+        SpaceDayPeriod: {
+            available: boolean;
+            /** @example 10:45 */
+            end: string;
+            /** @example 09:30 */
+            start: string;
         };
         SpacePage: {
             items: components["schemas"]["Space"][];
@@ -1173,6 +1327,61 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    listAdminReservations: {
+        parameters: {
+            query?: {
+                search?: string;
+                space?: string;
+                date?: string;
+                status?: components["schemas"]["ReservationStatus"];
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReservationPage"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    decideAdminReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReservationDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            default: components["responses"]["Problem"];
+        };
+    };
     listSpaceBlocks: {
         parameters: {
             query?: {
@@ -1223,6 +1432,28 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["SpaceBlock"];
                 };
+            };
+            409: components["responses"]["Problem"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    cancelSpaceBlockSeries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                seriesId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             default: components["responses"]["Problem"];
         };
@@ -1799,6 +2030,33 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    cancelReservation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Reservation-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReservationCancellationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationReceipt"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     getReservationReceipt: {
         parameters: {
             query?: never;
@@ -1892,6 +2150,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SpaceAvailability"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getSpaceDayAgenda: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpaceDayAgenda"];
                 };
             };
             default: components["responses"]["Problem"];

@@ -34,11 +34,35 @@ Hub e intervalos que atravessem dias. Não há duração máxima ou exigência d
 futura nesta etapa. Bloqueios sobrepostos podem coexistir: cada um mantém seu motivo
 e responsável. Cancelar um não cancela os demais.
 
+Se o horário coincidir com uma reserva pendente ou confirmada, a criação é
+interrompida com 409 e o painel orienta a conferir a fila de reservas ou ajustar o
+intervalo. O bloqueio de uma sala verifica também as reservas de suas estações.
+Bloquear uma estação não afeta as outras. Reservas recusadas ou canceladas e
+horários adjacentes não impedem o bloqueio.
+
 Para cancelar, envie `POST /api/v1/admin/space-blocks/{id}/cancel`, sem corpo.
 A resposta 200 mantém o registro original e acrescenta `cancelledBy` e `cancelledAt`.
 Repetir a operação retorna o mesmo cancelamento, preservando o primeiro responsável
-e horário, inclusive em requisições simultâneas. Não há exclusão física, reativação
-ou edição do intervalo nesta API; corrigir um bloqueio exige cancelar e criar outro.
+e horário, inclusive em requisições simultâneas. Para corrigir um intervalo,
+o operador cancela o bloqueio e cria outro.
+
+## Recorrência semanal
+
+No painel, marque **Repetir toda semana** e informe a data final. Na API, envie
+o campo opcional `repeatUntil` no formato `aaaa-MM-dd`. A primeira ocorrência
+é o intervalo informado. Os demais inícios caem no mesmo dia da semana, até
+a data final inclusive. A série aceita de duas a 52 ocorrências. Cada intervalo
+pode durar até uma semana.
+
+A criação retorna a primeira ocorrência com `seriesId`. Todas as ocorrências
+são gravadas na mesma transação. Se alguma delas conflitar com uma reserva
+pendente ou confirmada, a API retorna 409 com a data do primeiro conflito.
+
+O painel permite cancelar uma ocorrência ou o restante da série. O endpoint
+`POST /api/v1/admin/space-blocks/series/{seriesId}/cancel` exige a mesma sessão
+e CSRF. A resposta 204 vale também para pedidos repetidos. O cancelamento em
+série alcança ocorrências futuras e em andamento. As encerradas permanecem no
+histórico.
 
 ## Consultar
 
@@ -83,8 +107,9 @@ O PostgreSQL protege o intervalo crescente, a precisão de minutos, o motivo e a
 identificação de quem cancelou. O cancelamento bloqueia a linha durante a transação.
 Datas de criação e cancelamento são instantes UTC; início e fim são horários locais.
 
-O contrato OpenAPI e os tipos gerados incluem estas operações. A tela administrativa,
-os bloqueios recorrentes e a consulta pública de disponibilidade serão entregues
-depois. A aplicação desses bloqueios no envio de reservas e o aviso sobre reservas
-já existentes dependem da implementação das reservas. Esta API não cria reservas,
-não altera o funcionamento do Hub e não atribui disponibilidade aos itens do mapa.
+A tela administrativa usa o contrato OpenAPI para criar, listar e cancelar bloqueios.
+A disponibilidade pública e o envio de reservas consideram os bloqueios ativos.
+A criação de bloqueios e o envio de reservas compartilham a trava transacional do
+espaço afetado. Assim, uma reserva e um bloqueio incompatíveis não podem ser
+gravados ao mesmo tempo. A edição direta de bloqueios existentes fica para uma
+próxima entrega.

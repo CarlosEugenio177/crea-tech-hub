@@ -3,6 +3,7 @@ package br.com.mutua.createchhub.block;
 import br.com.mutua.createchhub.auth.AdminPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -56,6 +57,7 @@ public class SpaceBlockController {
   }
 
   @Operation(operationId = "createSpaceBlock", summary = "Criar bloqueio de espaço")
+  @ApiResponse(responseCode = "409", ref = "#/components/responses/Problem")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<SpaceBlockResponse> create(
@@ -68,6 +70,16 @@ public class SpaceBlockController {
             .buildAndExpand(block.id())
             .toUri();
     return ResponseEntity.created(location).body(block);
+  }
+
+  @Operation(
+      operationId = "cancelSpaceBlockSeries",
+      summary = "Cancelar ocorrências futuras e em andamento de uma série")
+  @PostMapping("/series/{seriesId}/cancel")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void cancelSeries(
+      @PathVariable UUID seriesId, @AuthenticationPrincipal AdminPrincipal principal) {
+    blocks.cancelSeries(seriesId, principal.getAccountId());
   }
 
   @Operation(

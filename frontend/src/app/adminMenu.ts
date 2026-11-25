@@ -6,6 +6,8 @@ import {
   ADMIN_HOME,
   ADMIN_PASSWORD,
 } from '../features/admin-auth/adminRoutes.ts'
+import { ADMIN_OPERATING_HOURS } from '../features/admin-operating-hours/operatingHoursRoutes.ts'
+import { ADMIN_SPACE_BLOCKS } from '../features/admin-space-blocks/spaceBlockRoutes.ts'
 import { ADMIN_SPACES } from '../features/admin-spaces/spaceRoutes.ts'
 import { ADMIN_TEAM } from '../features/admin-team/teamRoutes.ts'
 import { ADMIN_RESERVATIONS } from '../features/reservation/reservationRoutes.ts'
@@ -27,11 +29,24 @@ const MENU: MenuItem[] = [
     to: ADMIN_RESERVATIONS,
     label: 'Reservas',
     description: 'Solicitações recebidas e decisões da equipe.',
+    permission: 'MANAGE_SPACES',
   },
   {
     to: ADMIN_SPACES,
     label: 'Espaços',
     description: 'Salas, mesas e estações disponíveis para reserva.',
+    permission: 'MANAGE_SPACES',
+  },
+  {
+    to: ADMIN_SPACE_BLOCKS,
+    label: 'Bloqueios',
+    description: 'Bloqueios pontuais de horário para salas, mesas e estações.',
+    permission: 'MANAGE_SPACES',
+  },
+  {
+    to: ADMIN_OPERATING_HOURS,
+    label: 'Funcionamento',
+    description: 'Dias e horários de funcionamento do Hub.',
     permission: 'MANAGE_SPACES',
   },
   {

@@ -249,6 +249,130 @@
         "tags" : [ "operating-hours-controller" ]
       }
     },
+    "/api/v1/admin/reservations" : {
+      "get" : {
+        "operationId" : "listAdminReservations",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "search",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "space",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 150,
+            "minLength" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminReservationPage"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Consultar solicitações de reserva",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
+    "/api/v1/admin/reservations/{id}/decisions" : {
+      "post" : {
+        "operationId" : "decideAdminReservation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminReservationDecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Registrar decisão sobre a reserva",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
     "/api/v1/admin/space-blocks" : {
       "get" : {
         "operationId" : "listSpaceBlocks",
@@ -350,6 +474,9 @@
             },
             "description" : "Created"
           },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
           "default" : {
             "$ref" : "#/components/responses/Problem"
           }
@@ -359,6 +486,34 @@
           "sessionAuth" : [ ]
         } ],
         "summary" : "Criar bloqueio de espaço",
+        "tags" : [ "space-block-controller" ]
+      }
+    },
+    "/api/v1/admin/space-blocks/series/{seriesId}/cancel" : {
+      "post" : {
+        "operationId" : "cancelSpaceBlockSeries",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "seriesId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Cancelar ocorrências futuras e em andamento de uma série",
         "tags" : [ "space-block-controller" ]
       }
     },
@@ -1288,6 +1443,50 @@
         "tags" : [ "public-reservation-controller" ]
       }
     },
+    "/api/v1/reservations/cancel" : {
+      "post" : {
+        "operationId" : "cancelReservation",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Reservation-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "[A-Za-z0-9_-]{43}"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReservationCancellationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationReceipt"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ]
+        } ],
+        "summary" : "Cancelar reserva pelo código privado",
+        "tags" : [ "public-reservation-controller" ]
+      }
+    },
     "/api/v1/reservations/receipt" : {
       "get" : {
         "operationId" : "getReservationReceipt",
@@ -1459,6 +1658,46 @@
         },
         "security" : [ ],
         "summary" : "Consultar disponibilidade no intervalo local do Hub",
+        "tags" : [ "space-availability-controller" ]
+      }
+    },
+    "/api/v1/spaces/{id}/availability/day" : {
+      "get" : {
+        "operationId" : "getSpaceDayAgenda",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SpaceDayAgenda"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ ],
+        "summary" : "Consultar a agenda pública de um dia",
         "tags" : [ "space-availability-controller" ]
       }
     },
@@ -1662,6 +1901,107 @@
           }
         },
         "required" : [ "permissions" ]
+      },
+      "AdminReservationAction" : {
+        "type" : "string",
+        "enum" : [ "CONFIRM", "REJECT", "CANCEL" ]
+      },
+      "AdminReservationDecisionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "$ref" : "#/components/schemas/AdminReservationAction"
+          },
+          "expectedStatus" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 1000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "action", "expectedStatus" ]
+      },
+      "AdminReservationEntry" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "emailDeliveryStatus" : {
+            "$ref" : "#/components/schemas/ReservationEmailDeliveryStatus"
+          },
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "fullName" : {
+            "type" : "string"
+          },
+          "lateCancellation" : {
+            "type" : "boolean"
+          },
+          "notes" : {
+            "type" : "string"
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/Profile"
+          },
+          "protocol" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "reason" : {
+            "type" : "string"
+          },
+          "spaceName" : {
+            "type" : "string"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "stationNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/ReservationStatus"
+          },
+          "whatsapp" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "endsAt", "fullName", "lateCancellation", "notes", "profile", "protocol", "reason", "spaceName", "startsAt", "status", "whatsapp" ]
+      },
+      "AdminReservationPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminReservationEntry"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
       },
       "AdminStatusRequest" : {
         "type" : "object",
@@ -2040,12 +2380,41 @@
         },
         "required" : [ "cpf", "email", "fullName", "notes", "onBehalfOfOthers", "profile", "reason", "whatsapp" ]
       },
+      "ReservationCancellationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "confirmLateCancellation" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "confirmLateCancellation" ]
+      },
+      "ReservationEmailDeliveryStatus" : {
+        "type" : "string",
+        "enum" : [ "QUEUED", "ACCEPTED", "FAILED" ]
+      },
       "ReservationReceipt" : {
         "type" : "object",
         "properties" : {
+          "cancellable" : {
+            "type" : "boolean"
+          },
+          "cancelledAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "decisionNote" : {
+            "type" : "string"
+          },
           "endsAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "lateCancellation" : {
+            "type" : "boolean"
+          },
+          "lateCancellationWarning" : {
+            "type" : "boolean"
           },
           "protocol" : {
             "type" : "string",
@@ -2063,10 +2432,10 @@
             "format" : "int32"
           },
           "status" : {
-            "type" : "string"
+            "$ref" : "#/components/schemas/ReservationStatus"
           }
         },
-        "required" : [ "endsAt", "protocol", "spaceName", "startsAt", "status" ]
+        "required" : [ "cancellable", "endsAt", "lateCancellation", "lateCancellationWarning", "protocol", "spaceName", "startsAt", "status" ]
       },
       "ReservationRequest" : {
         "type" : "object",
@@ -2097,6 +2466,10 @@
           }
         },
         "required" : [ "endsAt", "requester", "rulesAccepted", "spaceId", "startsAt" ]
+      },
+      "ReservationStatus" : {
+        "type" : "string",
+        "enum" : [ "PENDING", "CONFIRMED", "REJECTED", "CANCELLED" ]
       },
       "ReservationSubmission" : {
         "type" : "object",
@@ -2254,6 +2627,10 @@
           "reason" : {
             "type" : "string"
           },
+          "seriesId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
           "spaceId" : {
             "type" : "string",
             "format" : "uuid"
@@ -2308,6 +2685,12 @@
             "maxLength" : 500,
             "minLength" : 0
           },
+          "repeatUntil" : {
+            "type" : "string",
+            "description" : "Última data inclusiva para inícios de uma série semanal.",
+            "example" : "2027-04-28",
+            "pattern" : "(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}"
+          },
           "spaceId" : {
             "type" : "string",
             "format" : "uuid"
@@ -2321,6 +2704,38 @@
           }
         },
         "required" : [ "endsAt", "reason", "spaceId", "startsAt" ]
+      },
+      "SpaceDayAgenda" : {
+        "type" : "object",
+        "properties" : {
+          "closed" : {
+            "type" : "boolean"
+          },
+          "periods" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceDayPeriod"
+            }
+          }
+        },
+        "required" : [ "closed", "periods" ]
+      },
+      "SpaceDayPeriod" : {
+        "type" : "object",
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "end" : {
+            "type" : "string",
+            "example" : "10:45"
+          },
+          "start" : {
+            "type" : "string",
+            "example" : "09:30"
+          }
+        },
+        "required" : [ "available", "end", "start" ]
       },
       "SpacePage" : {
         "type" : "object",

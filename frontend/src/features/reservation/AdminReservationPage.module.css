@@ -1,0 +1,52 @@
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  align-items: start;
+  gap: 12px;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.clear {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: var(--font-label);
+  cursor: pointer;
+  padding: 8px;
+}
+
+.item {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+
+.item h2,
+.item p {
+  margin: 0;
+}
+
+.item h2 {
+  font: var(--font-field);
+  font-weight: 600;
+}
+
+.item summary {
+  width: fit-content;
+  cursor: pointer;
+}
+
+.details dd {
+  margin: 0 0 4px;
+}

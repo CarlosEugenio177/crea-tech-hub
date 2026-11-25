@@ -100,6 +100,26 @@ class StationLayoutApiTests {
       roomBlock.put("spaceId", room.getId());
       var created = client.json("POST", endpoint, roomBlock, csrf);
       assertThat(created.statusCode()).isEqualTo(201);
+      var agenda = visitor.get(base + "/day?date=2099-03-10");
+      assertThat(agenda.statusCode()).isEqualTo(200);
+      assertThat(agenda.body()).doesNotContain("Motivo interno", "createdBy");
+      assertThat(json.readTree(agenda.body()).path("periods"))
+          .isEqualTo(
+              json.readTree(
+                  """
+          [
+            {"start":"08:00","end":"09:30","available":true},
+            {"start":"09:30","end":"10:00","available":false},
+            {"start":"10:00","end":"18:00","available":true}
+          ]
+          """));
+      assertThat(json.readTree(visitor.get(base + "/day?date=2099-03-14").body()))
+          .isEqualTo(
+              json.readTree(
+                  """
+              {"closed":true,"periods":[]}
+              """));
+      assertThat(visitor.get(base + "/day?date=2099-02-31").statusCode()).isEqualTo(400);
       var blocked = json.readTree(visitor.get(base + interval).body());
       assertThat(blocked.path("status").asString()).isEqualTo("UNAVAILABLE");
       assertThat(blocked.path("stations").get(1).path("available").asBoolean()).isFalse();

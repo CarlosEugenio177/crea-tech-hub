@@ -25,6 +25,9 @@ public class SpaceBlock {
   @Column(name = "space_id", nullable = false, updatable = false)
   private UUID spaceId;
 
+  @Column(name = "series_id", updatable = false)
+  private UUID seriesId;
+
   @Column(name = "starts_at", nullable = false, updatable = false)
   private LocalDateTime startsAt;
 
@@ -50,7 +53,12 @@ public class SpaceBlock {
   protected SpaceBlock() {}
 
   static SpaceBlock create(
-      UUID spaceId, LocalDateTime start, LocalDateTime end, String reason, UUID actor) {
+      UUID spaceId,
+      LocalDateTime start,
+      LocalDateTime end,
+      String reason,
+      UUID actor,
+      UUID seriesId) {
     if (spaceId == null
         || actor == null
         || start == null
@@ -68,6 +76,7 @@ public class SpaceBlock {
     }
     var block = new SpaceBlock();
     block.spaceId = spaceId;
+    block.seriesId = seriesId;
     block.startsAt = start;
     block.endsAt = end;
     block.reason = reason.strip();
@@ -88,6 +97,10 @@ public class SpaceBlock {
 
   public UUID getSpaceId() {
     return spaceId;
+  }
+
+  public UUID getSeriesId() {
+    return seriesId;
   }
 
   public LocalDateTime getStartsAt() {

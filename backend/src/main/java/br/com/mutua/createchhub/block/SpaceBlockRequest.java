@@ -26,7 +26,12 @@ public record SpaceBlockRequest(
             description = "Fim exclusivo, em data e hora locais do Hub no Piauí.",
             example = "2027-03-10T12:30")
         String endsAt,
-    @NotBlank(message = "Informe o motivo do bloqueio.") @Size(max = 500) String reason) {
+    @NotBlank(message = "Informe o motivo do bloqueio.") @Size(max = 500) String reason,
+    @Pattern(regexp = "(?!0000)[0-9]{4}-[0-9]{2}-[0-9]{2}")
+        @Schema(
+            description = "Última data inclusiva para inícios de uma série semanal.",
+            example = "2027-04-28")
+        String repeatUntil) {
 
   public static final String TIMESTAMP_PATTERN =
       "^(?!0000)[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]$";
