@@ -34,6 +34,12 @@ Hub e intervalos que atravessem dias. Não há duração máxima ou exigência d
 futura nesta etapa. Bloqueios sobrepostos podem coexistir: cada um mantém seu motivo
 e responsável. Cancelar um não cancela os demais.
 
+Se o horário coincidir com uma reserva pendente ou confirmada, a criação é
+interrompida com 409 e o painel orienta a conferir a fila de reservas ou ajustar o
+intervalo. O bloqueio de uma sala verifica também as reservas de suas estações.
+Bloquear uma estação não afeta as outras. Reservas recusadas ou canceladas e
+horários adjacentes não impedem o bloqueio.
+
 Para cancelar, envie `POST /api/v1/admin/space-blocks/{id}/cancel`, sem corpo.
 A resposta 200 mantém o registro original e acrescenta `cancelledBy` e `cancelledAt`.
 Repetir a operação retorna o mesmo cancelamento, preservando o primeiro responsável
@@ -83,8 +89,9 @@ O PostgreSQL protege o intervalo crescente, a precisão de minutos, o motivo e a
 identificação de quem cancelou. O cancelamento bloqueia a linha durante a transação.
 Datas de criação e cancelamento são instantes UTC; início e fim são horários locais.
 
-O contrato OpenAPI e os tipos gerados incluem estas operações. A tela administrativa,
-os bloqueios recorrentes e a consulta pública de disponibilidade serão entregues
-depois. A aplicação desses bloqueios no envio de reservas e o aviso sobre reservas
-já existentes dependem da implementação das reservas. Esta API não cria reservas,
-não altera o funcionamento do Hub e não atribui disponibilidade aos itens do mapa.
+A tela administrativa usa o contrato OpenAPI para criar, listar e cancelar bloqueios.
+A disponibilidade pública e o envio de reservas consideram os bloqueios ativos.
+A criação de bloqueios e o envio de reservas compartilham a trava transacional do
+espaço afetado. Assim, uma reserva e um bloqueio incompatíveis não podem ser
+gravados ao mesmo tempo. Recorrência e edição de bloqueios existentes ficam para
+as próximas entregas.

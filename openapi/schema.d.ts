@@ -1358,6 +1358,7 @@ export interface operations {
                     "application/json": components["schemas"]["SpaceBlock"];
                 };
             };
+            409: components["responses"]["Problem"];
             default: components["responses"]["Problem"];
         };
     };

@@ -44,6 +44,20 @@ public class ReservationRepository {
             Boolean.class));
   }
 
+  public boolean hasConflictForBlock(UUID spaceId, LocalDateTime start, LocalDateTime end) {
+    return Boolean.TRUE.equals(
+        jdbc.queryForObject(
+            """
+        SELECT EXISTS (SELECT 1 FROM reservations
+          WHERE status IN ('PENDING', 'CONFIRMED') AND starts_at < :end AND ends_at > :start
+            AND (space_id = :spaceId OR room_id = :spaceId OR space_id IN (
+              SELECT id FROM spaces WHERE room_id = :spaceId
+            )))
+        """,
+            Map.of("spaceId", spaceId, "start", start, "end", end),
+            Boolean.class));
+  }
+
   void persistPending(
       ReservationReceipt receipt,
       UUID spaceId,

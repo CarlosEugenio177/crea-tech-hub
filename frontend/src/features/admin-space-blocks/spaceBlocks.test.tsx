@@ -1,7 +1,13 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, expect, test, vi } from 'vitest'
-import { CSRF_HEADER, CSRF_TOKEN, fakeApi, json } from '../../test/fakeApi.ts'
+import {
+  CSRF_HEADER,
+  CSRF_TOKEN,
+  fakeApi,
+  json,
+  problem,
+} from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
 
 const SESSION = 'GET /api/v1/admin/auth/me'
@@ -95,8 +101,11 @@ test('lists blocks and cancels an active block with CSRF', async () => {
   expect(cancelReq.headers.get(CSRF_HEADER)).toBe(CSRF_TOKEN)
 })
 
-test('creates a space block with masked Brazilian dates and times', async () => {
+test('shows the reservation conflict and lets the operator adjust the block', async () => {
   const user = userEvent.setup()
+  const message =
+    'Já existe uma reserva pendente ou confirmada nesse horário. Confira a fila de reservas ou ajuste o intervalo.'
+  let attempts = 0
   const api = fakeApi({
     [SESSION]: manager,
     [SPACES]: spacesPage,
@@ -108,7 +117,8 @@ test('creates a space block with masked Brazilian dates and times', async () => 
         totalElements: 1,
         totalPages: 1,
       }),
-    [CREATE]: () => json(activeBlock, 201),
+    [CREATE]: () =>
+      ++attempts === 1 ? problem(409, message) : json(activeBlock, 201),
   })
 
   renderApp('/admin/bloqueios/novo')
@@ -121,10 +131,20 @@ test('creates a space block with masked Brazilian dates and times', async () => 
   await user.type(screen.getByLabelText('Motivo'), '  Manutenção  ')
   await user.click(screen.getByRole('button', { name: 'Bloquear horário' }))
 
+  expect(await screen.findByRole('alert')).toHaveTextContent(message)
+  expect(screen.getByLabelText('Motivo')).toHaveValue('  Manutenção  ')
+  expect(screen.getByLabelText('Data de início')).toHaveValue('10/03/2027')
+  const start = screen.getByLabelText('Hora de início')
+  await user.clear(start)
+  await user.type(start, '1015')
+  await user.click(screen.getByRole('button', { name: 'Bloquear horário' }))
+
   expect(
     await screen.findByRole('heading', { name: 'Bloqueios de horário' }),
   ).toBeInTheDocument()
-  const [createReq] = api.sent(CREATE)
+  expect(api.sent(CREATE)).toHaveLength(2)
+  const [createReq, adjustedReq] = api.sent(CREATE)
+  expect(JSON.parse(adjustedReq.body).startsAt).toBe('2027-03-10T10:15')
   expect(createReq.headers.get(CSRF_HEADER)).toBe(CSRF_TOKEN)
   expect(JSON.parse(createReq.body)).toEqual({
     spaceId: SPACE_ID,
