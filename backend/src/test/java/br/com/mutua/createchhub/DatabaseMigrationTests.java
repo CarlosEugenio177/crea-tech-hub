@@ -25,9 +25,69 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("10");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("11");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(10);
+    assertThat(flyway.info().applied()).hasSize(11);
+  }
+
+  @Test
+  void addsReservationCancellationPreservingExistingRowsAndEnforcingConstraints() {
+    migrations("cancellation_upgrade", "10").migrate();
+    var room = UUID.randomUUID();
+    var pending = UUID.randomUUID();
+    var cancelled = UUID.randomUUID();
+    jdbc.update(
+        "INSERT INTO cancellation_upgrade.spaces (id, name, type, capacity) VALUES (?, 'Sala', 'ROOM', 4)",
+        room);
+    jdbc.update(
+        """
+        INSERT INTO cancellation_upgrade.reservations (
+          id, tracking_hash, space_id, space_name, starts_at, ends_at,
+          cpf, full_name, email, whatsapp, profile, on_behalf_of_others,
+          reason, notes, status, rules_accepted_at
+        ) VALUES
+          (?, 'hash-pending', ?, 'Sala', '2099-03-10 09:00:00', '2099-03-10 10:00:00',
+           '52998224725', 'Visitante', 'v@example.com', '86912345678', 'MUTUALIST', false, '', '', 'PENDING', '2026-11-25T12:00:00Z'),
+          (?, 'hash-cancelled', ?, 'Sala', '2099-03-10 11:00:00', '2099-03-10 12:00:00',
+           '52998224725', 'Visitante', 'v@example.com', '86912345678', 'MUTUALIST', false, '', '', 'CANCELLED', '2026-11-25T12:00:00Z')
+        """,
+        pending,
+        room,
+        cancelled,
+        room);
+
+    migrations("cancellation_upgrade", "latest").migrate();
+
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT cancelled_at FROM cancellation_upgrade.reservations WHERE id = ?",
+                java.time.OffsetDateTime.class,
+                pending))
+        .isNull();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT late_cancellation FROM cancellation_upgrade.reservations WHERE id = ?",
+                Boolean.class,
+                pending))
+        .isFalse();
+    assertThat(
+            jdbc.queryForObject(
+                "SELECT cancelled_at FROM cancellation_upgrade.reservations WHERE id = ?",
+                java.time.OffsetDateTime.class,
+                cancelled))
+        .isNotNull();
+    assertThatThrownBy(
+            () ->
+                jdbc.update(
+                    "UPDATE cancellation_upgrade.reservations SET status = 'CANCELLED' WHERE id = ?",
+                    pending))
+        .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+    assertThatThrownBy(
+            () ->
+                jdbc.update(
+                    "UPDATE cancellation_upgrade.reservations SET late_cancellation = true WHERE id = ?",
+                    pending))
+        .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
   }
 
   @Test

@@ -37,6 +37,15 @@ do perfil descrito em [Acesso administrativo](15-autenticacao.md).
 
 ## Evolução
 
+V11 acrescenta `cancelled_at` e `late_cancellation` à tabela `reservations`,
+preservando os registros existentes e garantindo por restrições no PostgreSQL
+que reservas canceladas tenham instante registrado e que apenas reservas
+canceladas possam ser marcadas como tardias.
+
+V10 cria `reservations` para solicitações públicas, armazenando apenas o hash
+SHA-256 do token de acompanhamento e índices parciais para reservas pendentes
+ou confirmadas.
+
 V8 acrescenta modalidade de reserva e versão aos espaços, preservando as estações
 existentes e configurando seus ambientes para reserva por estação. Consulte
 [Montagem de salas](22-montagem-de-salas.md).

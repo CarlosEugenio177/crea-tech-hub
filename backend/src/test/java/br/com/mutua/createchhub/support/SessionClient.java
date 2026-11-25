@@ -46,6 +46,12 @@ public final class SessionClient implements AutoCloseable {
 
   public HttpResponse<String> json(String method, String path, Object body, JsonNode csrf)
       throws Exception {
+    return json(method, path, body, csrf, Map.of());
+  }
+
+  public HttpResponse<String> json(
+      String method, String path, Object body, JsonNode csrf, Map<String, String> headers)
+      throws Exception {
     var request =
         request(path)
             .header("Content-Type", "application/json")
@@ -53,6 +59,7 @@ public final class SessionClient implements AutoCloseable {
                 method,
                 HttpRequest.BodyPublishers.ofString(
                     JsonMapper.builder().build().writeValueAsString(body)));
+    headers.forEach(request::header);
     if (csrf != null) {
       request.header(csrf.path("headerName").asString(), csrf.path("token").asString());
     }

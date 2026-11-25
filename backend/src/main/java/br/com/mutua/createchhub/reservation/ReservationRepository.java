@@ -81,23 +81,61 @@ public class ReservationRepository {
         params);
   }
 
-  Optional<ReservationReceipt> findReceipt(String hash) {
+  Optional<StoredReservation> findByTrackingHash(String hash) {
+    return queryByHash(hash, false);
+  }
+
+  Optional<StoredReservation> findByTrackingHashForUpdate(String hash) {
+    return queryByHash(hash, true);
+  }
+
+  void markCancelled(UUID id, Instant cancelledAt, boolean lateCancellation) {
+    jdbc.update(
+        """
+        UPDATE reservations
+        SET status = 'CANCELLED', cancelled_at = :cancelledAt, late_cancellation = :lateCancellation
+        WHERE id = :id
+        """,
+        new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("cancelledAt", OffsetDateTime.ofInstant(cancelledAt, ZoneOffset.UTC))
+            .addValue("lateCancellation", lateCancellation));
+  }
+
+  private Optional<StoredReservation> queryByHash(String hash, boolean forUpdate) {
+    var sql =
+        """
+        SELECT id, space_name, station_number, starts_at, ends_at, status, cancelled_at, late_cancellation
+        FROM reservations WHERE tracking_hash = :hash
+        """
+            + (forUpdate ? " FOR UPDATE" : "");
     return jdbc
         .query(
-            """
-        SELECT id, space_name, station_number, starts_at, ends_at, status
-        FROM reservations WHERE tracking_hash = :hash
-        """,
+            sql,
             Map.of("hash", hash),
-            (row, index) ->
-                new ReservationReceipt(
-                    row.getObject("id", UUID.class),
-                    row.getString("space_name"),
-                    row.getObject("station_number", Integer.class),
-                    row.getObject("starts_at", LocalDateTime.class),
-                    row.getObject("ends_at", LocalDateTime.class),
-                    row.getString("status")))
+            (row, index) -> {
+              var cancelled = row.getObject("cancelled_at", OffsetDateTime.class);
+              return new StoredReservation(
+                  row.getObject("id", UUID.class),
+                  row.getString("space_name"),
+                  row.getObject("station_number", Integer.class),
+                  row.getObject("starts_at", LocalDateTime.class),
+                  row.getObject("ends_at", LocalDateTime.class),
+                  ReservationStatus.valueOf(row.getString("status")),
+                  cancelled == null ? null : cancelled.toInstant(),
+                  row.getBoolean("late_cancellation"));
+            })
         .stream()
         .findFirst();
   }
+
+  record StoredReservation(
+      UUID id,
+      String spaceName,
+      Integer stationNumber,
+      LocalDateTime startsAt,
+      LocalDateTime endsAt,
+      ReservationStatus status,
+      Instant cancelledAt,
+      boolean lateCancellation) {}
 }
