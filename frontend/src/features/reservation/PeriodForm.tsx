@@ -66,8 +66,12 @@ export function PeriodForm({
   const agenda = useDayAgenda(spaceId, showAgenda ? date : undefined)
   const data = agenda.isError ? undefined : agenda.data
   const windows = useMemo(() => bookingWindows(data), [data])
-  const starts = useMemo(() => startTimes(windows), [windows])
-  const ends = endTimes(windows, start.value)
+  const duration = data?.bookingDuration
+  const starts = useMemo(
+    () => startTimes(windows, duration),
+    [windows, duration],
+  )
+  const ends = endTimes(windows, start.value, duration)
 
   function clearPeriod() {
     setValue('start', '')
@@ -99,7 +103,10 @@ export function PeriodForm({
           options: starts,
           onChange: (value) => {
             start.onChange(value)
-            if (end.value && !endTimes(windows, value).includes(end.value)) {
+            if (
+              end.value &&
+              !endTimes(windows, value, duration).includes(end.value)
+            ) {
               setValue('end', '')
             }
           },

@@ -1,6 +1,7 @@
 package br.com.mutua.createchhub.space;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +23,12 @@ public record SpaceRequest(
         String description,
     @Size(max = 2048)
         @Schema(description = "URL HTTPS pública da foto. No PUT, valor vazio remove a foto.")
-        String photoUrl) {
+        String photoUrl,
+    @Valid
+        @Schema(
+            description =
+                "Limites opcionais de duração. No PUT, omitir preserva os limites e {} remove ambos.")
+        BookingDuration bookingDuration) {
 
   @AssertTrue(message = "Informe um link HTTPS válido para a foto.")
   @Schema(hidden = true)

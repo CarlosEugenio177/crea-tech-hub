@@ -38,7 +38,10 @@ public class SpaceRecommendationService {
     if (!availability.isHubOpen(interval)) {
       return SpaceRecommendationResponse.closed();
     }
-    var candidates = spaces.findRecommendationCandidates(participants);
+    var candidates =
+        spaces.findRecommendationCandidates(participants).stream()
+            .filter(space -> space.bookingDuration().accepts(interval.minutes()))
+            .toList();
     if (candidates.isEmpty()) {
       return SpaceRecommendationResponse.unavailable();
     }

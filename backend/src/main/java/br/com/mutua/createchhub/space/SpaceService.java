@@ -39,6 +39,7 @@ public class SpaceService {
     var space =
         new Space(request.name(), request.type(), request.capacity(), request.description());
     space.changePhoto(request.photoUrl());
+    space.changeBookingDuration(request.bookingDuration());
     return SpaceResponse.from(spaces.saveAndFlush(space));
   }
 
@@ -51,6 +52,7 @@ public class SpaceService {
     }
     space.update(request.name(), request.type(), request.capacity(), request.description());
     space.changePhoto(request.photoUrl());
+    space.changeBookingDuration(request.bookingDuration());
     spaces.flush();
     return SpaceResponse.from(space);
   }

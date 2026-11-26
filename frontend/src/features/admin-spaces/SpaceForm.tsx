@@ -10,6 +10,16 @@ import { TextField } from '../../shared/ui/TextField.tsx'
 import { SPACE_TYPE_LABELS } from './spaceLabels.ts'
 import type { Space, SpaceRequest } from './spacesApi.ts'
 
+const durationMinutes = z
+  .string()
+  .refine(
+    (value) =>
+      value === '' ||
+      (/^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 1439),
+    'Informe uma duração inteira entre 1 e 1439 minutos.',
+  )
+  .transform((value) => (value === '' ? undefined : Number(value)))
+
 const schema = z
   .object({
     name: z
@@ -29,6 +39,8 @@ const schema = z
       .string()
       .trim()
       .max(2000, 'A descrição deve ter até 2000 caracteres.'),
+    minDuration: durationMinutes,
+    maxDuration: durationMinutes,
     photoUrl: z
       .string()
       .trim()
@@ -48,6 +60,17 @@ const schema = z
     message: 'Uma estação individual deve ter capacidade para uma pessoa.',
   })
 
+  .refine(
+    ({ minDuration, maxDuration }) =>
+      minDuration === undefined ||
+      maxDuration === undefined ||
+      minDuration <= maxDuration,
+    {
+      path: ['maxDuration'],
+      message: 'A duração máxima deve ser maior ou igual à mínima.',
+    },
+  )
+
 type SpaceFormProps = {
   space?: Space
   submitLabel: string
@@ -63,23 +86,42 @@ export function SpaceForm({
   isPending,
   onSubmit,
 }: SpaceFormProps) {
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, formState } = useForm<
+    z.input<typeof schema>,
+    unknown,
+    z.output<typeof schema>
+  >({
     resolver: zodResolver(schema),
-    defaultValues: space && {
-      name: space.name,
-      type: space.type,
-      capacity: space.capacity,
-      description: space.description ?? '',
-      photoUrl: space.photoUrl ?? '',
+    defaultValues: {
+      minDuration: space?.bookingDuration?.minMinutes?.toString() ?? '',
+      maxDuration: space?.bookingDuration?.maxMinutes?.toString() ?? '',
+      ...(space && {
+        name: space.name,
+        type: space.type,
+        capacity: space.capacity,
+        description: space.description ?? '',
+        photoUrl: space.photoUrl ?? '',
+      }),
     },
   })
 
-  const submit = handleSubmit(({ photoUrl, ...values }) =>
-    onSubmit({
-      ...values,
-      description: values.description || null,
-      ...(photoUrl || space?.photoUrl ? { photoUrl } : {}),
-    }),
+  const linkedStation = Boolean(space?.stationPlacement)
+  const submit = handleSubmit(
+    ({ photoUrl, minDuration, maxDuration, ...values }) =>
+      onSubmit({
+        ...values,
+        description: values.description || null,
+        ...(photoUrl || space?.photoUrl ? { photoUrl } : {}),
+        ...(!linkedStation &&
+        (space?.bookingDuration || minDuration || maxDuration)
+          ? {
+              bookingDuration: {
+                minMinutes: minDuration,
+                maxMinutes: maxDuration,
+              },
+            }
+          : {}),
+      }),
   )
 
   return (
@@ -113,6 +155,32 @@ export function SpaceForm({
         error={formState.errors.capacity?.message}
         {...register('capacity', { valueAsNumber: true })}
       />
+      {!linkedStation && (
+        <>
+          <TextField
+            label="Duração mínima (minutos)"
+            type="number"
+            min={1}
+            max={1439}
+            step={1}
+            inputMode="numeric"
+            placeholder="Sem mínimo"
+            error={formState.errors.minDuration?.message}
+            {...register('minDuration')}
+          />
+          <TextField
+            label="Duração máxima (minutos)"
+            type="number"
+            min={1}
+            max={1439}
+            step={1}
+            inputMode="numeric"
+            placeholder="Sem máximo"
+            error={formState.errors.maxDuration?.message}
+            {...register('maxDuration')}
+          />
+        </>
+      )}
       <TextField
         label="Link da foto (opcional)"
         type="url"

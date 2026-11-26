@@ -4,10 +4,16 @@ import type {
   FreeWindow,
 } from './availabilityApi.ts'
 
+type BookingDuration = DayAvailability['bookingDuration']
+
 const minutesOfDay = Array.from({ length: 24 * 60 }, (_, minute) => {
   const hour = String(Math.floor(minute / 60)).padStart(2, '0')
   return `${hour}:${String(minute % 60).padStart(2, '0')}`
 })
+
+function toMinutes(time: string) {
+  return Number(time.slice(0, 2)) * 60 + Number(time.slice(3))
+}
 
 export function bookingWindows(agenda?: DayAvailability) {
   if (!agenda || agenda.closed) return []
@@ -16,13 +22,25 @@ export function bookingWindows(agenda?: DayAvailability) {
     : agenda.freeWindows
 }
 
-export function startTimes(windows: readonly FreeWindow[]) {
-  return minutesOfDay.filter((time) =>
-    windows.some((window) => window.start <= time && time < window.end),
+export function startTimes(
+  windows: readonly FreeWindow[],
+  duration?: BookingDuration,
+) {
+  const minimum = duration?.minMinutes ?? 1
+  const ranges = windows.map(({ start, end }) => ({
+    first: toMinutes(start),
+    last: toMinutes(end) - minimum,
+  }))
+  return minutesOfDay.filter((_, minute) =>
+    ranges.some(({ first, last }) => minute >= first && minute <= last),
   )
 }
 
-export function endTimes(windows: readonly FreeWindow[], start: string) {
+export function endTimes(
+  windows: readonly FreeWindow[],
+  start: string,
+  duration?: BookingDuration,
+) {
   if (!start) return []
   const latest = windows.reduce(
     (end, window) =>
@@ -31,7 +49,27 @@ export function endTimes(windows: readonly FreeWindow[], start: string) {
         : end,
     '',
   )
-  return minutesOfDay.filter((time) => start < time && time <= latest)
+  if (!latest) return []
+  const startMinute = toMinutes(start)
+  const minimum = duration?.minMinutes ?? 1
+  const maximum = duration?.maxMinutes ?? minutesOfDay.length - 1
+  const endMinute = Math.min(toMinutes(latest), startMinute + maximum)
+  return minutesOfDay.slice(startMinute + minimum, endMinute + 1)
+}
+
+export function suggestPeriod(window: FreeWindow, duration?: BookingDuration) {
+  const [end] = endTimes([window], window.start, duration).slice(-1)
+  return end ? { start: window.start, end } : undefined
+}
+
+export function durationLabel(duration?: BookingDuration) {
+  const { minMinutes, maxMinutes } = duration ?? {}
+  if (minMinutes && maxMinutes)
+    return minMinutes === maxMinutes
+      ? `Duração de ${minMinutes} min por reserva.`
+      : `Duração de ${minMinutes} a ${maxMinutes} min por reserva.`
+  if (minMinutes) return `Duração mínima de ${minMinutes} min por reserva.`
+  if (maxMinutes) return `Duração máxima de ${maxMinutes} min por reserva.`
 }
 
 export function stationsForPeriod(

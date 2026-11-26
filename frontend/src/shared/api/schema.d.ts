@@ -786,6 +786,20 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        BookingDuration: {
+            /**
+             * Format: int32
+             * @description Duração máxima em minutos. Ausência representa nenhum máximo configurado.
+             * @example 60
+             */
+            maxMinutes?: number;
+            /**
+             * Format: int32
+             * @description Duração mínima em minutos. Ausência representa nenhum mínimo configurado.
+             * @example 30
+             */
+            minMinutes?: number;
+        };
         /** @enum {string} */
         BookingMode: "WHOLE_SPACE" | "PER_STATION";
         BookingModeRequest: {
@@ -939,6 +953,7 @@ export interface components {
         };
         Space: {
             active: boolean;
+            bookingDuration?: components["schemas"]["BookingDuration"];
             bookingMode: components["schemas"]["BookingMode"];
             /** Format: int32 */
             capacity: number;
@@ -1011,6 +1026,7 @@ export interface components {
             startsAt: string;
         };
         SpaceDayAgenda: {
+            bookingDuration?: components["schemas"]["BookingDuration"];
             bookingMode: components["schemas"]["BookingMode"];
             closed: boolean;
             freeWindows: components["schemas"]["SpaceFreeWindow"][];
@@ -1059,6 +1075,8 @@ export interface components {
             status: components["schemas"]["Status"];
         };
         SpaceRequest: {
+            /** @description Limites opcionais de duração. No PUT, omitir preserva os limites e {} remove ambos. */
+            bookingDuration?: components["schemas"]["BookingDuration"];
             /**
              * Format: int32
              * @description Inteiro positivo; estações individuais exigem capacidade 1.
@@ -2177,6 +2195,7 @@ export interface operations {
                     "application/json": components["schemas"]["SpaceAvailability"];
                 };
             };
+            409: components["responses"]["Problem"];
             default: components["responses"]["Problem"];
         };
     };

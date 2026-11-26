@@ -153,6 +153,34 @@ class SpaceApiTests {
     }
   }
 
+  @Test
+  void validatesSavesAndClearsBookingDuration() throws Exception {
+    try (var client = admin()) {
+      var csrf = client.csrf();
+      var body = new HashMap<String, Object>(Map.of("name", "Sala", "type", "ROOM", "capacity", 4));
+      body.put("bookingDuration", Map.of("minMinutes", 60, "maxMinutes", 30));
+      assertThat(client.json("POST", PATH, body, csrf).statusCode()).isEqualTo(400);
+      body.put("bookingDuration", Map.of("minMinutes", 0));
+      assertThat(client.json("POST", PATH, body, csrf).statusCode()).isEqualTo(400);
+
+      body.put("bookingDuration", Map.of("minMinutes", 30, "maxMinutes", 60));
+      var created = client.json("POST", PATH, body, csrf);
+      assertThat(created.statusCode()).isEqualTo(201);
+      var item = json.readTree(created.body());
+      var itemPath = PATH + "/" + item.path("id").asString();
+      assertThat(item.path("bookingDuration").path("minMinutes").asInt()).isEqualTo(30);
+      assertThat(item.path("bookingDuration").path("maxMinutes").asInt()).isEqualTo(60);
+
+      body.remove("bookingDuration");
+      assertThat(client.json("PUT", itemPath, body, csrf).statusCode()).isEqualTo(200);
+      assertThat(json.readTree(client.get(itemPath).body()).path("bookingDuration"))
+          .isEqualTo(item.path("bookingDuration"));
+      body.put("bookingDuration", Map.of());
+      assertThat(client.json("PUT", itemPath, body, csrf).statusCode()).isEqualTo(200);
+      assertThat(json.readTree(client.get(itemPath).body()).has("bookingDuration")).isFalse();
+    }
+  }
+
   @ParameterizedTest
   @CsvSource({"WORKSTATION,1", "SHARED_TABLE,6"})
   void createsEachKindOfReservableUnit(String type, int capacity) throws Exception {

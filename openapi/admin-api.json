@@ -1660,6 +1660,9 @@
             },
             "description" : "OK"
           },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
           "default" : {
             "$ref" : "#/components/responses/Problem"
           }
@@ -2084,6 +2087,27 @@
           }
         },
         "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
+      },
+      "BookingDuration" : {
+        "type" : "object",
+        "properties" : {
+          "maxMinutes" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Duração máxima em minutos. Ausência representa nenhum máximo configurado.",
+            "example" : 60,
+            "exclusiveMinimum" : 0,
+            "maximum" : 1439
+          },
+          "minMinutes" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Duração mínima em minutos. Ausência representa nenhum mínimo configurado.",
+            "example" : 30,
+            "exclusiveMinimum" : 0,
+            "maximum" : 1439
+          }
+        }
       },
       "BookingMode" : {
         "type" : "string",
@@ -2553,6 +2577,9 @@
           "active" : {
             "type" : "boolean"
           },
+          "bookingDuration" : {
+            "$ref" : "#/components/schemas/BookingDuration"
+          },
           "bookingMode" : {
             "$ref" : "#/components/schemas/BookingMode"
           },
@@ -2722,6 +2749,9 @@
       "SpaceDayAgenda" : {
         "type" : "object",
         "properties" : {
+          "bookingDuration" : {
+            "$ref" : "#/components/schemas/BookingDuration"
+          },
           "bookingMode" : {
             "$ref" : "#/components/schemas/BookingMode"
           },
@@ -2860,6 +2890,10 @@
       "SpaceRequest" : {
         "type" : "object",
         "properties" : {
+          "bookingDuration" : {
+            "$ref" : "#/components/schemas/BookingDuration",
+            "description" : "Limites opcionais de duração. No PUT, omitir preserva os limites e {} remove ambos."
+          },
           "capacity" : {
             "type" : "integer",
             "format" : "int32",

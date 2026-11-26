@@ -9,7 +9,10 @@ final class SpaceDayTimeline {
   private SpaceDayTimeline() {}
 
   static List<Window> freeWindows(
-      LocalDateTime start, LocalDateTime end, List<SpaceBusyIntervals.Interval> busy) {
+      LocalDateTime start,
+      LocalDateTime end,
+      List<SpaceBusyIntervals.Interval> busy,
+      int minimumMinutes) {
     var free = new ArrayList<Window>();
     if (!start.isBefore(end)) return free;
 
@@ -18,12 +21,12 @@ final class SpaceDayTimeline {
     var cursor = start;
     for (var interval : ordered) {
       if (!interval.endsAt().isAfter(cursor)) continue;
-      if (interval.startsAt().isAfter(cursor)) {
+      if (!interval.startsAt().isBefore(cursor.plusMinutes(minimumMinutes))) {
         free.add(new Window(cursor, interval.startsAt()));
       }
       cursor = interval.endsAt();
     }
-    if (cursor.isBefore(end)) free.add(new Window(cursor, end));
+    if (!end.isBefore(cursor.plusMinutes(minimumMinutes))) free.add(new Window(cursor, end));
     return free;
   }
 

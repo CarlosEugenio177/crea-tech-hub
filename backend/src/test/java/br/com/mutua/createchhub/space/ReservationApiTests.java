@@ -112,6 +112,45 @@ class ReservationApiTests {
   }
 
   @Test
+  void validatesDurationInAgendaExactAvailabilityAndSubmissionForLinkedStations() throws Exception {
+    var room = spaces.saveAndFlush(new Space("Coworking", SpaceType.ROOM, 2, null));
+    spaceService.update(
+        room.getId(),
+        new SpaceRequest("Coworking", SpaceType.ROOM, 2, null, null, new BookingDuration(30, 60)));
+    spaceService.changeBookingMode(room.getId(), BookingMode.PER_STATION);
+    var seat = layout.generate(room.getId(), new StationBatchRequest(1, 1)).getFirst();
+
+    try (var visitor = new SessionClient(port)) {
+      var csrf = visitor.csrf();
+      var day =
+          json.readTree(
+              visitor
+                  .get("/api/v1/spaces/" + room.getId() + "/availability/day?date=2099-03-10")
+                  .body());
+      assertThat(day.path("bookingDuration"))
+          .isEqualTo(json.readTree("{\"minMinutes\":30,\"maxMinutes\":60}"));
+      var exact =
+          visitor.get(
+              "/api/v1/spaces/"
+                  + seat.id()
+                  + "/availability?startsAt=2099-03-10T09:10&endsAt=2099-03-10T09:39");
+      assertThat(exact.statusCode()).isEqualTo(409);
+
+      var body = request(room, seat);
+      body.put("startsAt", "2099-03-10T09:10");
+      body.put("endsAt", "2099-03-10T09:39");
+      assertThat(visitor.json("POST", PATH, body, csrf).statusCode()).isEqualTo(409);
+      body.put("endsAt", "2099-03-10T10:11");
+      assertThat(visitor.json("POST", PATH, body, csrf).statusCode()).isEqualTo(409);
+      body.put("endsAt", "2099-03-10T09:40");
+      assertThat(visitor.json("POST", PATH, body, csrf).statusCode()).isEqualTo(201);
+      body.put("startsAt", "2099-03-10T10:10");
+      body.put("endsAt", "2099-03-10T11:10");
+      assertThat(visitor.json("POST", PATH, body, csrf).statusCode()).isEqualTo(201);
+    }
+  }
+
+  @Test
   void publicDayAgendaDoesNotJoinFreePeriodsOnDifferentStations() throws Exception {
     var room = spaces.saveAndFlush(new Space("Coworking", SpaceType.ROOM, 2, null));
     spaceService.changeBookingMode(room.getId(), BookingMode.PER_STATION);

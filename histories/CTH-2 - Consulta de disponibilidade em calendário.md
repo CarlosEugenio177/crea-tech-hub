@@ -32,7 +32,8 @@ A agenda diária mostra períodos livres e indisponíveis no horário local do H
 O visitante pode trocar de dia pelo calendário ou informar a data no campo.
 A consulta do dia entrega as janelas livres da sala ou de cada estação.
 O visitante toca em um intervalo livre ou ajusta início e fim por minuto
-entre as opções disponíveis. Em salas por estação, o mapa habilita as
+entre as opções disponíveis, dentro dos limites de duração configurados.
+Em salas por estação, o mapa habilita as
 estações livres durante todo o período escolhido usando a mesma consulta.
 O backend confere conflitos novamente no envio do pedido. A agenda só
 expõe horários e dados públicos das estações.

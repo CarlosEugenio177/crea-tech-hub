@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.space;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
@@ -10,7 +11,8 @@ public record SpaceDayAgenda(
     List<Period> periods,
     BookingMode bookingMode,
     List<FreeWindow> freeWindows,
-    List<DayStation> stations) {
+    List<DayStation> stations,
+    @JsonInclude(JsonInclude.Include.NON_NULL) BookingDuration bookingDuration) {
   public SpaceDayAgenda {
     periods = List.copyOf(periods);
     freeWindows = List.copyOf(freeWindows);

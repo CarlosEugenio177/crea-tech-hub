@@ -486,6 +486,58 @@ test('offers only valid end times after the chosen start', async () => {
     within(timeControls('Fim').hour).queryByRole('option', { name: '09' }),
   ).not.toBeInTheDocument()
 })
+test('only offers end times within the space duration limits', async () => {
+  const user = userEvent.setup()
+  fakeApi({
+    [CATALOG]: catalog,
+    [DAY_AGENDA]: () =>
+      json({
+        closed: false,
+        bookingMode: 'WHOLE_SPACE',
+        bookingDuration: { minMinutes: 30, maxMinutes: 60 },
+        periods: [{ start: '08:00', end: '18:00', available: true }],
+        freeWindows: [{ start: '08:00', end: '18:00' }],
+        stations: [],
+      }),
+  })
+  renderApp('/reservar')
+  await user.click(
+    await screen.findByRole('button', {
+      name: 'Ver horários de Sala de podcast',
+    }),
+  )
+  expect(
+    await screen.findByText('Duração de 30 a 60 min por reserva.'),
+  ).toBeVisible()
+  await user.click(
+    screen.getByRole('button', {
+      name: 'Escolher a partir de 08:00 no intervalo até 18:00',
+    }),
+  )
+  expect(timeControls('Fim').hour).toHaveValue('09')
+  expect(timeControls('Fim').minute).toHaveValue('00')
+
+  await selectTime(user, 'Início', '09:10')
+  const end = timeControls('Fim')
+  await user.selectOptions(end.hour, '09')
+  expect(end.minute).toHaveValue('40')
+  expect(
+    within(end.minute).queryByRole('option', { name: '39' }),
+  ).not.toBeInTheDocument()
+  await user.selectOptions(end.hour, '10')
+  expect(
+    within(end.minute).getByRole('option', { name: '10' }),
+  ).toBeInTheDocument()
+  expect(
+    within(end.minute).queryByRole('option', { name: '11' }),
+  ).not.toBeInTheDocument()
+
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
+  expect(
+    await screen.findByRole('heading', { name: 'Seus dados' }),
+  ).toBeVisible()
+})
+
 test('formats dates and accepts exact minutes using the time selectors', async () => {
   const user = userEvent.setup()
   renderApp('/reservar')

@@ -57,6 +57,12 @@ public class Space {
   @Column(name = "photo_url", length = 2048)
   private String photoUrl;
 
+  @Column(name = "min_booking_minutes")
+  private Integer minBookingMinutes;
+
+  @Column(name = "max_booking_minutes")
+  private Integer maxBookingMinutes;
+
   @Column(name = "room_id")
   private UUID roomId;
 
@@ -116,6 +122,20 @@ public class Space {
 
   void changePhoto(String url) {
     if (url != null) photoUrl = url.isBlank() ? null : url.strip();
+  }
+
+  BookingDuration bookingDuration() {
+    return new BookingDuration(minBookingMinutes, maxBookingMinutes);
+  }
+
+  void changeBookingDuration(BookingDuration duration) {
+    if (duration == null) return;
+    if (roomId != null && duration.hasLimits()) {
+      throw new ResourceConflictException(
+          "Configure a duração na sala à qual a estação está vinculada.");
+    }
+    minBookingMinutes = duration.minMinutes();
+    maxBookingMinutes = duration.maxMinutes();
   }
 
   void changeStatus(boolean active) {
