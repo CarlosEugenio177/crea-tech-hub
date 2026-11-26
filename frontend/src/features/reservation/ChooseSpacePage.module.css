@@ -1,15 +1,40 @@
+.catalog {
+  display: grid;
+  gap: clamp(18px, 3vw, 28px);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 16px;
+}
+
+.header h1 {
+  font: var(--font-public-title);
+  letter-spacing: -0.045em;
+}
+
 .searchLink {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   color: var(--color-primary);
-  font: var(--font-button);
+  font: var(--font-label);
+  text-decoration-thickness: 1px;
   text-underline-offset: 4px;
 }
 
 .options {
-  width: 100%;
-  padding: 0;
-  border-top: 1px solid var(--color-border);
+  display: grid;
+  gap: 16px;
+  min-width: 0;
   list-style: none;
+}
+
+@media (min-width: 760px) {
+  .options:has(> :nth-child(2)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

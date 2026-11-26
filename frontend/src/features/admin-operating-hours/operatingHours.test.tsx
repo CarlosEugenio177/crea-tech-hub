@@ -154,7 +154,9 @@ test('shows the public Hub operating hours when choosing reservation time', asyn
   renderApp('/reservar')
 
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Sala de podcast',
+    }),
   )
 
   expect(

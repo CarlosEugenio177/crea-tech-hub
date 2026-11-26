@@ -9,7 +9,6 @@ import { usePublicSpaces } from './publicSpacesApi.ts'
 import { useReservationDraft } from './reservationDraft.ts'
 import { RESERVE_RECOMMENDATION, RESERVE_TIME } from './reservationRoutes.ts'
 import { SpaceOptionCard } from './SpaceOptionCard.tsx'
-import { StepPage } from './StepPage.tsx'
 
 export function ChooseSpacePage() {
   const navigate = useNavigate()
@@ -18,10 +17,13 @@ export function ChooseSpacePage() {
   const options = spaces.data
 
   return (
-    <StepPage step={1} title="Escolha um espaço">
-      <Link to={RESERVE_RECOMMENDATION} className={styles.searchLink}>
-        Buscar por número de pessoas
-      </Link>
+    <section className={styles.catalog}>
+      <header className={styles.header}>
+        <h1>Escolha um espaço</h1>
+        <Link to={RESERVE_RECOMMENDATION} className={styles.searchLink}>
+          Buscar por número de pessoas
+        </Link>
+      </header>
       {!options ? (
         <QueryStatus error={spaces.error} />
       ) : options.length === 0 ? (
@@ -55,6 +57,6 @@ export function ChooseSpacePage() {
           Carregar mais espaços
         </Button>
       )}
-    </StepPage>
+    </section>
   )
 }

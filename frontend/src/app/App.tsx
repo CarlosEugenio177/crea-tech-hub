@@ -57,7 +57,6 @@ import { ReviewPage } from '../features/reservation/ReviewPage.tsx'
 import { TrackingPage } from '../features/reservation/TrackingPage.tsx'
 import { AdminArea } from './AdminArea.tsx'
 import { AdminHomePage } from './AdminHomePage.tsx'
-import { HomePage } from './HomePage.tsx'
 import { NotFoundPage } from './NotFoundPage.tsx'
 import { PublicLayout } from './PublicLayout.tsx'
 
@@ -65,16 +64,18 @@ export function App() {
   return (
     <Routes>
       <Route element={<PublicLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path={RESERVE} element={<ReservationFlow />}>
+        <Route element={<ReservationFlow />}>
           <Route index element={<ChooseSpacePage />} />
-          <Route
-            path={RESERVE_RECOMMENDATION}
-            element={<RecommendationPage />}
-          />
-          <Route path={RESERVE_TIME} element={<ChooseTimePage />} />
-          <Route path={RESERVE_REQUESTER} element={<RequesterPage />} />
-          <Route path={RESERVE_REVIEW} element={<ReviewPage />} />
+          <Route path={RESERVE}>
+            <Route index element={<ChooseSpacePage />} />
+            <Route
+              path={RESERVE_RECOMMENDATION}
+              element={<RecommendationPage />}
+            />
+            <Route path={RESERVE_TIME} element={<ChooseTimePage />} />
+            <Route path={RESERVE_REQUESTER} element={<RequesterPage />} />
+            <Route path={RESERVE_REVIEW} element={<ReviewPage />} />
+          </Route>
         </Route>
         <Route path={TRACKING} element={<TrackingPage />} />
         <Route path={ADMIN_LOGIN} element={<LoginPage />} />

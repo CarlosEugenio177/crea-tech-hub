@@ -1,25 +1,44 @@
+@font-face {
+  font-family: Onest;
+  src: url('/fonts/onest-latin.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+
 .site {
+  --font-family: Onest, system-ui, sans-serif;
+  --font-body: 400 1rem / 1.5 var(--font-family);
+  --font-button: 650 0.9375rem / 1.2 var(--font-family);
+  --font-label: 600 0.8125rem / 1.4 var(--font-family);
+  --font-field: 450 1rem / 1.5 var(--font-family);
+  --font-small: 450 0.8125rem / 1.5 var(--font-family);
+  --font-public-title: 750 clamp(1.8rem, 4vw, 2.625rem) / 1.12
+    var(--font-family);
+  --font-public-section: 700 clamp(1.125rem, 2.5vw, 1.5rem) / 1.2
+    var(--font-family);
   --color-primary: var(--color-public-accent);
   --color-primary-hover: var(--color-public-accent-hover);
-  --color-background: var(--color-public-paper);
-  --color-inverse: var(--color-public-ink);
+  --color-background: var(--color-public-canvas);
   --color-text: var(--color-public-ink);
   --color-text-muted: var(--color-public-muted);
   --color-border: var(--color-public-line);
   --color-border-field: var(--color-public-field);
-  --radius-button: var(--radius-public);
-  --radius-button-large: var(--radius-public);
-  --radius-field: var(--radius-public);
+  --color-info-background: var(--color-public-tint);
+  --radius-button: var(--radius-public-control);
+  --radius-button-large: var(--radius-public-control);
+  --radius-field: var(--radius-public-control);
 
   display: flex;
   flex: 1;
   flex-direction: column;
   background: var(--color-background);
   color: var(--color-text);
+  font: var(--font-body);
 }
 
 .header {
-  background: var(--color-inverse);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .bar,
@@ -42,15 +61,25 @@
 .bar,
 .footer {
   justify-content: space-between;
-  gap: 6px 16px;
+  gap: 6px 12px;
 }
 
 .bar {
-  padding-block: 12px;
+  padding-block: 10px;
+}
+
+.bar > a {
+  align-self: center;
+  padding: 6px 10px;
+  background: var(--color-public-ink);
+}
+
+.bar img {
+  height: 27px;
 }
 
 .nav {
-  gap: clamp(12px, 3vw, 30px);
+  gap: clamp(4px, 2vw, 14px);
 }
 
 .item,
@@ -58,36 +87,35 @@
   display: flex;
   align-items: center;
   min-height: 44px;
-  color: var(--color-menu);
+  padding-inline: 8px;
+  color: var(--color-text-muted);
   text-decoration: none;
-  font: var(--font-menu);
+  font: var(--font-label);
 }
 
 .item:hover,
 .activeItem {
-  color: var(--color-on-inverse);
-  text-decoration: underline;
-  text-underline-offset: 6px;
+  color: var(--color-primary);
 }
 
-.nav a:focus-visible,
-.bar > a:focus-visible {
-  outline-color: var(--color-on-inverse);
+.activeItem {
+  border-radius: var(--radius-public-control);
+  background: var(--color-info-background);
 }
 
 .main {
   flex: 1;
-  padding-block: clamp(24px, 5vw, 52px) clamp(48px, 8vw, 96px);
+  padding-block: clamp(18px, 4vw, 42px) clamp(36px, 7vw, 72px);
 }
 
 .footer {
-  padding-block: 20px;
+  padding-block: 16px;
   border-top: 1px solid var(--color-border);
   font: var(--font-small);
   color: var(--color-text-muted);
 }
 
 .footerLink {
-  color: var(--color-primary);
+  color: inherit;
   text-underline-offset: 3px;
 }

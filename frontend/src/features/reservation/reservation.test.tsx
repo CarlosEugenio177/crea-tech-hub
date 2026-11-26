@@ -67,8 +67,11 @@ beforeEach(() => {
 
 async function chooseSpaceAndPeriod(user: ReturnType<typeof userEvent.setup>) {
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Sala de podcast',
+    }),
   )
+  await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   await selectTime(user, 'Início', '09:15')
   await selectTime(user, 'Fim', '10:45')
@@ -93,8 +96,11 @@ test('lets the visitor choose an available period from the day agenda and adjust
   })
   renderApp('/reservar')
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Sala de podcast',
+    }),
   )
+  await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   expect(await screen.findByText('Indisponível')).toBeVisible()
   expect(
@@ -102,6 +108,10 @@ test('lets the visitor choose an available period from the day agenda and adjust
   ).not.toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: 'Dia seguinte' }))
   expect(screen.getByLabelText('Data')).toHaveValue('11/03/2099')
+  const day = screen.getByRole('button', { name: /12 de março de 2099/ })
+  await user.click(day)
+  expect(day).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByLabelText('Data')).toHaveValue('12/03/2099')
   await user.click(
     await screen.findByRole('button', {
       name: 'Usar horário das 09:15 às 10:45',
@@ -124,8 +134,8 @@ test('lets the visitor choose an available period from the day agenda and adjust
       new URLSearchParams(api.sent(AVAILABILITY).at(-1)?.search),
     ),
   ).toEqual({
-    startsAt: '2099-03-11T09:15',
-    endsAt: '2099-03-11T10:22',
+    startsAt: '2099-03-12T09:15',
+    endsAt: '2099-03-12T10:22',
   })
 })
 
@@ -151,7 +161,6 @@ test('keeps the requester after a conflict and opens the receipt after retrying'
   })
   renderApp('/')
 
-  await user.click(screen.getByRole('link', { name: 'Solicitar um espaço' }))
   await chooseSpaceAndPeriod(user)
   await user.selectOptions(
     screen.getByLabelText('Perfil'),
@@ -458,8 +467,11 @@ test('rejects a period that ends before it starts', async () => {
   renderApp('/reservar')
 
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Estação individual' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Estação individual',
+    }),
   )
+  await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   await selectTime(user, 'Início', '10:00')
   await selectTime(user, 'Fim', '09:00')
@@ -475,8 +487,11 @@ test('formats dates and accepts exact minutes using the time selectors', async (
   renderApp('/reservar')
 
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Estação individual' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Estação individual',
+    }),
   )
+  await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '10032099')
   await selectTime(user, 'Início', '09:15')
   await selectTime(user, 'Fim', '10:45')
@@ -493,8 +508,11 @@ test('rejects a date that does not exist in the calendar', async () => {
   renderApp('/reservar')
 
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Estação individual' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Estação individual',
+    }),
   )
+  await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '31/02/2099')
   await selectTime(user, 'Início', '10:00')
   await selectTime(user, 'Fim', '11:00')
@@ -530,8 +548,11 @@ test('shows blocked stations and can choose a free station automatically', async
   })
   renderApp('/reservar')
   await user.click(
-    await screen.findByRole('button', { name: 'Escolher Sala de podcast' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Sala de podcast',
+    }),
   )
+  await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   await selectTime(user, 'Início', '09:15')
   await selectTime(user, 'Fim', '10:45')
@@ -619,16 +640,18 @@ test('loads the next catalog page without losing the spaces already shown', asyn
   const user = userEvent.setup()
   renderApp('/reservar')
   expect(
-    await screen.findByRole('button', { name: 'Escolher Sala inicial' }),
+    await screen.findByRole('button', { name: 'Ver horários de Sala inicial' }),
   ).toBeInTheDocument()
   await user.click(
     screen.getByRole('button', { name: 'Carregar mais espaços' }),
   )
   expect(
-    await screen.findByRole('button', { name: 'Escolher Sala seguinte' }),
+    await screen.findByRole('button', {
+      name: 'Ver horários de Sala seguinte',
+    }),
   ).toBeInTheDocument()
   expect(
-    screen.getByRole('button', { name: 'Escolher Sala inicial' }),
+    screen.getByRole('button', { name: 'Ver horários de Sala inicial' }),
   ).toBeInTheDocument()
   expect(
     screen.queryByRole('button', { name: 'Carregar mais espaços' }),

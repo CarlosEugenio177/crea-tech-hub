@@ -23,6 +23,7 @@ export function PeriodFields({
 }: PeriodFieldsProps) {
   return (
     <>
+      {children}
       <TextField
         label="Data"
         inputMode="numeric"
@@ -36,7 +37,6 @@ export function PeriodFields({
         <TimeField label="Início" error={errors.start?.message} {...start} />
         <TimeField label="Fim" error={errors.end?.message} {...end} />
       </div>
-      {children}
     </>
   )
 }

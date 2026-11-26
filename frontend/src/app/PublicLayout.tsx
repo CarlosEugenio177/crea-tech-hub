@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet, useMatch } from 'react-router'
 import { ADMIN_LOGIN } from '../features/admin-auth/adminRoutes.ts'
 import { RESERVE, TRACKING } from '../features/reservation/reservationRoutes.ts'
 import { Brand } from '../shared/ui/Brand.tsx'
@@ -13,6 +13,8 @@ const MENU = [
 ]
 
 export function PublicLayout({ children }: PublicLayoutProps) {
+  const isHome = useMatch('/') !== null
+
   return (
     <div className={styles.site}>
       <header className={styles.header}>
@@ -24,7 +26,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  isActive ? styles.activeItem : styles.item
+                  isActive || (isHome && item.to === RESERVE)
+                    ? styles.activeItem
+                    : styles.item
                 }
               >
                 {item.label}

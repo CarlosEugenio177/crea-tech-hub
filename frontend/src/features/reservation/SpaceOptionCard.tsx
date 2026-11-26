@@ -32,7 +32,9 @@ export function SpaceOptionCard({ space, onChoose }: SpaceOptionCardProps) {
         {space.description && (
           <p className={styles.description}>{space.description}</p>
         )}
-        <Button onClick={onChoose}>Escolher {space.name}</Button>
+        <Button onClick={onChoose} aria-label={`Ver horários de ${space.name}`}>
+          Ver horários
+        </Button>
       </div>
     </li>
   )

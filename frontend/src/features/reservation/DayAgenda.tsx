@@ -1,12 +1,13 @@
 import { useId } from 'react'
-import { Button } from '../../shared/ui/Button.tsx'
+import { CalendarStrip } from './CalendarStrip.tsx'
 import { useDayAgenda } from './availabilityApi.ts'
 import styles from './DayAgenda.module.css'
-import { formatDate, shiftDate, today } from './reservationDates.ts'
 import type { ReservationPeriod } from './reservationDraft.ts'
 
 type DayAgendaProps = {
   spaceId: string
+  start: string
+  end: string
   date: string
   onDateChange: (date: string) => void
   onChoose: (period: ReservationPeriod) => void
@@ -14,6 +15,8 @@ type DayAgendaProps = {
 
 export function DayAgenda({
   spaceId,
+  start: chosenStart,
+  end: chosenEnd,
   date,
   onDateChange,
   onChoose,
@@ -23,25 +26,8 @@ export function DayAgenda({
 
   return (
     <section className={styles.agenda} aria-labelledby={id}>
-      <div className={styles.header}>
-        <h2 id={id}>{formatDate(date)}</h2>
-        <div className={styles.navigation}>
-          <Button
-            variant="secondary"
-            disabled={date <= today()}
-            onClick={() => onDateChange(shiftDate(date, -1))}
-          >
-            Dia anterior
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={date === '9999-12-31'}
-            onClick={() => onDateChange(shiftDate(date, 1))}
-          >
-            Dia seguinte
-          </Button>
-        </div>
-      </div>
+      <CalendarStrip date={date} onDateChange={onDateChange} />
+      <h2 id={id}>Disponibilidade do dia</h2>
       {agenda.isError ? (
         <p role="status">Agenda indisponível. Use os seletores de horário.</p>
       ) : !agenda.data ? (
@@ -51,12 +37,13 @@ export function DayAgenda({
       ) : (
         <ul className={styles.periods} aria-label="Horários do dia">
           {agenda.data.periods.map(({ start, end, available }) => (
-            <li key={start} className={styles.period}>
+            <li key={start}>
               {available ? (
                 <button
                   type="button"
                   className={styles.free}
                   aria-label={`Usar horário das ${start} às ${end}`}
+                  aria-pressed={start === chosenStart && end === chosenEnd}
                   disabled={agenda.isFetching}
                   onClick={() => onChoose({ date, start, end })}
                 >

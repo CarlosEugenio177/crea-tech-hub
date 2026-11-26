@@ -4,6 +4,7 @@ import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { DayAgenda } from './DayAgenda.tsx'
 import { PeriodFields } from './PeriodFields.tsx'
+import styles from './PeriodForm.module.css'
 import { periodSchema } from './periodSchema.ts'
 import {
   BRAZILIAN_DATE,
@@ -40,7 +41,11 @@ export function PeriodForm({
     setFocus,
   } = useForm({
     resolver: zodResolver(periodSchema),
-    defaultValues: period && { ...period, date: toBrazilianDate(period.date) },
+    defaultValues: {
+      date: toBrazilianDate(period?.date ?? today()),
+      start: period?.start ?? '',
+      end: period?.end ?? '',
+    },
   })
 
   const { field: start } = useController({ control, name: 'start' })
@@ -73,6 +78,8 @@ export function PeriodForm({
           <DayAgenda
             spaceId={spaceId}
             date={date}
+            start={start.value}
+            end={end.value}
             onDateChange={changeDate}
             onChoose={(selected) => {
               changeDate(selected.date)
@@ -83,12 +90,14 @@ export function PeriodForm({
           />
         )}
       </PeriodFields>
-      <StepActions
-        backTo={back?.path ?? RESERVE}
-        backLabel={back?.label ?? 'Voltar aos espaços'}
-      >
-        <Button type="submit">Ver disponibilidade</Button>
-      </StepActions>
+      <div className={styles.actions}>
+        <StepActions
+          backTo={back?.path ?? RESERVE}
+          backLabel={back?.label ?? 'Voltar aos espaços'}
+        >
+          <Button type="submit">Ver disponibilidade</Button>
+        </StepActions>
+      </div>
     </FormCard>
   )
 }

@@ -6,6 +6,7 @@ type ButtonProps = {
   variant?: 'primary' | 'secondary'
   disabled?: boolean
   onClick?: () => void
+  'aria-label'?: string
   children: ReactNode
 }
 
@@ -14,6 +15,7 @@ export function Button({
   variant = 'primary',
   disabled,
   onClick,
+  'aria-label': ariaLabel,
   children,
 }: ButtonProps) {
   return (
@@ -22,6 +24,7 @@ export function Button({
       className={`${styles.button} ${styles[variant]}`}
       disabled={disabled}
       onClick={onClick}
+      aria-label={ariaLabel}
     >
       {children}
     </button>

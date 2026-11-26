@@ -31,12 +31,6 @@ export function ChooseTimePage() {
   return (
     <StepPage step={2} title="Escolha o horário" description={draft.space.name}>
       <div className={styles.schedule}>
-        {hours.data && (
-          <section className={styles.hours}>
-            <h2>Funcionamento do Hub</h2>
-            <p>{formatOperatingHours(hours.data)}</p>
-          </section>
-        )}
         <div className={styles.booking}>
           <PeriodForm
             spaceId={draft.space.id}
@@ -64,6 +58,12 @@ export function ChooseTimePage() {
             />
           )}
         </div>
+        {hours.data && (
+          <section className={styles.hours}>
+            <h2>Funcionamento do Hub</h2>
+            <p>{formatOperatingHours(hours.data)}</p>
+          </section>
+        )}
       </div>
     </StepPage>
   )
