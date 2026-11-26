@@ -50,6 +50,9 @@
   --color-mutua-ink: #1b1b1a;
   --color-public-muted: #566171;
 
+  --motion-public-response: 140ms ease-out;
+  --motion-public-entry: 200ms ease-out;
+
   --radius-public-control: 10px;
   --radius-public-panel: 20px;
 

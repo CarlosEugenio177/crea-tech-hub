@@ -73,3 +73,16 @@
 .busy {
   color: var(--color-text-muted);
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .free {
+    transition:
+      background-color var(--motion-public-response),
+      border-color var(--motion-public-response),
+      scale var(--motion-public-response);
+  }
+
+  .free:active:not(:disabled) {
+    scale: 0.99;
+  }
+}

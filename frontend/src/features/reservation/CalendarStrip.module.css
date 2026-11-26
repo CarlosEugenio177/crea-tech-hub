@@ -97,3 +97,19 @@
   color: var(--color-on-inverse);
   background: var(--color-primary);
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .navigation button,
+  .days button {
+    transition:
+      background-color var(--motion-public-response),
+      border-color var(--motion-public-response),
+      color var(--motion-public-response),
+      scale var(--motion-public-response);
+  }
+
+  .navigation button:active:not(:disabled),
+  .days button:active:not(:disabled) {
+    scale: 0.96;
+  }
+}
