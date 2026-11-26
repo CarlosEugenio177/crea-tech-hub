@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../../shared/api/client.ts'
 import type { components } from '../../shared/api/schema'
+import { dayAgendaKey } from './availabilityApi.ts'
 import { cpfDigits } from './cpf.ts'
 import type { Requester } from './requesterSchema.ts'
 import type { ReservationPeriod } from './reservationDraft.ts'
@@ -21,8 +22,17 @@ export function usePublicOperatingHours() {
 }
 
 export function useSubmitReservation(onSubmitted: (token: string) => void) {
+  const queryClient = useQueryClient()
+  const refreshAgenda = () =>
+    queryClient.invalidateQueries({ queryKey: dayAgendaKey })
   const mutation = api.useMutation('post', '/api/v1/reservations', {
-    onSuccess: (data) => onSubmitted(data.trackingToken),
+    onSuccess: (data) => {
+      void refreshAgenda()
+      onSubmitted(data.trackingToken)
+    },
+    onError: (error) => {
+      if (error.status === 409) void refreshAgenda()
+    },
   })
   return {
     error: mutation.error,
@@ -75,7 +85,7 @@ export function useCancelReservation(
     onSuccess: async (data) => {
       queryClient.setQueryData(receiptKey, data)
       await queryClient.invalidateQueries({
-        queryKey: ['get', '/api/v1/spaces/{id}/availability'],
+        queryKey: dayAgendaKey,
       })
       onCancelled(data)
     },

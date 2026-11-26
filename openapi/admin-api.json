@@ -2722,17 +2722,32 @@
       "SpaceDayAgenda" : {
         "type" : "object",
         "properties" : {
+          "bookingMode" : {
+            "$ref" : "#/components/schemas/BookingMode"
+          },
           "closed" : {
             "type" : "boolean"
+          },
+          "freeWindows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceFreeWindow"
+            }
           },
           "periods" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/SpaceDayPeriod"
             }
+          },
+          "stations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceDayStation"
+            }
           }
         },
-        "required" : [ "closed", "periods" ]
+        "required" : [ "bookingMode", "closed", "freeWindows", "periods", "stations" ]
       },
       "SpaceDayPeriod" : {
         "type" : "object",
@@ -2750,6 +2765,48 @@
           }
         },
         "required" : [ "available", "end", "start" ]
+      },
+      "SpaceDayStation" : {
+        "type" : "object",
+        "properties" : {
+          "freeWindows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceFreeWindow"
+            }
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "y" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "freeWindows", "id", "number", "x", "y" ]
+      },
+      "SpaceFreeWindow" : {
+        "type" : "object",
+        "properties" : {
+          "end" : {
+            "type" : "string",
+            "example" : "10:45"
+          },
+          "start" : {
+            "type" : "string",
+            "example" : "09:30"
+          }
+        },
+        "required" : [ "end", "start" ]
       },
       "SpacePage" : {
         "type" : "object",

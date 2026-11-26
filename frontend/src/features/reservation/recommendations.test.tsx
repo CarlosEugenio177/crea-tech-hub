@@ -49,10 +49,12 @@ test('recommends a room and rechecks the same interval after choosing an alterna
         recommended: suggested,
         spaces: [suggested, alternative],
       }),
-    [availability]: () => json({ status: 'AVAILABLE', stations: [] }),
     [`${availability}/day`]: () =>
       json({
         closed: false,
+        bookingMode: 'WHOLE_SPACE',
+        freeWindows: [{ start: '08:00', end: '18:00' }],
+        stations: [],
         periods: [{ start: '08:00', end: '18:00', available: true }],
       }),
   })
@@ -76,18 +78,14 @@ test('recommends a room and rechecks the same interval after choosing an alterna
   await user.click(
     screen.getByRole('button', { name: 'Escolher Sala multiuso' }),
   )
-  await screen.findByRole('button', { name: 'Continuar' })
+  await screen.findByRole('button', { name: 'Usar horário das 08:00 às 18:00' })
   expect(screen.getByLabelText('Data')).toHaveValue('10/03/2099')
   expect(timeControls('Início').hour).toHaveValue('09')
   expect(timeControls('Início').minute).toHaveValue('15')
   expect(timeControls('Fim').hour).toHaveValue('10')
   expect(timeControls('Fim').minute).toHaveValue('45')
-  expect(
-    Object.fromEntries(new URLSearchParams(api.sent(availability)[0].search)),
-  ).toEqual({
-    startsAt: '2099-03-10T09:15',
-    endsAt: '2099-03-10T10:45',
-  })
+  expect(api.sent(`${availability}/day`)).toHaveLength(1)
+  expect(api.sent(availability)).toHaveLength(0)
 
   await user.click(screen.getByRole('link', { name: 'Voltar às sugestões' }))
   expect(await screen.findByText('Recomendado')).toBeVisible()

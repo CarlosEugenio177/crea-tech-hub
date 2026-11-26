@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, test } from 'vitest'
 import {
@@ -25,6 +25,16 @@ const AVAILABILITY =
   'GET /api/v1/spaces/3d7c6c7f-7c5e-4e31-b6c1-8d9f3c1fca02/availability'
 
 const DAY_AGENDA = `${AVAILABILITY}/day`
+const STATION_AGENDA =
+  'GET /api/v1/spaces/3d7c6c7f-7c5e-4e31-b6c1-8d9f3c1fca01/availability/day'
+const wholeRoomAgenda = () =>
+  json({
+    closed: false,
+    bookingMode: 'WHOLE_SPACE',
+    periods: [{ start: '08:00', end: '18:00', available: true }],
+    freeWindows: [{ start: '08:00', end: '18:00' }],
+    stations: [],
+  })
 
 const catalog = () =>
   json({
@@ -59,9 +69,10 @@ const catalog = () =>
 
 beforeEach(() => {
   fakeApi({
+    [STATION_AGENDA]: wholeRoomAgenda,
     [CATALOG]: catalog,
     [RULES]: rules,
-    [AVAILABILITY]: () => json({ status: 'AVAILABLE', stations: [] }),
+    [DAY_AGENDA]: wholeRoomAgenda,
   })
 })
 
@@ -75,7 +86,6 @@ async function chooseSpaceAndPeriod(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
   await selectTime(user, 'Início', '09:15')
   await selectTime(user, 'Fim', '10:45')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   await user.click(await screen.findByRole('button', { name: 'Continuar' }))
   await screen.findByRole('heading', { name: 'Seus dados' })
 }
@@ -87,12 +97,14 @@ test('lets the visitor choose an available period from the day agenda and adjust
     [DAY_AGENDA]: () =>
       json({
         closed: false,
+        bookingMode: 'WHOLE_SPACE',
+        freeWindows: [{ start: '09:15', end: '10:45' }],
+        stations: [],
         periods: [
           { start: '08:00', end: '09:15', available: false },
           { start: '09:15', end: '10:45', available: true },
         ],
       }),
-    [AVAILABILITY]: () => json({ status: 'AVAILABLE', stations: [] }),
   })
   renderApp('/reservar')
   await user.click(
@@ -125,18 +137,14 @@ test('lets the visitor choose an available period from the day agenda and adjust
 
   await user.selectOptions(timeControls('Fim').hour, '')
   await selectTime(user, 'Fim', '10:22')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
   expect(
-    await screen.findByRole('button', { name: 'Continuar' }),
-  ).toBeInTheDocument()
+    await screen.findByRole('heading', { name: 'Seus dados' }),
+  ).toBeVisible()
   expect(
-    Object.fromEntries(
-      new URLSearchParams(api.sent(AVAILABILITY).at(-1)?.search),
-    ),
-  ).toEqual({
-    startsAt: '2099-03-12T09:15',
-    endsAt: '2099-03-12T10:22',
-  })
+    api.sent(DAY_AGENDA).filter(({ search }) => search.includes('2099-03-12')),
+  ).toHaveLength(1)
+  expect(api.sent(AVAILABILITY)).toHaveLength(0)
 })
 
 test('keeps the requester after a conflict and opens the receipt after retrying', async () => {
@@ -155,7 +163,7 @@ test('keeps the requester after a conflict and opens the receipt after retrying'
   const api = fakeApi({
     [CATALOG]: catalog,
     [RULES]: rules,
-    [AVAILABILITY]: () => json({ status: 'AVAILABLE', stations: [] }),
+    [DAY_AGENDA]: wholeRoomAgenda,
     [SUBMIT]: () => problem(409, 'Esse horário não está mais livre.'),
     [RECEIPT]: () => json(receipt),
   })
@@ -189,9 +197,7 @@ test('keeps the requester after a conflict and opens the receipt after retrying'
       name: 'Escolher outro horário ou estação',
     }),
   )
-  await user.selectOptions(timeControls('Início').hour, '')
   await selectTime(user, 'Início', '09:30')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
   await user.click(await screen.findByRole('button', { name: 'Continuar' }))
   expect(await screen.findByLabelText('CPF')).toHaveValue('529.982.247-25')
   expect(screen.getByLabelText('Nome completo')).toHaveValue('Marina Silva')
@@ -462,26 +468,24 @@ test('requires the reason from the external public and the acceptance of the rul
   ).toBeInTheDocument()
 })
 
-test('rejects a period that ends before it starts', async () => {
+test('offers only valid end times after the chosen start', async () => {
   const user = userEvent.setup()
   renderApp('/reservar')
-
   await user.click(
     await screen.findByRole('button', {
       name: 'Ver horários de Estação individual',
     }),
   )
-  await user.clear(screen.getByLabelText('Data'))
-  await user.type(screen.getByLabelText('Data'), '10/03/2099')
-  await selectTime(user, 'Início', '10:00')
-  await selectTime(user, 'Fim', '09:00')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
-
+  await screen.findByRole('button', { name: 'Usar horário das 08:00 às 18:00' })
+  expect(timeControls('Fim').hour).toBeDisabled()
+  await selectTime(user, 'Início', '10:58')
+  await user.selectOptions(timeControls('Fim').hour, '10')
+  expect(timeControls('Fim').minute).toHaveValue('59')
+  expect(timeControls('Fim').minute.querySelectorAll('option')).toHaveLength(1)
   expect(
-    await screen.findByText('O fim deve ser depois do início.'),
-  ).toBeInTheDocument()
+    within(timeControls('Fim').hour).queryByRole('option', { name: '09' }),
+  ).not.toBeInTheDocument()
 })
-
 test('formats dates and accepts exact minutes using the time selectors', async () => {
   const user = userEvent.setup()
   renderApp('/reservar')
@@ -514,9 +518,7 @@ test('rejects a date that does not exist in the calendar', async () => {
   )
   await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '31/02/2099')
-  await selectTime(user, 'Início', '10:00')
-  await selectTime(user, 'Fim', '11:00')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
 
   expect(
     await screen.findByText('Informe uma data válida.'),
@@ -537,12 +539,30 @@ test('shows blocked stations and can choose a free station automatically', async
   const user = userEvent.setup()
   const api = fakeApi({
     [CATALOG]: catalog,
-    [AVAILABILITY]: () =>
+    [DAY_AGENDA]: () =>
       json({
-        status: 'AVAILABLE',
+        closed: false,
+        bookingMode: 'PER_STATION',
+        periods: [
+          { start: '08:00', end: '10:00', available: true },
+          { start: '10:00', end: '18:00', available: true },
+        ],
+        freeWindows: [],
         stations: [
-          { id: 'a', number: 1, x: 20, y: 50, available: false },
-          { id: 'b', number: 2, x: 60, y: 50, available: true },
+          {
+            id: 'a',
+            number: 1,
+            x: 20,
+            y: 50,
+            freeWindows: [{ start: '08:00', end: '10:00' }],
+          },
+          {
+            id: 'b',
+            number: 2,
+            x: 60,
+            y: 50,
+            freeWindows: [{ start: '09:00', end: '18:00' }],
+          },
         ],
       }),
   })
@@ -554,16 +574,22 @@ test('shows blocked stations and can choose a free station automatically', async
   )
   await user.clear(screen.getByLabelText('Data'))
   await user.type(screen.getByLabelText('Data'), '10/03/2099')
+  await screen.findByRole('button', { name: 'Usar horário das 08:00 às 10:00' })
+  await selectTime(user, 'Início', '08:30')
+  expect(
+    within(timeControls('Fim').hour).queryByRole('option', { name: '11' }),
+  ).not.toBeInTheDocument()
   await selectTime(user, 'Início', '09:15')
   await selectTime(user, 'Fim', '10:45')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
   expect(
     await screen.findByRole('button', { name: 'Estação 1, indisponível' }),
   ).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Estação 2, livre' })).toBeEnabled()
   expect(
-    new URLSearchParams(api.sent(AVAILABILITY)[0].search).get('startsAt'),
-  ).toBe('2099-03-10T09:15')
+    api.sent(DAY_AGENDA).filter(({ search }) => search.includes('2099-03-10')),
+  ).toHaveLength(1)
+  expect(api.sent(AVAILABILITY)).toHaveLength(0)
   await user.selectOptions(timeControls('Fim').hour, '')
   expect(
     screen.queryByRole('button', {
@@ -571,7 +597,7 @@ test('shows blocked stations and can choose a free station automatically', async
     }),
   ).not.toBeInTheDocument()
   await selectTime(user, 'Fim', '10:45')
-  await user.click(screen.getByRole('button', { name: 'Ver disponibilidade' }))
+  await user.click(screen.getByRole('button', { name: 'Continuar' }))
   await user.click(
     await screen.findByRole('button', {
       name: 'Escolher uma estação livre pra mim',

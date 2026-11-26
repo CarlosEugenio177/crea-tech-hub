@@ -2,11 +2,19 @@ package br.com.mutua.createchhub.space;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import java.util.UUID;
 
-@Schema(requiredProperties = {"closed", "periods"})
-public record SpaceDayAgenda(boolean closed, List<Period> periods) {
+@Schema(requiredProperties = {"closed", "periods", "bookingMode", "freeWindows", "stations"})
+public record SpaceDayAgenda(
+    boolean closed,
+    List<Period> periods,
+    BookingMode bookingMode,
+    List<FreeWindow> freeWindows,
+    List<DayStation> stations) {
   public SpaceDayAgenda {
     periods = List.copyOf(periods);
+    freeWindows = List.copyOf(freeWindows);
+    stations = List.copyOf(stations);
   }
 
   @Schema(
@@ -16,4 +24,19 @@ public record SpaceDayAgenda(boolean closed, List<Period> periods) {
       @Schema(example = "09:30") String start,
       @Schema(example = "10:45") String end,
       boolean available) {}
+
+  @Schema(
+      name = "SpaceFreeWindow",
+      requiredProperties = {"start", "end"})
+  public record FreeWindow(
+      @Schema(example = "09:30") String start, @Schema(example = "10:45") String end) {}
+
+  @Schema(
+      name = "SpaceDayStation",
+      requiredProperties = {"id", "number", "x", "y", "freeWindows"})
+  public record DayStation(UUID id, int number, double x, double y, List<FreeWindow> freeWindows) {
+    public DayStation {
+      freeWindows = List.copyOf(freeWindows);
+    }
+  }
 }

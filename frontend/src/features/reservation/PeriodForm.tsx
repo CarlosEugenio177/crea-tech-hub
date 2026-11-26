@@ -1,8 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMemo } from 'react'
 import { useController, useForm, useWatch } from 'react-hook-form'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
+import { useDayAgenda, type AvailableStation } from './availabilityApi.ts'
 import { DayAgenda } from './DayAgenda.tsx'
+import {
+  bookingWindows,
+  endTimes,
+  startTimes,
+  stationsForPeriod,
+} from './periodAvailability.ts'
 import { PeriodFields } from './PeriodFields.tsx'
 import styles from './PeriodForm.module.css'
 import { periodSchema } from './periodSchema.ts'
@@ -20,7 +28,7 @@ import { StepActions } from './StepActions.tsx'
 type PeriodFormProps = {
   spaceId: string
   period?: ReservationPeriod
-  onSubmit: (period: ReservationPeriod) => void
+  onSubmit: (period: ReservationPeriod, stations: AvailableStation[]) => void
   onEdit: () => void
   back?: { path: string; label: string }
 }
@@ -39,6 +47,7 @@ export function PeriodForm({
     control,
     setValue,
     setFocus,
+    setError,
   } = useForm({
     resolver: zodResolver(periodSchema),
     defaultValues: {
@@ -51,40 +60,66 @@ export function PeriodForm({
   const { field: start } = useController({ control, name: 'start' })
   const { field: end } = useController({ control, name: 'end' })
   const typedDate = useWatch({ control, name: 'date' })
-  const date = typedDate ? toIsoDate(typedDate) : today()
+  const date = toIsoDate(typedDate)
   const showAgenda =
-    (!typedDate || BRAZILIAN_DATE.test(typedDate)) &&
-    isCalendarDate(date) &&
-    date >= today()
+    BRAZILIAN_DATE.test(typedDate) && isCalendarDate(date) && date >= today()
+  const agenda = useDayAgenda(spaceId, showAgenda ? date : undefined)
+  const data = agenda.isError ? undefined : agenda.data
+  const windows = useMemo(() => bookingWindows(data), [data])
+  const starts = useMemo(() => startTimes(windows), [windows])
+  const ends = endTimes(windows, start.value)
 
-  function changeDate(next: string) {
+  function clearPeriod() {
+    setValue('start', '')
+    setValue('end', '')
+  }
+
+  function selectDate(next: string) {
+    if (next === date) return
     setValue('date', toBrazilianDate(next), { shouldValidate: true })
+    clearPeriod()
     onEdit()
   }
 
+  function submit(next: ReservationPeriod) {
+    if (!data || next.date !== date) return
+    if (!starts.includes(next.start) || !ends.includes(next.end)) {
+      setError('end', { message: 'Escolha um período livre na agenda.' })
+      return
+    }
+    onSubmit(next, stationsForPeriod(data, next.start, next.end))
+  }
+
   return (
-    <FormCard
-      variant="plain"
-      onSubmit={handleSubmit(onSubmit)}
-      onChange={onEdit}
-    >
+    <FormCard variant="plain" onSubmit={handleSubmit(submit)} onChange={onEdit}>
       <PeriodFields
-        date={register('date')}
-        start={start}
-        end={end}
+        date={register('date', { onChange: clearPeriod })}
+        start={{
+          ...start,
+          options: starts,
+          onChange: (value) => {
+            start.onChange(value)
+            if (end.value && !endTimes(windows, value).includes(end.value)) {
+              setValue('end', '')
+            }
+          },
+        }}
+        end={{ ...end, options: ends }}
         errors={errors}
       >
         {showAgenda && (
           <DayAgenda
-            spaceId={spaceId}
+            data={data}
+            unavailable={agenda.isError}
             date={date}
             start={start.value}
             end={end.value}
-            onDateChange={changeDate}
+            onDateChange={selectDate}
+            onRetry={() => void agenda.refetch()}
             onChoose={(selected) => {
-              changeDate(selected.date)
               setValue('start', selected.start, { shouldValidate: true })
               setValue('end', selected.end, { shouldValidate: true })
+              onEdit()
               setFocus('start')
             }}
           />
@@ -95,7 +130,9 @@ export function PeriodForm({
           backTo={back?.path ?? RESERVE}
           backLabel={back?.label ?? 'Voltar aos espaços'}
         >
-          <Button type="submit">Ver disponibilidade</Button>
+          <Button type="submit" disabled={showAgenda && starts.length === 0}>
+            Continuar
+          </Button>
         </StepActions>
       </div>
     </FormCard>

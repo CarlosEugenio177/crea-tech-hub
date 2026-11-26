@@ -1,20 +1,24 @@
 import { useId } from 'react'
+import { Button } from '../../shared/ui/Button.tsx'
+import type { DayAvailability, FreeWindow } from './availabilityApi.ts'
 import { CalendarStrip } from './CalendarStrip.tsx'
-import { useDayAgenda } from './availabilityApi.ts'
 import styles from './DayAgenda.module.css'
-import type { ReservationPeriod } from './reservationDraft.ts'
 
 type DayAgendaProps = {
-  spaceId: string
+  data?: DayAvailability
+  unavailable: boolean
+  onRetry: () => void
   start: string
   end: string
   date: string
   onDateChange: (date: string) => void
-  onChoose: (period: ReservationPeriod) => void
+  onChoose: (window: FreeWindow) => void
 }
 
 export function DayAgenda({
-  spaceId,
+  data,
+  unavailable,
+  onRetry,
   start: chosenStart,
   end: chosenEnd,
   date,
@@ -22,21 +26,25 @@ export function DayAgenda({
   onChoose,
 }: DayAgendaProps) {
   const id = useId()
-  const agenda = useDayAgenda(spaceId, date)
 
   return (
     <section className={styles.agenda} aria-labelledby={id}>
       <CalendarStrip date={date} onDateChange={onDateChange} />
       <h2 id={id}>Disponibilidade do dia</h2>
-      {agenda.isError ? (
-        <p role="status">Agenda indisponível. Use os seletores de horário.</p>
-      ) : !agenda.data ? (
+      {unavailable ? (
+        <>
+          <p role="status">Não foi possível carregar a agenda.</p>
+          <Button variant="secondary" onClick={onRetry}>
+            Tentar novamente
+          </Button>
+        </>
+      ) : !data ? (
         <p role="status">Consultando horários…</p>
-      ) : agenda.data.closed ? (
+      ) : data.closed ? (
         <p role="status">O Hub está fechado neste dia.</p>
       ) : (
         <ul className={styles.periods} aria-label="Horários do dia">
-          {agenda.data.periods.map(({ start, end, available }) => (
+          {data.periods.map(({ start, end, available }) => (
             <li key={start}>
               {available ? (
                 <button
@@ -44,8 +52,7 @@ export function DayAgenda({
                   className={styles.free}
                   aria-label={`Usar horário das ${start} às ${end}`}
                   aria-pressed={start === chosenStart && end === chosenEnd}
-                  disabled={agenda.isFetching}
-                  onClick={() => onChoose({ date, start, end })}
+                  onClick={() => onChoose({ start, end })}
                 >
                   <span>
                     {start} às {end}

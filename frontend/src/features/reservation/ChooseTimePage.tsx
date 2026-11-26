@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
-import { AvailabilityOptions } from './AvailabilityOptions.tsx'
+import type { AvailableStation } from './availabilityApi.ts'
 import styles from './ChooseTimePage.module.css'
 import { formatOperatingHours } from './operatingHoursLabel.ts'
 import { PeriodForm } from './PeriodForm.tsx'
@@ -14,19 +14,24 @@ import {
   RESERVE_RECOMMENDATION,
   RESERVE_REQUESTER,
 } from './reservationRoutes.ts'
+import { StationOptions } from './StationOptions.tsx'
 import { StepPage } from './StepPage.tsx'
 
 export function ChooseTimePage() {
   const navigate = useNavigate()
   const { draft, update } = useReservationDraft()
   const hours = usePublicOperatingHours()
-  const selectedPeriod = draft.period ?? draft.recommendation?.period
-  const [period, setPeriod] = useState<ReservationPeriod | undefined>(
-    draft.recommendation ? selectedPeriod : undefined,
-  )
-  const [lookup, setLookup] = useState(0)
+  const [stationChoice, setStationChoice] = useState<{
+    period: ReservationPeriod
+    stations: AvailableStation[]
+  }>()
 
   if (!draft.space) return <Navigate to={RESERVE} replace />
+
+  function continueWith(period: ReservationPeriod, station?: AvailableStation) {
+    update({ period, station })
+    void navigate(RESERVE_REQUESTER)
+  }
 
   return (
     <StepPage step={2} title="Escolha o horário" description={draft.space.name}>
@@ -34,27 +39,24 @@ export function ChooseTimePage() {
         <div className={styles.booking}>
           <PeriodForm
             spaceId={draft.space.id}
-            period={selectedPeriod}
+            period={draft.period ?? draft.recommendation?.period}
             back={
               draft.recommendation
                 ? { path: RESERVE_RECOMMENDATION, label: 'Voltar às sugestões' }
                 : undefined
             }
-            onSubmit={(nextPeriod) => {
-              setPeriod(nextPeriod)
-              setLookup((current) => current + 1)
+            onSubmit={(period, stations) => {
+              if (stations.length) setStationChoice({ period, stations })
+              else continueWith(period)
             }}
-            onEdit={() => setPeriod(undefined)}
+            onEdit={() => setStationChoice(undefined)}
           />
-          {period && (
-            <AvailabilityOptions
-              key={lookup}
-              spaceId={draft.space.id}
-              period={period}
-              onChoose={(station) => {
-                update({ period, station })
-                void navigate(RESERVE_REQUESTER)
-              }}
+          {stationChoice && (
+            <StationOptions
+              stations={stationChoice.stations}
+              onChoose={(station) =>
+                continueWith(stationChoice.period, station)
+              }
             />
           )}
         </div>

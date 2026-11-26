@@ -132,7 +132,14 @@ class ReservationApiTests {
       var day = visitor.get(base + "/day?date=2099-03-10");
       assertThat(day.statusCode()).isEqualTo(200);
       assertThat(day.headers().firstValue("Cache-Control")).contains("no-store");
-      assertThat(json.readTree(day.body()).path("periods"))
+      var dayAgenda = json.readTree(day.body());
+      assertThat(dayAgenda.path("bookingMode").asString()).isEqualTo("PER_STATION");
+      var dayStations = dayAgenda.path("stations");
+      assertThat(dayStations.get(0).path("freeWindows"))
+          .isEqualTo(json.readTree("[{\"start\":\"10:15\",\"end\":\"18:00\"}]"));
+      assertThat(dayStations.get(1).path("freeWindows"))
+          .isEqualTo(json.readTree("[{\"start\":\"08:00\",\"end\":\"10:15\"}]"));
+      assertThat(dayAgenda.path("periods"))
           .isEqualTo(
               json.readTree(
                   """

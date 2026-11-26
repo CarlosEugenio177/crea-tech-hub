@@ -12,6 +12,7 @@ export type TimeFieldControl = {
   onChange: (value: string) => void
   onBlur?: () => void
   ref?: Ref<HTMLSelectElement>
+  options?: readonly string[]
 }
 
 type TimeFieldProps = TimeFieldControl & {
@@ -26,9 +27,20 @@ export function TimeField({
   onChange,
   onBlur,
   ref,
+  options,
 }: TimeFieldProps) {
   const id = useId()
-  const [hour, minute = '00'] = value?.split(':') ?? ['']
+  const [hour, minute = '00'] =
+    value && (!options || options.includes(value)) ? value.split(':') : ['']
+  const allowedHours = options
+    ? [...new Set(options.map((time) => time.slice(0, 2)))]
+    : hours
+  const minutesFor = (selectedHour: string) =>
+    options
+      ? options
+          .filter((time) => time.startsWith(selectedHour + ':'))
+          .map((time) => time.slice(3))
+      : minutes
   const messageId = error ? `${id}-error` : undefined
 
   return (
@@ -42,14 +54,19 @@ export function TimeField({
           aria-describedby={messageId}
           aria-invalid={error ? true : undefined}
           value={hour}
+          disabled={allowedHours.length === 0}
           onBlur={onBlur}
           onChange={(event) => {
             const selected = event.currentTarget.value
-            onChange(selected ? `${selected}:${minute}` : '')
+            const allowedMinutes = minutesFor(selected)
+            const nextMinute = allowedMinutes.includes(minute)
+              ? minute
+              : allowedMinutes[0]
+            onChange(selected ? `${selected}:${nextMinute}` : '')
           }}
         >
           <option value="">Hora</option>
-          {hours.map((time) => (
+          {allowedHours.map((time) => (
             <option key={time}>{time}</option>
           ))}
         </select>
@@ -64,7 +81,7 @@ export function TimeField({
           onBlur={onBlur}
           onChange={(event) => onChange(`${hour}:${event.currentTarget.value}`)}
         >
-          {minutes.map((time) => (
+          {(hour ? minutesFor(hour) : ['00']).map((time) => (
             <option key={time}>{time}</option>
           ))}
         </select>

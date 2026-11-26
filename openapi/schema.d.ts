@@ -1011,11 +1011,31 @@ export interface components {
             startsAt: string;
         };
         SpaceDayAgenda: {
+            bookingMode: components["schemas"]["BookingMode"];
             closed: boolean;
+            freeWindows: components["schemas"]["SpaceFreeWindow"][];
             periods: components["schemas"]["SpaceDayPeriod"][];
+            stations: components["schemas"]["SpaceDayStation"][];
         };
         SpaceDayPeriod: {
             available: boolean;
+            /** @example 10:45 */
+            end: string;
+            /** @example 09:30 */
+            start: string;
+        };
+        SpaceDayStation: {
+            freeWindows: components["schemas"]["SpaceFreeWindow"][];
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            number: number;
+            /** Format: double */
+            x: number;
+            /** Format: double */
+            y: number;
+        };
+        SpaceFreeWindow: {
             /** @example 10:45 */
             end: string;
             /** @example 09:30 */

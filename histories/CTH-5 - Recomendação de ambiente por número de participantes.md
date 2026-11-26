@@ -30,7 +30,8 @@ Ajudar quem não sabe qual espaço escolher: o usuário informa quantas pessoas 
 
 Na escolha de espaço, **Buscar por número de pessoas** abre o formulário com
 data, início e fim. A página destaca a sugestão principal e lista alternativas.
-A escolha leva o mesmo período à agenda para uma nova verificação. Ao voltar às
+A escolha leva o mesmo período à agenda do ambiente, que mostra os horários e
+estações disponíveis para o dia. Ao voltar às
 sugestões, os critérios ficam preenchidos.
 
 A recomendação usa a capacidade cadastrada no painel. A equipe ainda precisa

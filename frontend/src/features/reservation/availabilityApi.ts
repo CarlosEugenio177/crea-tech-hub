@@ -1,31 +1,19 @@
 import { api } from '../../shared/api/client.ts'
 import type { components } from '../../shared/api/schema'
-import type { ReservationPeriod } from './reservationDraft.ts'
 
 export type AvailableStation = components['schemas']['Station']
+export type DayAvailability = components['schemas']['SpaceDayAgenda']
+export type FreeWindow = components['schemas']['SpaceFreeWindow']
 
-export function useDayAgenda(spaceId: string, date: string) {
-  return api.useQuery(
-    'get',
-    '/api/v1/spaces/{id}/availability/day',
-    { params: { path: { id: spaceId }, query: { date } } },
-    { retry: false, gcTime: 0 },
-  )
-}
+export const dayAgendaKey = [
+  'get',
+  '/api/v1/spaces/{id}/availability/day',
+] as const
 
-export function useAvailability(spaceId: string, period: ReservationPeriod) {
+export function useDayAgenda(spaceId: string, date?: string) {
   return api.useQuery(
-    'get',
-    '/api/v1/spaces/{id}/availability',
-    {
-      params: {
-        path: { id: spaceId },
-        query: {
-          startsAt: `${period.date}T${period.start}`,
-          endsAt: `${period.date}T${period.end}`,
-        },
-      },
-    },
-    { retry: false, gcTime: 0 },
+    ...dayAgendaKey,
+    { params: { path: { id: spaceId }, query: { date: date ?? '' } } },
+    { enabled: Boolean(date), retry: false, staleTime: 20_000 },
   )
 }

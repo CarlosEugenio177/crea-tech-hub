@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../../shared/api/client.ts'
 import type { components, operations } from '../../shared/api/schema'
+import { dayAgendaKey } from './availabilityApi.ts'
 
 type Query = NonNullable<
   operations['listAdminReservations']['parameters']['query']
@@ -60,7 +61,7 @@ export function useDecideAdminReservation(
         await Promise.all([
           refreshQueue(),
           client.invalidateQueries({
-            queryKey: ['get', '/api/v1/spaces/{id}/availability'],
+            queryKey: dayAgendaKey,
           }),
         ])
       },
