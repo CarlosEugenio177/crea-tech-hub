@@ -2,15 +2,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 18px;
+  gap: 16px;
+}
+
+.heading {
+  margin-block-start: clamp(6px, 2.5vw, 24px);
 }
 
 .heading h1 {
-  font: var(--font-title);
-  letter-spacing: var(--tracking-title);
+  font: var(--font-public-title);
 }
 
 .heading p {
-  margin-block-start: 4px;
+  margin-block-start: 6px;
   color: var(--color-text-muted);
 }

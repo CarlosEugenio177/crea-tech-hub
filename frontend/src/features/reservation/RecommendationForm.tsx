@@ -56,6 +56,7 @@ export function RecommendationForm({
 
   return (
     <FormCard
+      variant="plain"
       onChange={onEdit}
       onSubmit={handleSubmit(({ participants, ...period }) =>
         onSubmit({ participants, period }),

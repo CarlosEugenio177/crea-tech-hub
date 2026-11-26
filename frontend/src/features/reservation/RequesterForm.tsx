@@ -31,7 +31,7 @@ export function RequesterForm({ requester, onSubmit }: RequesterFormProps) {
   const { errors } = formState
 
   return (
-    <FormCard onSubmit={handleSubmit(onSubmit)}>
+    <FormCard variant="plain" onSubmit={handleSubmit(onSubmit)}>
       <SelectField
         label="Perfil"
         error={errors.profile?.message}

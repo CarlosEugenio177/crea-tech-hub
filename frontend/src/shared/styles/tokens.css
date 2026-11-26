@@ -43,6 +43,22 @@
     0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
   --transition: 120ms ease;
 
+  --color-public-ink: #18283d;
+  --color-public-paper: #f7f4ed;
+  --color-public-muted: #505d6c;
+  --color-public-line: #d4cfc2;
+  --color-public-field: #8a929a;
+  --color-public-accent: #174588;
+  --color-public-accent-hover: #113464;
+  --font-public-display: Georgia, 'Times New Roman', serif;
+  --font-public-hero: 400 clamp(2.7rem, 8vw, 5.3rem) / 1.02
+    var(--font-public-display);
+  --font-public-title: 400 clamp(2.15rem, 5vw, 3.65rem) / 1.08
+    var(--font-public-display);
+  --font-public-section: 400 clamp(1.55rem, 4vw, 2.15rem) / 1.12
+    var(--font-public-display);
+  --radius-public: 4px;
+
   --page-max-width: 1040px;
   --page-padding: 24px;
 }

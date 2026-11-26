@@ -1,43 +1,50 @@
-.card {
+.room {
   display: grid;
-  justify-items: start;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
+  gap: clamp(16px, 3vw, 36px);
+  padding-block: clamp(16px, 3vw, 28px);
+  border-bottom: 1px solid var(--color-border);
   overflow-wrap: anywhere;
 }
 
-.room {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .photo {
-  flex: 0 0 auto;
-  width: clamp(78px, 24vw, 132px);
-  aspect-ratio: 4 / 3;
-  border-radius: var(--radius-field);
+  width: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
-.details h2 {
-  font: var(--font-field);
-  font-weight: 650;
+.details {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 10px;
+  min-width: 0;
 }
 
-.capacity,
-.description {
-  color: var(--color-text-muted);
-  font: var(--font-small);
+.details h2 {
+  font: var(--font-public-section);
 }
 
 .capacity {
-  margin-block-start: 4px;
+  font: var(--font-label);
 }
 
 .description {
+  max-width: 55ch;
+  color: var(--color-text-muted);
+  font: var(--font-small);
   white-space: pre-line;
+}
+
+.details button {
+  margin-block-start: 6px;
+}
+
+@media (min-width: 650px) {
+  .withPhoto {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .photo {
+    aspect-ratio: 3 / 2;
+  }
 }

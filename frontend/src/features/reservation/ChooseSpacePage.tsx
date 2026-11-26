@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { Button } from '../../shared/ui/Button.tsx'
-import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
+
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
@@ -19,9 +19,9 @@ export function ChooseSpacePage() {
 
   return (
     <StepPage step={1} title="Escolha um espaço">
-      <ButtonLink to={RESERVE_RECOMMENDATION} variant="secondary">
+      <Link to={RESERVE_RECOMMENDATION} className={styles.searchLink}>
         Buscar por número de pessoas
-      </ButtonLink>
+      </Link>
       {!options ? (
         <QueryStatus error={spaces.error} />
       ) : options.length === 0 ? (

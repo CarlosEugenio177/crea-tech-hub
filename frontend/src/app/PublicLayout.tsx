@@ -14,7 +14,7 @@ const MENU = [
 
 export function PublicLayout({ children }: PublicLayoutProps) {
   return (
-    <>
+    <div className={styles.site}>
       <header className={styles.header}>
         <div className={styles.bar}>
           <Brand to="/" />
@@ -40,6 +40,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           Acesso da equipe
         </Link>
       </footer>
-    </>
+    </div>
   )
 }

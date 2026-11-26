@@ -58,7 +58,11 @@ export function PeriodForm({
   }
 
   return (
-    <FormCard onSubmit={handleSubmit(onSubmit)} onChange={onEdit}>
+    <FormCard
+      variant="plain"
+      onSubmit={handleSubmit(onSubmit)}
+      onChange={onEdit}
+    >
       <PeriodFields
         date={register('date')}
         start={start}

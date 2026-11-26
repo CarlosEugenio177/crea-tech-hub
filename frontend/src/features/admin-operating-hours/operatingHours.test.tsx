@@ -158,8 +158,6 @@ test('shows the public Hub operating hours when choosing reservation time', asyn
   )
 
   expect(
-    await screen.findByText(
-      'Funcionamento do Hub: segunda a sexta, das 08:00 às 18:00.',
-    ),
+    await screen.findByText('segunda a sexta, das 08:00 às 18:00.'),
   ).toBeInTheDocument()
 })
