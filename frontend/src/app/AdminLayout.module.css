@@ -1,48 +1,65 @@
 .shell {
+  --color-primary: var(--color-mutua-navy);
+  --color-primary-hover: var(--color-mutua-blue);
+  --color-primary-ring: color-mix(
+    in srgb,
+    var(--color-primary) 25%,
+    transparent
+  );
+  --color-info-background: color-mix(
+    in srgb,
+    var(--color-primary) 8%,
+    var(--color-surface)
+  );
+
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px var(--page-padding);
-  background: var(--color-inverse);
-  color: var(--color-on-inverse);
+  display: grid;
+  grid-template: 'brand account' auto 'nav nav' auto / minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.sidebar > a {
+  grid-area: brand;
+  justify-self: start;
+}
+
+.sidebar img {
+  height: 32px;
 }
 
 .nav {
+  grid-area: nav;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-
-.navLabel {
-  display: none;
-  font: var(--font-eyebrow);
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--color-menu-label);
-}
-
-.item,
-.activeItem {
-  display: flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0 10px;
-  border-radius: var(--radius-button);
-  color: var(--color-menu);
-  font: var(--font-menu);
-  text-decoration: none;
+  min-width: 0;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 0 3px 4px;
 }
 
 .item,
 .activeItem,
 .logout {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: var(--font-label);
+  text-decoration: none;
+  white-space: nowrap;
   transition:
     background-color var(--transition),
     color var(--transition);
@@ -50,23 +67,20 @@
 
 .item:hover,
 .logout:hover {
-  background: var(--color-divider-inverse);
-  color: var(--color-on-inverse);
+  background: var(--color-background);
+  color: var(--color-text);
 }
 
 .activeItem {
-  background: var(--color-menu-active);
-  color: var(--color-on-inverse);
-  box-shadow: inset 3px 0 0 var(--color-primary);
+  background: var(--color-info-background);
+  color: var(--color-primary);
 }
 
 .account {
+  grid-area: account;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-divider-inverse);
+  gap: 6px;
 }
 
 .accountName {
@@ -74,27 +88,33 @@
 }
 
 .accountEmail {
+  display: none;
+  color: var(--color-text-muted);
   font: var(--font-small);
-  color: var(--color-menu);
   overflow-wrap: anywhere;
 }
 
 .logout {
-  min-height: 40px;
-  padding: 0 10px;
-  margin-left: auto;
-  border: 1px solid var(--color-divider-inverse);
-  border-radius: var(--radius-button);
-  background: none;
-  color: var(--color-on-inverse);
-  font: var(--font-menu);
   cursor: pointer;
+}
+
+.logout:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .content {
   flex: 1;
+  width: min(100%, 1260px);
   min-width: 0;
-  padding: var(--page-padding);
+  margin-inline: auto;
+  padding: clamp(18px, 4vw, 48px);
+}
+
+@media (max-width: 480px) {
+  .accountName {
+    display: none;
+  }
 }
 
 @media (min-width: 900px) {
@@ -106,35 +126,39 @@
     position: sticky;
     top: 0;
     align-self: flex-start;
-    height: 100dvh;
-    overflow-y: auto;
     flex: none;
-    width: 248px;
+    grid-template: 'brand' auto 'nav' 1fr 'account' auto / minmax(0, 1fr);
+    align-items: start;
+    width: 218px;
+    height: 100dvh;
     gap: 28px;
-    padding: 24px 16px;
+    padding: 24px 14px 16px;
+    overflow-y: auto;
+    border: 0;
+    border-inline-end: 1px solid var(--color-border);
+  }
+
+  .sidebar > a {
+    margin-inline-start: 10px;
   }
 
   .nav {
     flex-direction: column;
-    align-items: stretch;
-    flex: 1;
-  }
-
-  .navLabel {
-    display: block;
-    margin-bottom: 8px;
+    overflow: visible;
   }
 
   .account {
-    flex-direction: column;
-    align-items: flex-start;
+    display: grid;
+    padding: 12px 10px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .accountEmail {
+    display: block;
   }
 
   .logout {
-    margin: 8px 0 0;
-  }
-
-  .content {
-    padding: 28px 34px 36px;
+    justify-self: start;
+    margin-inline-start: -12px;
   }
 }

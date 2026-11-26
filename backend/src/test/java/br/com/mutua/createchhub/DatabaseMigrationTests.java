@@ -25,9 +25,9 @@ class DatabaseMigrationTests {
   void migrationIsAppliedOnStartupAndIsNotRepeated() {
     flyway.validate();
 
-    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("16");
+    assertThat(flyway.info().current().getVersion().toString()).isEqualTo("18");
     assertThat(flyway.migrate().migrationsExecuted).isZero();
-    assertThat(flyway.info().applied()).hasSize(16);
+    assertThat(flyway.info().applied()).hasSize(18);
   }
 
   @Test

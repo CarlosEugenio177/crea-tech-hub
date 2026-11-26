@@ -14,9 +14,8 @@ export function AdminLayout({ account }: AdminLayoutProps) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <Brand to={ADMIN_HOME} />
+        <Brand to={ADMIN_HOME} variant="positive" />
         <nav className={styles.nav} aria-label="Administração">
-          <p className={styles.navLabel}>Administração</p>
           {adminMenuFor(account).map((item) => (
             <NavLink
               key={item.to}

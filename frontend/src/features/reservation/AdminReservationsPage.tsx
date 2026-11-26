@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ListPage } from '../../shared/ui/ListPage.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { PagedList } from '../../shared/ui/PagedList.tsx'
 import { useAdminAccount } from '../admin-auth/adminAccount.ts'
 import { AdminReservationFilters } from './AdminReservationFilters.tsx'
 import { AdminReservationItem } from './AdminReservationItem.tsx'
+import styles from './AdminReservationPage.module.css'
 import {
   useAdminReservations,
   type ReservationFilters,
@@ -16,21 +17,30 @@ export function AdminReservationsPage() {
   const [page, setPage] = useState(0)
   const [filters, setFilters] = useState<ReservationFilters>({})
   const reservations = useAdminReservations(filters, page, allowed)
+  const filterPanel = useRef<HTMLDetailsElement>(null)
+  const activeFilters = Object.values(filters).filter(Boolean).length
+
+  function applyFilters(next: ReservationFilters) {
+    setFilters(next)
+    setPage(0)
+    const panel = filterPanel.current
+    if (panel?.open) {
+      panel.open = false
+      panel.querySelector('summary')?.focus()
+    }
+  }
 
   return (
-    <ListPage
-      eyebrow="Administração · Reservas"
-      title="Reservas"
-      description="Consulte os pedidos recebidos pelo site."
-    >
+    <ListPage title="Reservas">
       {allowed ? (
         <>
-          <AdminReservationFilters
-            onApply={(next) => {
-              setFilters(next)
-              setPage(0)
-            }}
-          />
+          <details ref={filterPanel} className={styles.filterPanel}>
+            <summary>
+              Filtrar reservas
+              {activeFilters > 0 && ` (${activeFilters})`}
+            </summary>
+            <AdminReservationFilters onApply={applyFilters} />
+          </details>
           <PagedList
             data={reservations.data}
             error={reservations.error}

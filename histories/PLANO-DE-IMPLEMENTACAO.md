@@ -12,7 +12,7 @@ Ordem dos cards com base nas dependências e decisões do projeto. Cards da mesm
 | 3 | **CTH-2** Disponibilidade em calendário (8h às 18h, seg a sex por padrão; horário e dias configuráveis) | 1, 16 |
 | 4 | **CTH-3** Estação individual · **CTH-4** Salas e auditório · **CTH-5** Recomendação | 2 |
 | 5 | **CTH-8** Comprovante / aviso de encaminhamento para análise | 3, 4, 6, 7 |
-| 6 | **CTH-9** Acompanhamento/cancelamento por link individual | 8 |
+| 6 | **CTH-9** Acompanhamento/cancelamento por link individual · **CTH-18** Registro de faltas e bloqueio manual | 8, 13 |
 | 7 | **CTH-10** WhatsApp e e-mail (também envia as notificações de decisão do CTH-14) | 8 |
 
 **Marco do MVP:** fim da etapa 7.
@@ -21,7 +21,7 @@ Ordem dos cards com base nas dependências e decisões do projeto. Cards da mesm
 
 | Card | Motivo |
 |---|---|
-| CTH-11 Reserva por período · CTH-17 Situação do solicitante · CTH-18 Cancelamento tardio e bloqueio · CTH-20 Relatórios | Mútua quer só o MVP |
+| CTH-11 Reserva por período · CTH-17 Situação do solicitante · CTH-20 Relatórios | Mútua quer só o MVP |
 | CTH-23 Integração Mútua/Crea · CTH-24 Prioridade e cobrança | Fase futura |
 | CTH-19 Instituições parceiras · reserva de equipamentos | Fora do escopo (software só para a Mútua; foco em salas) |
 

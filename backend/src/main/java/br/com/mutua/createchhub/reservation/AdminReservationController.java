@@ -17,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,11 +32,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminReservationController {
   private final AdminReservationQuery reservations;
   private final AdminReservationDecisionService decisions;
+  private final AdminReservationAttendanceService attendance;
+  private final RequesterBlockService requesterBlocks;
 
-  public AdminReservationController(
-      AdminReservationQuery reservations, AdminReservationDecisionService decisions) {
+  AdminReservationController(
+      AdminReservationQuery reservations,
+      AdminReservationDecisionService decisions,
+      AdminReservationAttendanceService attendance,
+      RequesterBlockService requesterBlocks) {
     this.reservations = reservations;
     this.decisions = decisions;
+    this.attendance = attendance;
+    this.requesterBlocks = requesterBlocks;
   }
 
   @PostMapping("/api/v1/admin/reservations/{id}/decisions")
@@ -47,6 +56,43 @@ public class AdminReservationController {
       @Valid @RequestBody AdminReservationDecisionRequest request,
       @AuthenticationPrincipal AdminPrincipal admin) {
     decisions.decide(id, admin.getAccountId(), request);
+  }
+
+  @PutMapping("/api/v1/admin/reservations/{id}/attendance")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      operationId = "recordAdminReservationAttendance",
+      summary = "Registrar ou desfazer uma falta")
+  @ApiResponse(responseCode = "404", ref = "#/components/responses/Problem")
+  @ApiResponse(responseCode = "409", ref = "#/components/responses/Problem")
+  public void recordAttendance(
+      @PathVariable UUID id,
+      @Valid @RequestBody AdminReservationAttendanceRequest request,
+      @AuthenticationPrincipal AdminPrincipal admin) {
+    attendance.record(id, admin.getAccountId(), request.noShow());
+  }
+
+  @PutMapping("/api/v1/admin/reservations/{id}/requester-block")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      operationId = "blockAdminReservationRequester",
+      summary = "Definir o prazo de bloqueio por faltas")
+  @ApiResponse(responseCode = "409", ref = "#/components/responses/Problem")
+  public void blockRequester(
+      @PathVariable UUID id,
+      @Valid @RequestBody AdminRequesterBlockRequest request,
+      @AuthenticationPrincipal AdminPrincipal admin) {
+    requesterBlocks.block(id, admin.getAccountId(), request.durationDays());
+  }
+
+  @DeleteMapping("/api/v1/admin/reservations/{id}/requester-block")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+      operationId = "unblockAdminReservationRequester",
+      summary = "Remover bloqueio por faltas")
+  public void unblockRequester(
+      @PathVariable UUID id, @AuthenticationPrincipal AdminPrincipal admin) {
+    requesterBlocks.release(id, admin.getAccountId());
   }
 
   @GetMapping("/api/v1/admin/reservations")

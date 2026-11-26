@@ -1,5 +1,6 @@
 package br.com.mutua.createchhub.reservation;
 
+import br.com.mutua.createchhub.shared.error.ResourceNotFoundException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -105,15 +106,40 @@ public class ReservationRepository {
             .addValue("lateCancellation", lateCancellation));
   }
 
-  Optional<ReservationStatus> findStatusForUpdate(UUID id) {
+  String requesterCpf(UUID id) {
+    return jdbc
+        .queryForList("SELECT cpf FROM reservations WHERE id = :id", Map.of("id", id), String.class)
+        .stream()
+        .findFirst()
+        .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+  }
+
+  Optional<AdminState> findAdminStateForUpdate(UUID id) {
     return jdbc
         .query(
-            "SELECT status FROM reservations WHERE id = :id FOR UPDATE",
+            "SELECT status, ends_at, no_show_at IS NOT NULL AS no_show FROM reservations WHERE id = :id FOR UPDATE",
             Map.of("id", id),
-            (row, index) -> ReservationStatus.valueOf(row.getString("status")))
+            (row, index) ->
+                new AdminState(
+                    ReservationStatus.valueOf(row.getString("status")),
+                    row.getObject("ends_at", LocalDateTime.class),
+                    row.getBoolean("no_show")))
         .stream()
         .findFirst();
   }
+
+  void recordNoShow(UUID id, UUID adminId, Instant recordedAt) {
+    jdbc.update(
+        "UPDATE reservations SET no_show_at = :at, no_show_recorded_by = :adminId WHERE id = :id",
+        new MapSqlParameterSource()
+            .addValue("id", id)
+            .addValue("adminId", adminId)
+            .addValue(
+                "at",
+                recordedAt == null ? null : OffsetDateTime.ofInstant(recordedAt, ZoneOffset.UTC)));
+  }
+
+  record AdminState(ReservationStatus status, LocalDateTime endsAt, boolean noShow) {}
 
   void recordDecision(UUID id, UUID adminId, ReservationStatus status, String note, Instant now) {
     var params =
