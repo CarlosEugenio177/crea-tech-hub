@@ -16,14 +16,7 @@
     var(--font-family);
   --font-public-section: 700 clamp(1.125rem, 2.5vw, 1.5rem) / 1.2
     var(--font-family);
-  --color-primary: var(--color-public-accent);
-  --color-primary-hover: var(--color-public-accent-hover);
-  --color-background: var(--color-public-canvas);
-  --color-text: var(--color-public-ink);
-  --color-text-muted: var(--color-public-muted);
-  --color-border: var(--color-public-line);
-  --color-border-field: var(--color-public-field);
-  --color-info-background: var(--color-public-tint);
+  --color-border-field: var(--color-text-muted);
   --radius-button: var(--radius-public-control);
   --radius-button-large: var(--radius-public-control);
   --radius-field: var(--radius-public-control);
@@ -71,7 +64,7 @@
 .bar > a {
   align-self: center;
   padding: 6px 10px;
-  background: var(--color-public-ink);
+  background: var(--color-inverse);
 }
 
 .bar img {

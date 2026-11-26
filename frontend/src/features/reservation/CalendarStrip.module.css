@@ -90,7 +90,7 @@
 
 .days button:hover:not(:disabled),
 .navigation button:hover:not(:disabled) {
-  border-color: var(--color-public-field);
+  border-color: var(--color-primary);
 }
 
 .days button[aria-pressed='true'] {

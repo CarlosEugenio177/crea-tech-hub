@@ -43,14 +43,6 @@
     0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
   --transition: 120ms ease;
 
-  --color-public-ink: #172138;
-  --color-public-canvas: #f5f7fa;
-  --color-public-muted: #505c70;
-  --color-public-line: #dfe5ee;
-  --color-public-field: #8491a4;
-  --color-public-accent: #234bc6;
-  --color-public-accent-hover: #1939a1;
-  --color-public-tint: #e9efff;
   --radius-public-control: 10px;
   --radius-public-panel: 20px;
 
