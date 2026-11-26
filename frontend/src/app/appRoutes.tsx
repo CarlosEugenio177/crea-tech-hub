@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { createRoutesFromElements, Route } from 'react-router'
 import {
   ADMIN_FORGOT_PASSWORD,
   ADMIN_HOME,
@@ -60,45 +60,43 @@ import { AdminHomePage } from './AdminHomePage.tsx'
 import { NotFoundPage } from './NotFoundPage.tsx'
 import { PublicLayout } from './PublicLayout.tsx'
 
-export function App() {
-  return (
-    <Routes>
-      <Route element={<PublicLayout />}>
-        <Route element={<ReservationFlow />}>
+export const appRoutes = createRoutesFromElements(
+  <>
+    <Route element={<PublicLayout />}>
+      <Route element={<ReservationFlow />}>
+        <Route index element={<ChooseSpacePage />} />
+        <Route path={RESERVE}>
           <Route index element={<ChooseSpacePage />} />
-          <Route path={RESERVE}>
-            <Route index element={<ChooseSpacePage />} />
-            <Route
-              path={RESERVE_RECOMMENDATION}
-              element={<RecommendationPage />}
-            />
-            <Route path={RESERVE_TIME} element={<ChooseTimePage />} />
-            <Route path={RESERVE_REQUESTER} element={<RequesterPage />} />
-            <Route path={RESERVE_REVIEW} element={<ReviewPage />} />
-          </Route>
+          <Route
+            path={RESERVE_RECOMMENDATION}
+            element={<RecommendationPage />}
+          />
+          <Route path={RESERVE_TIME} element={<ChooseTimePage />} />
+          <Route path={RESERVE_REQUESTER} element={<RequesterPage />} />
+          <Route path={RESERVE_REVIEW} element={<ReviewPage />} />
         </Route>
-        <Route path={TRACKING} element={<TrackingPage />} />
-        <Route path={ADMIN_LOGIN} element={<LoginPage />} />
-        <Route path={ADMIN_FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
-        <Route path={PASSWORD_RESET} element={<ResetPasswordPage />} />
-        <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route path={ADMIN_HOME} element={<AdminArea />}>
-        <Route index element={<AdminHomePage />} />
-        <Route path={ADMIN_RESERVATIONS} element={<AdminReservationsPage />} />
-        <Route path={ADMIN_SPACES} element={<SpacesPage />} />
-        <Route path={ADMIN_SPACE_NEW} element={<NewSpacePage />} />
-        <Route path={ADMIN_SPACE_EDIT} element={<EditSpacePage />} />
-        <Route path={ADMIN_SPACE_LAYOUT} element={<RoomLayoutPage />} />
-        <Route path={ADMIN_SPACE_BLOCKS} element={<SpaceBlocksPage />} />
-        <Route path={ADMIN_SPACE_BLOCK_NEW} element={<NewSpaceBlockPage />} />
-        <Route path={ADMIN_OPERATING_HOURS} element={<OperatingHoursPage />} />
-        <Route path={ADMIN_TEAM} element={<TeamPage />} />
-        <Route path={ADMIN_TEAM_NEW} element={<NewMemberPage />} />
-        <Route path={ADMIN_TEAM_AUDIT} element={<AuditPage />} />
-        <Route path={ADMIN_TEAM_MEMBER} element={<EditPermissionsPage />} />
-        <Route path={ADMIN_PASSWORD} element={<ChangePasswordPage />} />
-      </Route>
-    </Routes>
-  )
-}
+      <Route path={TRACKING} element={<TrackingPage />} />
+      <Route path={ADMIN_LOGIN} element={<LoginPage />} />
+      <Route path={ADMIN_FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+      <Route path={PASSWORD_RESET} element={<ResetPasswordPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Route>
+    <Route path={ADMIN_HOME} element={<AdminArea />}>
+      <Route index element={<AdminHomePage />} />
+      <Route path={ADMIN_RESERVATIONS} element={<AdminReservationsPage />} />
+      <Route path={ADMIN_SPACES} element={<SpacesPage />} />
+      <Route path={ADMIN_SPACE_NEW} element={<NewSpacePage />} />
+      <Route path={ADMIN_SPACE_EDIT} element={<EditSpacePage />} />
+      <Route path={ADMIN_SPACE_LAYOUT} element={<RoomLayoutPage />} />
+      <Route path={ADMIN_SPACE_BLOCKS} element={<SpaceBlocksPage />} />
+      <Route path={ADMIN_SPACE_BLOCK_NEW} element={<NewSpaceBlockPage />} />
+      <Route path={ADMIN_OPERATING_HOURS} element={<OperatingHoursPage />} />
+      <Route path={ADMIN_TEAM} element={<TeamPage />} />
+      <Route path={ADMIN_TEAM_NEW} element={<NewMemberPage />} />
+      <Route path={ADMIN_TEAM_AUDIT} element={<AuditPage />} />
+      <Route path={ADMIN_TEAM_MEMBER} element={<EditPermissionsPage />} />
+      <Route path={ADMIN_PASSWORD} element={<ChangePasswordPage />} />
+    </Route>
+  </>,
+)

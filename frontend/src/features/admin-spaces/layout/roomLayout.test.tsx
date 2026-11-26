@@ -396,3 +396,30 @@ test('keeps removals on conflict and can discard them', async () => {
     screen.getByRole('button', { name: 'Mover estação 1' }),
   ).toBeInTheDocument()
 })
+
+test('asks before leaving an unsaved map and keeps the draft if the operator stays', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi(base())
+  renderApp(`/admin/espacos/${ID}/mapa`)
+  const width = await screen.findByLabelText('Largura (m)')
+  await user.clear(width)
+  await user.type(width, '11')
+  await user.click(screen.getByRole('button', { name: 'Aplicar medidas' }))
+
+  const leave = screen.getByRole('link', { name: 'Voltar aos espaços' })
+  await user.click(leave)
+  expect(
+    screen.getByRole('dialog', { name: 'Sair sem salvar o mapa?' }),
+  ).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Continuar editando' }))
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(screen.getByLabelText('Largura (m)')).toHaveValue('11')
+  expect(screen.getByText('Alterações não salvas')).toBeInTheDocument()
+
+  await user.click(leave)
+  await user.click(screen.getByRole('button', { name: 'Descartar e sair' }))
+  expect(
+    await screen.findByRole('heading', { name: 'Espaços' }),
+  ).toBeInTheDocument()
+  expect(api.sent(SAVE)).toHaveLength(0)
+})

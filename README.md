@@ -4,14 +4,22 @@ Sistema web para que profissionais, instituições e público externo reservem o
 
 Projeto do curso de Engenharia de Software do iCEV (Laboratório de Inovação), em parceria com a Mútua-PI.
 
-> **Status:** esta documentação parte da Análise de Requisitos **v1.0 (04/11/2026)**, um rascunho para validação com o cliente. O documento precisa ser validado e assinado pela Mútua-PI antes do início da implementação.
+O projeto tem um fluxo público de solicitação de reservas e um painel para a equipe
+gerenciar espaços e analisar pedidos. O levantamento original e o escopo atual estão
+registrados na documentação e nas histórias deste repositório.
 
 ## Desenvolvimento
 
 O backend está em [`backend/`](backend/README.md), com Java 25, Spring Boot e Maven Wrapper.
 O frontend está em [`frontend/`](frontend/README.md), com React, TypeScript e Vite.
 As convenções de código e as decisões atuais estão em [`AGENTS.md`](AGENTS.md).
-Consulte o README dessa pasta para executar e testar a fundação inicial.
+
+Para começar no projeto:
+
+1. Inicie o [banco e o backend](backend/README.md#executar) e confira `/actuator/health`.
+2. Inicie o [frontend](frontend/README.md#executar) e abra `http://localhost:5173`.
+3. Siga [uma solicitação da tela ao banco](backend/README.md#acompanhar-uma-solicitação-de-reserva)
+   e execute os testes desse fluxo.
 
 Antes de selecionar **Reopen in Container** no VS Code, crie o arquivo local de
 variáveis e substitua o placeholder por uma senha não vazia:
