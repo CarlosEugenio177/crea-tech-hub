@@ -15,9 +15,7 @@ export function SpacesPage() {
 
   return (
     <ListPage
-      eyebrow="Administração · Espaços"
       title="Espaços"
-      description="Salas, mesas compartilhadas e estações individuais do Hub."
       actions={<ButtonLink to={ADMIN_SPACE_NEW}>Novo espaço</ButtonLink>}
     >
       <div className={styles.filter}>

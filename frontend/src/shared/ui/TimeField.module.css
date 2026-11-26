@@ -1,0 +1,29 @@
+.group {
+  display: grid;
+  gap: 6px;
+  min-inline-size: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.group legend {
+  margin-block-end: 8px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.controls select {
+  padding-inline: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls select:disabled {
+  background: var(--color-background);
+  color: var(--color-text-muted);
+}

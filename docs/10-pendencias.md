@@ -14,8 +14,9 @@ valem as histórias em `histories/` e [Acesso administrativo e fluxo público](1
 - O solicitante informa início e fim por minuto; não há escolha obrigatória de slots
   fixos. Limites e funcionamento são tratados por ambiente conforme as histórias.
 - Notificações estão no plano do MVP. Instituições parceiras e reserva de equipamentos
-  estão fora do escopo atual; sanções e prioridade/cobrança ficam para fases futuras
-  (E4 e E5 resolvidas; E2 não bloqueia a entrega atual).
+  estão fora do escopo atual. Prioridade e cobrança ficam para fases futuras.
+- O cancelamento tardio é registrado sem contar como falta. A equipe decide o
+  prazo de bloqueio a partir da segunda falta registrada para o mesmo CPF.
 - Hospedagem e CD continuam a definir. Desenvolvimento local usa Compose/devcontainer;
   não existe ambiente de deploy provisionado por esta configuração.
 

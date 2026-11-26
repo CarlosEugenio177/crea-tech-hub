@@ -30,10 +30,13 @@ Mostrar, em visão de calendário, quando cada ambiente, estação ou equipament
 
 A agenda diária mostra períodos livres e indisponíveis no horário local do Hub.
 O visitante pode trocar de dia pelo calendário ou informar a data no campo.
-Ao selecionar um período livre, pode ajustar início e fim por minuto antes de
-conferir a disponibilidade. Para salas por estação, cada período oferecido
-cabe inteiro em pelo menos uma estação. O dia mostra somente horários, sem
-dados dos ocupantes ou motivos de bloqueios.
+A consulta do dia entrega as janelas livres da sala ou de cada estação.
+O visitante toca em um intervalo livre ou ajusta início e fim por minuto
+entre as opções disponíveis, dentro dos limites de duração configurados.
+Em salas por estação, o mapa habilita as
+estações livres durante todo o período escolhido usando a mesma consulta.
+O backend confere conflitos novamente no envio do pedido. A agenda só
+expõe horários e dados públicos das estações.
 
 - [x] A consulta é feita por **data e horário**, em **visão de calendário**.
 - [x] Horários já reservados, **bloqueados** (ex.: reuniões fixas da diretoria) ou de ambientes **indisponíveis ao público** aparecem como não disponíveis.

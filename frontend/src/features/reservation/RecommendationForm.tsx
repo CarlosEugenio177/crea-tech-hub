@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useController, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
@@ -38,6 +38,7 @@ export function RecommendationForm({
 }: RecommendationFormProps) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -50,8 +51,12 @@ export function RecommendationForm({
     },
   })
 
+  const { field: start } = useController({ control, name: 'start' })
+  const { field: end } = useController({ control, name: 'end' })
+
   return (
     <FormCard
+      variant="plain"
       onChange={onEdit}
       onSubmit={handleSubmit(({ participants, ...period }) =>
         onSubmit({ participants, period }),
@@ -65,11 +70,9 @@ export function RecommendationForm({
         {...register('participants')}
       />
       <PeriodFields
-        fields={{
-          date: register('date'),
-          start: register('start'),
-          end: register('end'),
-        }}
+        date={register('date')}
+        start={start}
+        end={end}
         errors={errors}
       />
       <StepActions backTo={RESERVE} backLabel="Voltar aos espaços">

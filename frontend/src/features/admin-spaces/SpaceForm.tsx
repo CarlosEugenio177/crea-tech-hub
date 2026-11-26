@@ -1,52 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import type { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
 import { FormCard } from '../../shared/ui/FormCard.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { SelectField } from '../../shared/ui/SelectField.tsx'
 import { TextAreaField } from '../../shared/ui/TextAreaField.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
+import { spaceFormSchema } from './spaceFormSchema.ts'
 import { SPACE_TYPE_LABELS } from './spaceLabels.ts'
 import type { Space, SpaceRequest } from './spacesApi.ts'
-
-const schema = z
-  .object({
-    name: z
-      .string()
-      .trim()
-      .min(1, 'Informe o nome do espaço.')
-      .max(150, 'O nome deve ter até 150 caracteres.'),
-    type: z.enum(
-      ['ROOM', 'SHARED_TABLE', 'WORKSTATION'],
-      'Informe o tipo do espaço.',
-    ),
-    capacity: z
-      .number('Informe a capacidade do espaço.')
-      .int('A capacidade deve ser um número inteiro.')
-      .positive('A capacidade deve ser maior que zero.'),
-    description: z
-      .string()
-      .trim()
-      .max(2000, 'A descrição deve ter até 2000 caracteres.'),
-    photoUrl: z
-      .string()
-      .trim()
-      .max(2048)
-      .refine((value) => {
-        if (!value) return true
-        try {
-          const url = new URL(value)
-          return url.protocol === 'https:' && !url.username && !url.password
-        } catch {
-          return false
-        }
-      }, 'Informe um link HTTPS válido para a foto.'),
-  })
-  .refine((space) => space.type !== 'WORKSTATION' || space.capacity === 1, {
-    path: ['capacity'],
-    message: 'Uma estação individual deve ter capacidade para uma pessoa.',
-  })
 
 type SpaceFormProps = {
   space?: Space
@@ -63,23 +26,42 @@ export function SpaceForm({
   isPending,
   onSubmit,
 }: SpaceFormProps) {
-  const { register, handleSubmit, formState } = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: space && {
-      name: space.name,
-      type: space.type,
-      capacity: space.capacity,
-      description: space.description ?? '',
-      photoUrl: space.photoUrl ?? '',
+  const { register, handleSubmit, formState } = useForm<
+    z.input<typeof spaceFormSchema>,
+    unknown,
+    z.output<typeof spaceFormSchema>
+  >({
+    resolver: zodResolver(spaceFormSchema),
+    defaultValues: {
+      minDuration: space?.bookingDuration?.minMinutes?.toString() ?? '',
+      maxDuration: space?.bookingDuration?.maxMinutes?.toString() ?? '',
+      ...(space && {
+        name: space.name,
+        type: space.type,
+        capacity: space.capacity,
+        description: space.description ?? '',
+        photoUrl: space.photoUrl ?? '',
+      }),
     },
   })
 
-  const submit = handleSubmit(({ photoUrl, ...values }) =>
-    onSubmit({
-      ...values,
-      description: values.description || null,
-      ...(photoUrl || space?.photoUrl ? { photoUrl } : {}),
-    }),
+  const linkedStation = Boolean(space?.stationPlacement)
+  const submit = handleSubmit(
+    ({ photoUrl, minDuration, maxDuration, ...values }) =>
+      onSubmit({
+        ...values,
+        description: values.description || null,
+        ...(photoUrl || space?.photoUrl ? { photoUrl } : {}),
+        ...(!linkedStation &&
+        (space?.bookingDuration || minDuration || maxDuration)
+          ? {
+              bookingDuration: {
+                minMinutes: minDuration,
+                maxMinutes: maxDuration,
+              },
+            }
+          : {}),
+      }),
   )
 
   return (
@@ -113,6 +95,32 @@ export function SpaceForm({
         error={formState.errors.capacity?.message}
         {...register('capacity', { valueAsNumber: true })}
       />
+      {!linkedStation && (
+        <>
+          <TextField
+            label="Duração mínima (minutos)"
+            type="number"
+            min={1}
+            max={1439}
+            step={1}
+            inputMode="numeric"
+            placeholder="Sem mínimo"
+            error={formState.errors.minDuration?.message}
+            {...register('minDuration')}
+          />
+          <TextField
+            label="Duração máxima (minutos)"
+            type="number"
+            min={1}
+            max={1439}
+            step={1}
+            inputMode="numeric"
+            placeholder="Sem máximo"
+            error={formState.errors.maxDuration?.message}
+            {...register('maxDuration')}
+          />
+        </>
+      )}
       <TextField
         label="Link da foto (opcional)"
         type="url"

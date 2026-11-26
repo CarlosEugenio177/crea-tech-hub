@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, useWatch } from 'react-hook-form'
+import { useController, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '../../shared/ui/Button.tsx'
 import { CheckboxField } from '../../shared/ui/CheckboxField.tsx'
@@ -8,8 +8,9 @@ import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { SelectField } from '../../shared/ui/SelectField.tsx'
 import { TextAreaField } from '../../shared/ui/TextAreaField.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
+import { TimeField } from '../../shared/ui/TimeField.tsx'
 import type { Space } from '../admin-spaces/spacesApi.ts'
-import { maskDate, maskTime, withMask } from '../reservation/inputMasks.ts'
+import { maskDate, withMask } from '../reservation/inputMasks.ts'
 import {
   BRAZILIAN_DATE,
   isCalendarDate,
@@ -32,7 +33,7 @@ function timeField(required: string) {
   return z
     .string()
     .min(1, required)
-    .regex(TIME_24H, 'Informe o horário no formato hh:mm, de 00:00 a 23:59.')
+    .regex(TIME_24H, 'Selecione um horário válido.')
 }
 
 const schema = z
@@ -100,6 +101,8 @@ export function SpaceBlockForm({
   })
 
   const repeatWeekly = useWatch({ control, name: 'repeatWeekly' })
+  const start = useController({ control, name: 'startTime' })
+  const end = useController({ control, name: 'endTime' })
 
   const submit = handleSubmit((values) => {
     onSubmit({
@@ -138,14 +141,10 @@ export function SpaceBlockForm({
           error={formState.errors.startDate?.message}
           {...withMask(register('startDate'), maskDate)}
         />
-        <TextField
-          label="Hora de início"
-          inputMode="numeric"
-          autoComplete="off"
-          placeholder="hh:mm"
-          maxLength={5}
-          error={formState.errors.startTime?.message}
-          {...withMask(register('startTime'), maskTime)}
+        <TimeField
+          label="Início"
+          error={start.fieldState.error?.message}
+          {...start.field}
         />
       </div>
       <div className={styles.row}>
@@ -158,14 +157,10 @@ export function SpaceBlockForm({
           error={formState.errors.endDate?.message}
           {...withMask(register('endDate'), maskDate)}
         />
-        <TextField
-          label="Hora de fim"
-          inputMode="numeric"
-          autoComplete="off"
-          placeholder="hh:mm"
-          maxLength={5}
-          error={formState.errors.endTime?.message}
-          {...withMask(register('endTime'), maskTime)}
+        <TimeField
+          label="Fim"
+          error={end.fieldState.error?.message}
+          {...end.field}
         />
       </div>
       <CheckboxField

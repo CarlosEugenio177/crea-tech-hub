@@ -8,40 +8,31 @@ import java.util.List;
 final class SpaceDayTimeline {
   private SpaceDayTimeline() {}
 
-  static List<SpaceDayAgenda.Period> periods(
-      LocalDateTime open,
-      LocalDateTime close,
-      LocalDateTime bookableFrom,
-      List<List<SpaceBusyIntervals.Interval>> busyByResource) {
+  static List<Window> freeWindows(
+      LocalDateTime start,
+      LocalDateTime end,
+      List<SpaceBusyIntervals.Interval> busy,
+      int minimumMinutes) {
     var free = new ArrayList<Window>();
-    if (bookableFrom.isBefore(close)) {
-      for (var busy : busyByResource) {
-        free.addAll(findGaps(bookableFrom, close, busy));
-      }
-    }
-    free.sort(Comparator.comparing(Window::start));
-    return partition(open, close, free);
-  }
+    if (!start.isBefore(end)) return free;
 
-  private static List<Window> findGaps(
-      LocalDateTime start, LocalDateTime end, List<SpaceBusyIntervals.Interval> busy) {
     var ordered =
         busy.stream().sorted(Comparator.comparing(SpaceBusyIntervals.Interval::startsAt)).toList();
-    var free = new ArrayList<Window>();
     var cursor = start;
     for (var interval : ordered) {
       if (!interval.endsAt().isAfter(cursor)) continue;
-      if (interval.startsAt().isAfter(cursor)) {
+      if (!interval.startsAt().isBefore(cursor.plusMinutes(minimumMinutes))) {
         free.add(new Window(cursor, interval.startsAt()));
       }
       cursor = interval.endsAt();
     }
-    if (cursor.isBefore(end)) free.add(new Window(cursor, end));
+    if (!end.isBefore(cursor.plusMinutes(minimumMinutes))) free.add(new Window(cursor, end));
     return free;
   }
 
-  private static List<SpaceDayAgenda.Period> partition(
-      LocalDateTime open, LocalDateTime close, List<Window> free) {
+  static List<SpaceDayAgenda.Period> periods(
+      LocalDateTime open, LocalDateTime close, List<Window> windows) {
+    var free = windows.stream().sorted(Comparator.comparing(Window::start)).toList();
     var periods = new ArrayList<SpaceDayAgenda.Period>();
     var cursor = open;
     int next = 0;
@@ -61,5 +52,10 @@ final class SpaceDayTimeline {
     return periods;
   }
 
-  private record Window(LocalDateTime start, LocalDateTime end) {}
+  record Window(LocalDateTime start, LocalDateTime end) {
+    SpaceDayAgenda.FreeWindow toResponse() {
+      return new SpaceDayAgenda.FreeWindow(
+          start.toLocalTime().toString(), end.toLocalTime().toString());
+    }
+  }
 }

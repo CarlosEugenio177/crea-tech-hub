@@ -3,9 +3,9 @@ import styles from './ListPage.module.css'
 import { PageHeader } from './PageHeader.tsx'
 
 type ListPageProps = {
-  eyebrow: string
+  eyebrow?: string
   title: string
-  description: string
+  description?: string
   actions?: ReactNode
   children: ReactNode
 }

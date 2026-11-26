@@ -3,8 +3,10 @@ package br.com.mutua.createchhub.space;
 import br.com.mutua.createchhub.operatinghours.OperatingHoursResponse;
 import br.com.mutua.createchhub.operatinghours.OperatingHoursService;
 import br.com.mutua.createchhub.shared.error.InvalidRequestException;
+import br.com.mutua.createchhub.shared.error.ResourceConflictException;
 import br.com.mutua.createchhub.shared.error.ResourceNotFoundException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -37,9 +39,14 @@ public class SpaceAvailabilityService {
 
   public SpaceAvailability check(UUID id, String startsAt, String endsAt) {
     var interval = parseInterval(startsAt, endsAt);
-    var space = publicSpace(id);
+    var space = findActive(id);
+    var limits = bookingDuration(space);
     if (!isHubOpen(interval)) {
       return new SpaceAvailability(SpaceAvailability.Status.CLOSED, List.of());
+    }
+    if (!limits.accepts(interval.minutes())) {
+      throw new ResourceConflictException(
+          "O período escolhido está fora dos limites de duração deste espaço. Escolha outro horário.");
     }
     var stations = stations(space);
     var unavailable =
@@ -72,10 +79,17 @@ public class SpaceAvailabilityService {
     if (date.isBefore(now.toLocalDate())) {
       throw new InvalidRequestException("Escolha uma data a partir de hoje.");
     }
-    var space = publicSpace(id);
+    var space = findActive(id);
+    var limits = bookingDuration(space);
     OperatingHoursResponse schedule = hours.current();
     if (!schedule.daysOfWeek().contains(date.getDayOfWeek())) {
-      return new SpaceDayAgenda(true, List.of());
+      return new SpaceDayAgenda(
+          true,
+          List.of(),
+          space.getBookingMode(),
+          List.of(),
+          List.of(),
+          limits.hasLimits() ? limits : null);
     }
 
     var open = date.atTime(LocalTime.parse(schedule.openingTime()));
@@ -85,25 +99,41 @@ public class SpaceAvailabilityService {
     var intervals = intervals(space, stations, open, close);
     var sharedIds = sharedIds(space);
     var shared = intervals.stream().filter(item -> sharedIds.contains(item.resourceId())).toList();
-    List<List<SpaceBusyIntervals.Interval>> byResource;
-    if (space.getBookingMode() == BookingMode.PER_STATION) {
-      var byStation =
-          intervals.stream()
-              .collect(Collectors.groupingBy(SpaceBusyIntervals.Interval::resourceId));
-      byResource =
-          stations.stream()
-              .map(
-                  station -> {
-                    List<SpaceBusyIntervals.Interval> stationBusy = new ArrayList<>(shared);
-                    stationBusy.addAll(byStation.getOrDefault(station.getId(), List.of()));
-                    return stationBusy;
-                  })
-              .toList();
-    } else {
-      byResource = List.of(shared);
+    if (space.getBookingMode() != BookingMode.PER_STATION) {
+      var windows = SpaceDayTimeline.freeWindows(bookableFrom, close, shared, limits.minimum());
+      return new SpaceDayAgenda(
+          false,
+          SpaceDayTimeline.periods(open, close, windows),
+          space.getBookingMode(),
+          windows.stream().map(SpaceDayTimeline.Window::toResponse).toList(),
+          List.of(),
+          limits.hasLimits() ? limits : null);
+    }
+    var byStation =
+        intervals.stream().collect(Collectors.groupingBy(SpaceBusyIntervals.Interval::resourceId));
+    var allWindows = new ArrayList<SpaceDayTimeline.Window>();
+    var dayStations = new ArrayList<SpaceDayAgenda.DayStation>();
+    for (var station : stations) {
+      var stationBusy = new ArrayList<>(shared);
+      stationBusy.addAll(byStation.getOrDefault(station.getId(), List.of()));
+      var windows =
+          SpaceDayTimeline.freeWindows(bookableFrom, close, stationBusy, limits.minimum());
+      allWindows.addAll(windows);
+      dayStations.add(
+          new SpaceDayAgenda.DayStation(
+              station.getId(),
+              station.getStationNumber(),
+              station.getMapX().doubleValue(),
+              station.getMapY().doubleValue(),
+              windows.stream().map(SpaceDayTimeline.Window::toResponse).toList()));
     }
     return new SpaceDayAgenda(
-        false, SpaceDayTimeline.periods(open, close, bookableFrom, byResource));
+        false,
+        SpaceDayTimeline.periods(open, close, allWindows),
+        space.getBookingMode(),
+        List.of(),
+        dayStations,
+        limits.hasLimits() ? limits : null);
   }
 
   private List<SpaceBusyIntervals.Interval> intervals(
@@ -140,7 +170,11 @@ public class SpaceAvailabilityService {
         && !end.toLocalTime().isAfter(LocalTime.parse(schedule.closingTime()));
   }
 
-  record LocalInterval(LocalDateTime start, LocalDateTime end) {}
+  record LocalInterval(LocalDateTime start, LocalDateTime end) {
+    long minutes() {
+      return Duration.between(start, end).toMinutes();
+    }
+  }
 
   private List<UUID> sharedIds(Space space) {
     return space.getRoomId() == null
@@ -154,10 +188,10 @@ public class SpaceAvailabilityService {
         : List.of();
   }
 
-  private Space publicSpace(UUID id) {
-    var space = findActive(id);
-    if (space.getRoomId() != null) findActive(space.getRoomId());
-    return space;
+  private BookingDuration bookingDuration(Space space) {
+    return space.getRoomId() == null
+        ? space.bookingDuration()
+        : findActive(space.getRoomId()).bookingDuration();
   }
 
   private Space findActive(UUID id) {

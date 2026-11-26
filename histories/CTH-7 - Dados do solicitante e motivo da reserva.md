@@ -14,6 +14,10 @@ contatos. A coleta será implementada na entrega da solicitação; a verificaç�
 vínculo ficará para uma etapa futura. Essa decisão prevalece sobre as referências
 abaixo ao ID/cartão da Mútua.
 
+A Mútua verifica presencialmente a identidade do visitante na portaria, na chegada.
+O CPF informado no pedido serve para identificar o solicitante no registro. A conferência
+presencial da identidade é separada da análise do pedido e da verificação de vínculo.
+
 Permitir que o solicitante informe seus dados na própria solicitação, sem criar conta nesta fase, incluindo o ID/cartãozinho da Mútua quando aplicável e o motivo quando exigido.
 
 ## Quem usa

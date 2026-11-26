@@ -11,7 +11,7 @@ function time(required: string) {
   return z
     .string()
     .min(1, required)
-    .regex(TIME_24H, 'Informe o horário no formato hh:mm, de 00:00 a 23:59.')
+    .regex(TIME_24H, 'Escolha um horário válido.')
 }
 
 export const periodSchema = z

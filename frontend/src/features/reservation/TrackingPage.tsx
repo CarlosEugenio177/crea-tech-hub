@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router'
 import { ButtonLink } from '../../shared/ui/ButtonLink.tsx'
-import { IllustratedPage } from '../../shared/ui/IllustratedPage.tsx'
 import { Notice } from '../../shared/ui/Notice.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { QueryStatus } from '../../shared/ui/QueryStatus.tsx'
-import illustration from './assets/documento.svg'
 import { CancelReservationBox } from './CancelReservationBox.tsx'
 import {
   type ReservationReceipt,
@@ -80,13 +78,11 @@ export function TrackingPage() {
       cancelledToken === token && data?.status === 'CANCELLED'
 
     return (
-      <IllustratedPage
-        eyebrow="Mútua · Sua solicitação"
-        title={copy.title}
-        description={copy.description}
-        illustration={illustration}
-        illustrationAlt="Pessoa ao lado de um documento"
-      >
+      <div className={styles.page}>
+        <header className={styles.heading}>
+          <h1>{copy.title}</h1>
+          <p>{copy.description}</p>
+        </header>
         {data ? (
           <>
             {justCancelled ? (
@@ -151,19 +147,17 @@ export function TrackingPage() {
           <QueryStatus error={receipt.error} />
         )}
         <ButtonLink to={RESERVE}>Voltar aos espaços</ButtonLink>
-      </IllustratedPage>
+      </div>
     )
   }
 
   return (
-    <IllustratedPage
-      eyebrow="Mútua · Sua solicitação"
-      title="Acompanhe pelo link individual"
-      description="Abra o link individual mostrado no comprovante para consultar seu pedido."
-      illustration={illustration}
-      illustrationAlt="Pessoa ao lado de um documento"
-    >
+    <div className={styles.page}>
+      <header className={styles.heading}>
+        <h1>Acompanhe pelo link individual</h1>
+        <p>Abra o link do comprovante para consultar seu pedido.</p>
+      </header>
       <ButtonLink to={RESERVE}>Fazer uma solicitação</ButtonLink>
-    </IllustratedPage>
+    </div>
   )
 }

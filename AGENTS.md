@@ -32,6 +32,7 @@
 ## Regras já decididas
 
 - No beta, qualquer pessoa pode solicitar pelo fluxo público sem criar conta. O CPF identifica o solicitante nos dados do pedido, junto de nome e contatos; não é login nem comprovação de vínculo. A coleta será implementada na entrega da solicitação. A verificação Crea/Mútua fica para o futuro, sem consulta fictícia.
+- A Mútua confere a identidade do visitante presencialmente na portaria, na chegada. A análise online do pedido e a conferência presencial são etapas distintas.
 - Login local exclusivo de administradores ativos, com e-mail único normalizado e senha. A autenticação futura do solicitante via Crea/Mútua ainda depende de definição.
 - As roles são `ADMIN` e `USER`. Mutualista, profissional do Crea e outros vínculos são informações independentes das permissões. Não conceder benefícios por vínculo autodeclarado.
 - Superadministrador é um `ADMIN` com `MANAGE_ACCESS`, sem nova role. Novas ações administrativas exigem permissão explícita no backend; não presumir acesso total pela role.

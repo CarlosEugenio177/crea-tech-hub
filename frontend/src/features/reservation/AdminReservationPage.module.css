@@ -1,3 +1,20 @@
+.filterPanel > summary {
+  width: fit-content;
+  min-height: 44px;
+  align-content: center;
+  padding-inline: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font: var(--font-label);
+  cursor: pointer;
+}
+
+.filterPanel[open] > summary {
+  margin-bottom: 12px;
+}
+
 .filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
@@ -24,29 +41,101 @@
 
 .item {
   display: grid;
-  gap: 6px;
-  padding: 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
+  gap: 10px;
+  padding: clamp(14px, 3vw, 22px);
   overflow-wrap: anywhere;
 }
 
-.item h2,
-.item p {
-  margin: 0;
+.item + .item {
+  border-top: 1px solid var(--color-border);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 16px;
 }
 
 .item h2 {
   font: var(--font-field);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.date,
+.situation {
+  color: var(--color-text-muted);
+  font: var(--font-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.requester {
+  margin-block-start: 5px;
+  font: var(--font-label);
+}
+
+.situation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 3px 9px;
+  border-radius: var(--radius-button);
+  background: var(--color-background);
+  color: var(--color-text);
+  font: var(--font-label);
+}
+
+.badge[data-status='PENDING'] {
+  background: var(--color-info-background);
+  color: var(--color-primary);
+}
+
+.badge[data-status='CONFIRMED'] {
+  background: var(--color-success-background);
+  color: var(--color-success);
 }
 
 .item summary {
   width: fit-content;
+  padding-block: 6px;
+  color: var(--color-primary);
+  font: var(--font-label);
   cursor: pointer;
 }
 
-.details dd {
-  margin: 0 0 4px;
+.details {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 6px 16px;
+  max-width: 680px;
+  padding: 12px 0;
+  font: var(--font-small);
+}
+
+.details dt {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 520px) {
+  .details {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2px;
+  }
+
+  .details dd + dt {
+    margin-block-start: 8px;
+  }
+}
+
+.attendance {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 12px;
 }

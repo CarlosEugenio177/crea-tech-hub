@@ -10,7 +10,7 @@ export function usePublicSpaces() {
   return api.useInfiniteQuery(
     'get',
     CATALOG_PATH,
-    { params: { query: { size: CATALOG_SIZE } } },
+    { params: { query: { size: CATALOG_SIZE, topLevelOnly: true } } },
     {
       initialPageParam: 0,
       pageParamName: 'page',

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet, useMatch } from 'react-router'
 import { ADMIN_LOGIN } from '../features/admin-auth/adminRoutes.ts'
 import { RESERVE, TRACKING } from '../features/reservation/reservationRoutes.ts'
 import { Brand } from '../shared/ui/Brand.tsx'
@@ -8,25 +8,27 @@ import styles from './PublicLayout.module.css'
 type PublicLayoutProps = { children?: ReactNode }
 
 const MENU = [
-  { to: '/', label: 'Início' },
-  { to: RESERVE, label: 'Solicitar espaço' },
-  { to: TRACKING, label: 'Acompanhar solicitação' },
+  { to: RESERVE, label: 'Reservar' },
+  { to: TRACKING, label: 'Acompanhar' },
 ]
 
 export function PublicLayout({ children }: PublicLayoutProps) {
+  const isHome = useMatch('/') !== null
+
   return (
-    <>
+    <div className={styles.site}>
       <header className={styles.header}>
         <div className={styles.bar}>
-          <Brand to="/" />
+          <Brand to="/" variant="positive" />
           <nav className={styles.nav} aria-label="Principal">
             {MENU.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
                 className={({ isActive }) =>
-                  isActive ? styles.activeItem : styles.item
+                  isActive || (isHome && item.to === RESERVE)
+                    ? styles.activeItem
+                    : styles.item
                 }
               >
                 {item.label}
@@ -42,6 +44,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           Acesso da equipe
         </Link>
       </footer>
-    </>
+    </div>
   )
 }

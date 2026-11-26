@@ -2,11 +2,11 @@ import { screen } from '@testing-library/react'
 import { expect, test } from 'vitest'
 import { renderApp } from '../test/renderApp.tsx'
 
-test('shows the home page at the root path', () => {
+test('opens the space catalog at the root path', () => {
   renderApp('/')
 
   expect(
-    screen.getByRole('heading', { name: 'Seu acesso ao Hub começa aqui' }),
+    screen.getByRole('heading', { name: 'Escolha um espaço' }),
   ).toBeInTheDocument()
 })
 

@@ -158,6 +158,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reservations/{id}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Registrar ou desfazer uma falta */
+        put: operations["recordAdminReservationAttendance"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reservations/{id}/decisions": {
         parameters: {
             query?: never;
@@ -170,6 +187,24 @@ export interface paths {
         /** Registrar decisão sobre a reserva */
         post: operations["decideAdminReservation"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reservations/{id}/requester-block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Definir o prazo de bloqueio por faltas */
+        put: operations["blockAdminReservationRequester"];
+        post?: never;
+        /** Remover bloqueio por faltas */
+        delete: operations["unblockAdminReservationRequester"];
         options?: never;
         head?: never;
         patch?: never;
@@ -721,25 +756,38 @@ export interface components {
         AdminPermissionsRequest: {
             permissions: components["schemas"]["AdminPermission"][];
         };
+        AdminRequesterBlockRequest: {
+            /** Format: int32 */
+            durationDays: number;
+        };
         /** @enum {string} */
         AdminReservationAction: "CONFIRM" | "REJECT" | "CANCEL";
+        AdminReservationAttendanceRequest: {
+            noShow: boolean;
+        };
         AdminReservationDecisionRequest: {
             action: components["schemas"]["AdminReservationAction"];
             expectedStatus: components["schemas"]["ReservationStatus"];
             note?: string;
         };
         AdminReservationEntry: {
+            attendanceEditable: boolean;
             email: string;
             emailDeliveryStatus?: components["schemas"]["ReservationEmailDeliveryStatus"];
             /** Format: date-time */
             endsAt: string;
             fullName: string;
             lateCancellation: boolean;
+            noShow: boolean;
+            /** Format: int64 */
+            noShowCount: number;
             notes: string;
             profile: components["schemas"]["Profile"];
             /** Format: uuid */
             protocol: string;
             reason: string;
+            /** Format: date-time */
+            requesterBlockedUntil?: string;
             spaceName: string;
             /** Format: date-time */
             startsAt: string;
@@ -785,6 +833,20 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
+        };
+        BookingDuration: {
+            /**
+             * Format: int32
+             * @description Duração máxima em minutos. Ausência representa nenhum máximo configurado.
+             * @example 60
+             */
+            maxMinutes?: number;
+            /**
+             * Format: int32
+             * @description Duração mínima em minutos. Ausência representa nenhum mínimo configurado.
+             * @example 30
+             */
+            minMinutes?: number;
         };
         /** @enum {string} */
         BookingMode: "WHOLE_SPACE" | "PER_STATION";
@@ -939,6 +1001,7 @@ export interface components {
         };
         Space: {
             active: boolean;
+            bookingDuration?: components["schemas"]["BookingDuration"];
             bookingMode: components["schemas"]["BookingMode"];
             /** Format: int32 */
             capacity: number;
@@ -1011,11 +1074,32 @@ export interface components {
             startsAt: string;
         };
         SpaceDayAgenda: {
+            bookingDuration?: components["schemas"]["BookingDuration"];
+            bookingMode: components["schemas"]["BookingMode"];
             closed: boolean;
+            freeWindows: components["schemas"]["SpaceFreeWindow"][];
             periods: components["schemas"]["SpaceDayPeriod"][];
+            stations: components["schemas"]["SpaceDayStation"][];
         };
         SpaceDayPeriod: {
             available: boolean;
+            /** @example 10:45 */
+            end: string;
+            /** @example 09:30 */
+            start: string;
+        };
+        SpaceDayStation: {
+            freeWindows: components["schemas"]["SpaceFreeWindow"][];
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            number: number;
+            /** Format: double */
+            x: number;
+            /** Format: double */
+            y: number;
+        };
+        SpaceFreeWindow: {
             /** @example 10:45 */
             end: string;
             /** @example 09:30 */
@@ -1039,6 +1123,8 @@ export interface components {
             status: components["schemas"]["Status"];
         };
         SpaceRequest: {
+            /** @description Limites opcionais de duração. No PUT, omitir preserva os limites e {} remove ambos. */
+            bookingDuration?: components["schemas"]["BookingDuration"];
             /**
              * Format: int32
              * @description Inteiro positivo; estações individuais exigem capacidade 1.
@@ -1359,6 +1445,33 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    recordAdminReservationAttendance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReservationAttendanceRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            default: components["responses"]["Problem"];
+        };
+    };
     decideAdminReservation: {
         parameters: {
             query?: never;
@@ -1383,6 +1496,53 @@ export interface operations {
             };
             404: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    blockAdminReservationRequester: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminRequesterBlockRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            409: components["responses"]["Problem"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    unblockAdminReservationRequester: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             default: components["responses"]["Problem"];
         };
     };
@@ -2089,6 +2249,7 @@ export interface operations {
             query?: {
                 page?: number;
                 size?: number;
+                topLevelOnly?: boolean;
             };
             header?: never;
             path?: never;
@@ -2156,6 +2317,7 @@ export interface operations {
                     "application/json": components["schemas"]["SpaceAvailability"];
                 };
             };
+            409: components["responses"]["Problem"];
             default: components["responses"]["Problem"];
         };
     };

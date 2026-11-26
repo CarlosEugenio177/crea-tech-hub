@@ -1,46 +1,69 @@
 .page {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 24px;
+  max-width: 820px;
+}
+
+.queue {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid var(--color-border);
+  border-inline-start: 3px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.queue h2 {
+  font: var(--font-section-title);
+}
+
+.status {
+  margin-block-start: 5px;
+  color: var(--color-text-muted);
 }
 
 .areas {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
-  gap: 12px;
+  border-block: 1px solid var(--color-border);
   list-style: none;
+}
+
+.areas li + li {
+  border-top: 1px solid var(--color-border);
 }
 
 .area {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  height: 100%;
-  padding: 20px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 10px 6px;
   color: var(--color-text);
   text-decoration: none;
-  transition:
-    border-color var(--transition),
-    box-shadow var(--transition);
 }
 
-.area:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-raised);
+.area:hover strong {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-.area:hover .areaName {
+.description {
+  display: block;
+  color: var(--color-text-muted);
+  font: var(--font-small);
+}
+
+.arrow,
+.password {
   color: var(--color-primary);
 }
 
-.areaName {
-  font: var(--font-button);
-}
-
-.areaDescription {
-  font: var(--font-small);
-  color: var(--color-text-muted);
+.password {
+  width: fit-content;
+  text-underline-offset: 4px;
 }

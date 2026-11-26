@@ -29,9 +29,11 @@ public record SpaceResponse(
     BookingMode bookingMode,
     long version,
     @JsonInclude(JsonInclude.Include.NON_NULL) RoomDimensions roomDimensions,
-    @JsonInclude(JsonInclude.Include.NON_NULL) String photoUrl) {
+    @JsonInclude(JsonInclude.Include.NON_NULL) String photoUrl,
+    @JsonInclude(JsonInclude.Include.NON_NULL) BookingDuration bookingDuration) {
 
   static SpaceResponse from(Space space) {
+    var duration = space.bookingDuration();
     return new SpaceResponse(
         space.getId(),
         space.getName(),
@@ -44,6 +46,7 @@ public record SpaceResponse(
         space.getBookingMode(),
         space.getVersion(),
         space.getRoomDimensions(),
-        space.getPhotoUrl());
+        space.getPhotoUrl(),
+        duration.hasLimits() ? duration : null);
   }
 }

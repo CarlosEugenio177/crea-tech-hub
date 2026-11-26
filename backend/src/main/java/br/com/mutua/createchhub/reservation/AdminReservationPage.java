@@ -2,6 +2,7 @@ package br.com.mutua.createchhub.reservation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +28,10 @@ public record AdminReservationPage(
         "reason",
         "profile",
         "notes",
-        "lateCancellation"
+        "lateCancellation",
+        "noShow",
+        "attendanceEditable",
+        "noShowCount"
       })
   public record Entry(
       UUID protocol,
@@ -43,6 +47,10 @@ public record AdminReservationPage(
       ReservationRequest.Profile profile,
       String notes,
       boolean lateCancellation,
+      boolean noShow,
+      boolean attendanceEditable,
+      long noShowCount,
+      @JsonInclude(JsonInclude.Include.NON_NULL) Instant requesterBlockedUntil,
       @JsonInclude(JsonInclude.Include.NON_NULL)
           ReservationEmailQueue.DeliveryStatus emailDeliveryStatus) {}
 }

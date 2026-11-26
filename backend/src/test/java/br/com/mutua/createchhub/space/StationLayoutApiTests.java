@@ -117,7 +117,7 @@ class StationLayoutApiTests {
           .isEqualTo(
               json.readTree(
                   """
-              {"closed":true,"periods":[]}
+              {"closed":true,"periods":[],"bookingMode":"PER_STATION","freeWindows":[],"stations":[]}
               """));
       assertThat(visitor.get(base + "/day?date=2099-02-31").statusCode()).isEqualTo(400);
       var blocked = json.readTree(visitor.get(base + interval).body());
@@ -230,6 +230,11 @@ class StationLayoutApiTests {
       var catalogBefore = visitor.get("/api/v1/spaces");
       assertThat(catalogBefore.statusCode()).isEqualTo(200);
       assertThat(catalogBefore.body()).contains(first.getId().toString());
+      var topLevel = visitor.get("/api/v1/spaces?topLevelOnly=true");
+      assertThat(topLevel.statusCode()).isEqualTo(200);
+      assertThat(topLevel.body())
+          .contains(room.getId().toString())
+          .doesNotContain(first.getId().toString());
       assertThat(
               client
                   .json(

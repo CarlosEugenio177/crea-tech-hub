@@ -65,9 +65,111 @@ class AdminReservationApiTests {
 
   @AfterEach
   void cleanup() {
+    jdbc.update("DELETE FROM requester_reservation_blocks");
     jdbc.update("DELETE FROM reservations");
     spaces.deleteAllInBatch();
     accounts.deleteAll();
+  }
+
+  @Test
+  void requiresRepeatedAbsencesAndRespectsTheManualBlockAndItsExpiration() throws Exception {
+    var space = spaces.saveAndFlush(new Space("Sala de estudo", SpaceType.ROOM, 2, null));
+    var first = row(space.getId(), "Visitante", "2025-04-01T10:00", "CONFIRMED");
+    var second = row(space.getId(), "Visitante", "2025-04-02T10:00", "CONFIRMED");
+    row(space.getId(), "Visitante", "2025-04-03T10:00", "CANCELLED");
+    try (var team = signedIn("spaces@example.com", AdminPermission.MANAGE_SPACES);
+        var visitor = new SessionClient(port)) {
+      var adminCsrf = team.csrf();
+      var firstBlock = PATH + "/" + first + "/requester-block";
+      var secondBlock = PATH + "/" + second + "/requester-block";
+      var duration = Map.of("durationDays", 3);
+      var absence = Map.of("noShow", true);
+      assertThat(
+              team.json("PUT", PATH + "/" + first + "/attendance", absence, adminCsrf).statusCode())
+          .isEqualTo(204);
+      assertThat(team.json("PUT", firstBlock, duration, adminCsrf).statusCode()).isEqualTo(409);
+      assertThat(
+              team.json("PUT", PATH + "/" + second + "/attendance", absence, adminCsrf)
+                  .statusCode())
+          .isEqualTo(204);
+      var repeated =
+          json.readTree(team.get(PATH + "?search=" + second).body()).path("items").get(0);
+      assertThat(repeated.path("noShowCount").asInt()).isEqualTo(2);
+      assertThat(repeated.has("requesterBlockedUntil")).isFalse();
+
+      assertThat(team.json("PUT", secondBlock, duration, adminCsrf).statusCode()).isEqualTo(204);
+      var visitorCsrf = visitor.csrf();
+      var submission =
+          Map.of(
+              "spaceId",
+              space.getId(),
+              "rulesAccepted",
+              true,
+              "startsAt",
+              "2099-03-10T09:00",
+              "endsAt",
+              "2099-03-10T10:00",
+              "requester",
+              Map.of(
+                  "cpf",
+                  "52998224725",
+                  "fullName",
+                  "Visitante",
+                  "email",
+                  "visitor@example.com",
+                  "whatsapp",
+                  "86999990000",
+                  "profile",
+                  "EXTERNAL",
+                  "onBehalfOfOthers",
+                  false,
+                  "reason",
+                  "Estudo",
+                  "notes",
+                  ""));
+      var denied = visitor.json("POST", "/api/v1/reservations", submission, visitorCsrf);
+      assertThat(denied.statusCode()).isEqualTo(403);
+      assertThat(json.readTree(denied.body()).path("detail").asString())
+          .contains("bloqueadas por faltas");
+
+      assertThat(team.json("DELETE", secondBlock, null, adminCsrf).statusCode()).isEqualTo(204);
+      assertThat(team.json("PUT", secondBlock, duration, adminCsrf).statusCode()).isEqualTo(204);
+      jdbc.update(
+          "UPDATE requester_reservation_blocks SET starts_at = now() - interval '2 days', ends_at = now() - interval '1 day' WHERE revoked_at IS NULL");
+      assertThat(visitor.json("POST", "/api/v1/reservations", submission, visitorCsrf).statusCode())
+          .isEqualTo(201);
+    }
+  }
+
+  @Test
+  void recordsAndCorrectsNoShowOnlyAfterConfirmedReservationsEnd() throws Exception {
+    var space = spaces.saveAndFlush(new Space("Sala de estudo", SpaceType.ROOM, 2, null));
+    var ended = row(space.getId(), "Visitante", "2025-04-01T10:00", "CONFIRMED");
+    var future = row(space.getId(), "Visitante", "2099-03-10T09:00", "CONFIRMED");
+    try (var client = signedIn("spaces@example.com", AdminPermission.MANAGE_SPACES)) {
+      var csrf = client.csrf();
+      var attendance = PATH + "/" + ended + "/attendance";
+      assertThat(
+              client
+                  .json("PUT", PATH + "/" + future + "/attendance", Map.of("noShow", true), csrf)
+                  .statusCode())
+          .isEqualTo(409);
+      var initial =
+          json.readTree(client.get(PATH + "?search=" + ended).body()).path("items").get(0);
+      assertThat(initial.path("attendanceEditable").asBoolean()).isTrue();
+      assertThat(client.json("PUT", attendance, Map.of("noShow", true), csrf).statusCode())
+          .isEqualTo(204);
+      assertThat(client.json("PUT", attendance, Map.of("noShow", true), csrf).statusCode())
+          .isEqualTo(204);
+      var missed = json.readTree(client.get(PATH + "?search=" + ended).body()).path("items").get(0);
+      assertThat(missed.path("status").asString()).isEqualTo("CONFIRMED");
+      assertThat(missed.path("noShow").asBoolean()).isTrue();
+      assertThat(client.json("PUT", attendance, Map.of("noShow", false), csrf).statusCode())
+          .isEqualTo(204);
+      var corrected =
+          json.readTree(client.get(PATH + "?search=" + ended).body()).path("items").get(0);
+      assertThat(corrected.path("noShow").asBoolean()).isFalse();
+    }
   }
 
   @Test

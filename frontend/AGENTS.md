@@ -36,9 +36,9 @@ Vite, React Router e as bibliotecas já aprovadas; preservar KISS e YAGNI.
 - Erros da API aparecem com `ProblemNotice`; carregamento e falha de consultas, com
   `QueryStatus`. Campos de formulário usam `Field` (via `TextField`, `SelectField` e
   `TextAreaField`), que liga rótulo, dica, erro e atributos de acessibilidade.
-- Datas, horários e números seguem o padrão brasileiro: exibição com `Intl` em `pt-BR`
-  e entrada em `dd/mm/aaaa` e `hh:mm` (24 h), com máscara. Não usar `type="date"` ou
-  `type="time"`, que seguem o idioma do navegador. Valores enviados à API usam ISO.
+- Datas, horários e números seguem o padrão brasileiro. Datas usam `Intl` em
+  `pt-BR` e máscara `dd/mm/aaaa` na entrada. Horários editáveis usam seletores
+  de hora e minuto no padrão de 24 horas. Valores enviados à API usam ISO.
 - A conta autenticada no painel vem de `useAdminAccount()`. Importações relativas
   usam a extensão do arquivo (`.ts`/`.tsx`), exceto os tipos gerados em `schema`.
 - O painel usa `/admin`, com layout e navegação próprios. Funcionalidades públicas

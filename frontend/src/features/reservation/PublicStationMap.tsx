@@ -6,11 +6,10 @@ import styles from './PublicStationMap.module.css'
 
 type Props = {
   stations: AvailableStation[]
-  disabled: boolean
   onChoose: (station: AvailableStation) => void
 }
 
-export function PublicStationMap({ stations, disabled, onChoose }: Props) {
+export function PublicStationMap({ stations, onChoose }: Props) {
   const [selectedId, select] = useState('')
   const selected = stations.find(
     (station) => station.id === selectedId && station.available,
@@ -27,7 +26,7 @@ export function PublicStationMap({ stations, disabled, onChoose }: Props) {
               style={{ left: `${station.x}%`, top: `${station.y}%` }}
               aria-label={`Estação ${station.number}, ${station.available ? 'livre' : 'indisponível'}`}
               aria-pressed={selected?.id === station.id}
-              disabled={disabled || !station.available}
+              disabled={!station.available}
               onClick={() => select(station.id)}
             >
               <strong>{station.number}</strong>
@@ -39,7 +38,7 @@ export function PublicStationMap({ stations, disabled, onChoose }: Props) {
       <SelectField
         label="Escolher estação pelo número"
         value={selected?.id ?? ''}
-        disabled={disabled || !stations.some((station) => station.available)}
+        disabled={!stations.some((station) => station.available)}
         onChange={(event) => select(event.target.value)}
       >
         <option value="">Selecione uma estação livre</option>
@@ -55,7 +54,7 @@ export function PublicStationMap({ stations, disabled, onChoose }: Props) {
         ))}
       </SelectField>
       <Button
-        disabled={disabled || !selected}
+        disabled={!selected}
         onClick={() => selected && onChoose(selected)}
       >
         Continuar com esta estação

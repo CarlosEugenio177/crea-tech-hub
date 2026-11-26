@@ -25,7 +25,8 @@ public class PublicSpaceController {
   @GetMapping
   public PublicSpacePageResponse list(
       @RequestParam(defaultValue = "0") @Min(0) int page,
-      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
-    return PublicSpacePageResponse.from(spaces.listPublic(page, size));
+      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+      @RequestParam(defaultValue = "false") boolean topLevelOnly) {
+    return PublicSpacePageResponse.from(spaces.listPublic(page, size, topLevelOnly));
   }
 }

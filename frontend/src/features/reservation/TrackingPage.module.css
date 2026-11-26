@@ -1,11 +1,23 @@
+.page {
+  display: grid;
+  justify-items: start;
+  gap: 24px;
+  width: 100%;
+  max-width: 620px;
+}
+
+.heading h1 {
+  font: var(--font-public-title);
+}
+
+.heading p {
+  margin-block-start: 8px;
+  color: var(--color-text-muted);
+}
+
 .details {
   width: 100%;
-  max-width: 560px;
-  padding: 4px 20px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-raised);
+  border-block: 1px solid var(--color-border);
 }
 
 .row {

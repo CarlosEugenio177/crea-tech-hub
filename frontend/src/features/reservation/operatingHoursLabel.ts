@@ -42,5 +42,5 @@ function formatDays(days: DayOfWeek[]) {
 
 export function formatOperatingHours(hours: OperatingHours) {
   const days = formatDays(hours.daysOfWeek)
-  return `Funcionamento do Hub: ${days}, das ${hours.openingTime} às ${hours.closingTime}.`
+  return `${days}, das ${hours.openingTime} às ${hours.closingTime}.`
 }

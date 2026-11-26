@@ -3,6 +3,9 @@ package br.com.mutua.createchhub.space;
 import br.com.mutua.createchhub.block.SpaceBlockRequest;
 import br.com.mutua.createchhub.shared.error.InvalidRequestException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -39,6 +42,14 @@ public class SpaceAvailabilityController {
   @Operation(
       operationId = "getSpaceAvailability",
       summary = "Consultar disponibilidade no intervalo local do Hub")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = SpaceAvailability.class)))
+  @ApiResponse(responseCode = "409", ref = "#/components/responses/Problem")
   @GetMapping("/api/v1/spaces/{id}/availability")
   public ResponseEntity<SpaceAvailability> get(
       @PathVariable UUID id,

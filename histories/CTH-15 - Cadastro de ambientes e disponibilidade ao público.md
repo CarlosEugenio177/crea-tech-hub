@@ -27,9 +27,14 @@ Permitir que a equipe mantenha o catálogo do Hub: ambientes, estações, equipa
 
 ## Critérios de aceite
 
+No cadastro de um espaço, a equipe pode informar a duração mínima, máxima ou
+ambas em minutos. Campos vazios representam duração livre no respectivo limite.
+As estações vinculadas seguem a regra da sala. Alterações valem para novos
+pedidos e não mudam as reservas já registradas.
+
 O cadastro aceita um link HTTPS opcional para a foto do ambiente. O catálogo
-exibe a foto quando cadastrada e usa a ilustração do tipo de espaço quando
-a foto está ausente ou indisponível.
+exibe a foto quando cadastrada. Nome, descrição e ação de reserva aparecem
+quando a imagem está ausente ou indisponível.
 
 **Entrega parcial:** API administrativa de cadastro básico, edição, consulta paginada
 e ativação/desativação implementada. Ver [contrato de espaços](../docs/16-espacos.md).

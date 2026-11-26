@@ -329,6 +329,50 @@
         "tags" : [ "admin-reservation-controller" ]
       }
     },
+    "/api/v1/admin/reservations/{id}/attendance" : {
+      "put" : {
+        "operationId" : "recordAdminReservationAttendance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminReservationAttendanceRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Registrar ou desfazer uma falta",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
     "/api/v1/admin/reservations/{id}/decisions" : {
       "post" : {
         "operationId" : "decideAdminReservation",
@@ -370,6 +414,73 @@
           "sessionAuth" : [ ]
         } ],
         "summary" : "Registrar decisão sobre a reserva",
+        "tags" : [ "admin-reservation-controller" ]
+      }
+    },
+    "/api/v1/admin/reservations/{id}/requester-block" : {
+      "delete" : {
+        "operationId" : "unblockAdminReservationRequester",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Remover bloqueio por faltas",
+        "tags" : [ "admin-reservation-controller" ]
+      },
+      "put" : {
+        "operationId" : "blockAdminReservationRequester",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdminRequesterBlockRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/Problem"
+          }
+        },
+        "security" : [ {
+          "csrf" : [ ],
+          "sessionAuth" : [ ]
+        } ],
+        "summary" : "Definir o prazo de bloqueio por faltas",
         "tags" : [ "admin-reservation-controller" ]
       }
     },
@@ -1543,6 +1654,14 @@
             "maximum" : 100,
             "minimum" : 1
           }
+        }, {
+          "in" : "query",
+          "name" : "topLevelOnly",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
         } ],
         "responses" : {
           "200" : {
@@ -1651,6 +1770,9 @@
               }
             },
             "description" : "OK"
+          },
+          "409" : {
+            "$ref" : "#/components/responses/Problem"
           },
           "default" : {
             "$ref" : "#/components/responses/Problem"
@@ -1902,9 +2024,29 @@
         },
         "required" : [ "permissions" ]
       },
+      "AdminRequesterBlockRequest" : {
+        "type" : "object",
+        "properties" : {
+          "durationDays" : {
+            "type" : "integer",
+            "format" : "int32",
+            "exclusiveMinimum" : 0
+          }
+        },
+        "required" : [ "durationDays" ]
+      },
       "AdminReservationAction" : {
         "type" : "string",
         "enum" : [ "CONFIRM", "REJECT", "CANCEL" ]
+      },
+      "AdminReservationAttendanceRequest" : {
+        "type" : "object",
+        "properties" : {
+          "noShow" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "noShow" ]
       },
       "AdminReservationDecisionRequest" : {
         "type" : "object",
@@ -1926,6 +2068,9 @@
       "AdminReservationEntry" : {
         "type" : "object",
         "properties" : {
+          "attendanceEditable" : {
+            "type" : "boolean"
+          },
           "email" : {
             "type" : "string"
           },
@@ -1942,6 +2087,13 @@
           "lateCancellation" : {
             "type" : "boolean"
           },
+          "noShow" : {
+            "type" : "boolean"
+          },
+          "noShowCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "notes" : {
             "type" : "string"
           },
@@ -1954,6 +2106,10 @@
           },
           "reason" : {
             "type" : "string"
+          },
+          "requesterBlockedUntil" : {
+            "type" : "string",
+            "format" : "date-time"
           },
           "spaceName" : {
             "type" : "string"
@@ -1973,7 +2129,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "email", "endsAt", "fullName", "lateCancellation", "notes", "profile", "protocol", "reason", "spaceName", "startsAt", "status", "whatsapp" ]
+        "required" : [ "attendanceEditable", "email", "endsAt", "fullName", "lateCancellation", "noShow", "noShowCount", "notes", "profile", "protocol", "reason", "spaceName", "startsAt", "status", "whatsapp" ]
       },
       "AdminReservationPage" : {
         "type" : "object",
@@ -2076,6 +2232,27 @@
           }
         },
         "required" : [ "items", "page", "size", "totalElements", "totalPages" ]
+      },
+      "BookingDuration" : {
+        "type" : "object",
+        "properties" : {
+          "maxMinutes" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Duração máxima em minutos. Ausência representa nenhum máximo configurado.",
+            "example" : 60,
+            "exclusiveMinimum" : 0,
+            "maximum" : 1439
+          },
+          "minMinutes" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Duração mínima em minutos. Ausência representa nenhum mínimo configurado.",
+            "example" : 30,
+            "exclusiveMinimum" : 0,
+            "maximum" : 1439
+          }
+        }
       },
       "BookingMode" : {
         "type" : "string",
@@ -2545,6 +2722,9 @@
           "active" : {
             "type" : "boolean"
           },
+          "bookingDuration" : {
+            "$ref" : "#/components/schemas/BookingDuration"
+          },
           "bookingMode" : {
             "$ref" : "#/components/schemas/BookingMode"
           },
@@ -2714,17 +2894,35 @@
       "SpaceDayAgenda" : {
         "type" : "object",
         "properties" : {
+          "bookingDuration" : {
+            "$ref" : "#/components/schemas/BookingDuration"
+          },
+          "bookingMode" : {
+            "$ref" : "#/components/schemas/BookingMode"
+          },
           "closed" : {
             "type" : "boolean"
+          },
+          "freeWindows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceFreeWindow"
+            }
           },
           "periods" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/SpaceDayPeriod"
             }
+          },
+          "stations" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceDayStation"
+            }
           }
         },
-        "required" : [ "closed", "periods" ]
+        "required" : [ "bookingMode", "closed", "freeWindows", "periods", "stations" ]
       },
       "SpaceDayPeriod" : {
         "type" : "object",
@@ -2742,6 +2940,48 @@
           }
         },
         "required" : [ "available", "end", "start" ]
+      },
+      "SpaceDayStation" : {
+        "type" : "object",
+        "properties" : {
+          "freeWindows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SpaceFreeWindow"
+            }
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "y" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "required" : [ "freeWindows", "id", "number", "x", "y" ]
+      },
+      "SpaceFreeWindow" : {
+        "type" : "object",
+        "properties" : {
+          "end" : {
+            "type" : "string",
+            "example" : "10:45"
+          },
+          "start" : {
+            "type" : "string",
+            "example" : "09:30"
+          }
+        },
+        "required" : [ "end", "start" ]
       },
       "SpacePage" : {
         "type" : "object",
@@ -2795,6 +3035,10 @@
       "SpaceRequest" : {
         "type" : "object",
         "properties" : {
+          "bookingDuration" : {
+            "$ref" : "#/components/schemas/BookingDuration",
+            "description" : "Limites opcionais de duração. No PUT, omitir preserva os limites e {} remove ambos."
+          },
           "capacity" : {
             "type" : "integer",
             "format" : "int32",

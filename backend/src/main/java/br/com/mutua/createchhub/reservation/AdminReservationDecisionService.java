@@ -22,10 +22,11 @@ public class AdminReservationDecisionService {
 
   @Transactional
   public void decide(UUID id, UUID adminId, AdminReservationDecisionRequest request) {
-    var current =
+    var reservation =
         reservations
-            .findStatusForUpdate(id)
+            .findAdminStateForUpdate(id)
             .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado."));
+    var current = reservation.status();
     if (current != request.expectedStatus()) {
       throw new ResourceConflictException(
           "O pedido foi atualizado. Confira a situação antes de decidir.");
@@ -41,6 +42,11 @@ public class AdminReservationDecisionService {
         && !(current == ReservationStatus.CONFIRMED && next == ReservationStatus.CANCELLED)) {
       throw new ResourceConflictException(
           "Essa ação não está disponível para a situação do pedido.");
+    }
+
+    if (reservation.noShow()) {
+      throw new ResourceConflictException(
+          "Desfaça a falta registrada antes de cancelar a reserva.");
     }
 
     var note = request.note() == null || request.note().isBlank() ? null : request.note().strip();

@@ -48,7 +48,8 @@ class ReservationServiceTests {
             mock(SpaceAvailabilityService.class),
             repo,
             Clock.fixed(exact24h, SpaceAvailabilityService.HUB_ZONE),
-            mock(ReservationEmailQueue.class));
+            mock(ReservationEmailQueue.class),
+            mock(RequesterBlockService.class));
     var regularReceipt = atBoundary.cancel(TOKEN, new ReservationCancellationRequest(false));
     assertThat(regularReceipt.lateCancellation()).isFalse();
     verify(repo).markCancelled(id, exact24h, false);
@@ -74,7 +75,8 @@ class ReservationServiceTests {
             mock(SpaceAvailabilityService.class),
             repoLate,
             Clock.fixed(oneSecondLate, SpaceAvailabilityService.HUB_ZONE),
-            mock(ReservationEmailQueue.class));
+            mock(ReservationEmailQueue.class),
+            mock(RequesterBlockService.class));
 
     assertThatThrownBy(() -> afterBoundary.cancel(TOKEN, new ReservationCancellationRequest(false)))
         .isInstanceOf(ResourceConflictException.class);
@@ -110,7 +112,8 @@ class ReservationServiceTests {
             mock(SpaceAvailabilityService.class),
             repo,
             Clock.fixed(inProgress, SpaceAvailabilityService.HUB_ZONE),
-            mock(ReservationEmailQueue.class));
+            mock(ReservationEmailQueue.class),
+            mock(RequesterBlockService.class));
     var cancelled = duringSlot.cancel(TOKEN, new ReservationCancellationRequest(true));
     assertThat(cancelled.status()).isEqualTo(ReservationStatus.CANCELLED);
     assertThat(cancelled.lateCancellation()).isTrue();
@@ -122,7 +125,8 @@ class ReservationServiceTests {
             mock(SpaceAvailabilityService.class),
             repo,
             Clock.fixed(atEnd, SpaceAvailabilityService.HUB_ZONE),
-            mock(ReservationEmailQueue.class));
+            mock(ReservationEmailQueue.class),
+            mock(RequesterBlockService.class));
     assertThatThrownBy(() -> endedService.cancel(TOKEN, new ReservationCancellationRequest(true)))
         .isInstanceOf(ResourceConflictException.class);
   }

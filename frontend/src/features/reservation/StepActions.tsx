@@ -11,10 +11,10 @@ type StepActionsProps = {
 export function StepActions({ backTo, backLabel, children }: StepActionsProps) {
   return (
     <div className={styles.actions}>
+      {children}
       <ButtonLink variant="secondary" to={backTo}>
         {backLabel}
       </ButtonLink>
-      {children}
     </div>
   )
 }

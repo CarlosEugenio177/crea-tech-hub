@@ -1,9 +1,14 @@
 package br.com.mutua.createchhub.reservation;
 
+import br.com.mutua.createchhub.space.SpaceAvailabilityService;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -15,8 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminReservationQuery {
   private final NamedParameterJdbcOperations jdbc;
 
-  public AdminReservationQuery(NamedParameterJdbcOperations jdbc) {
+  private final Clock clock;
+
+  public AdminReservationQuery(NamedParameterJdbcOperations jdbc, Clock clock) {
     this.jdbc = jdbc;
+    this.clock = clock;
   }
 
   @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
@@ -46,11 +54,20 @@ public class AdminReservationQuery {
             ? " FROM reservations"
             : " FROM reservations WHERE " + String.join(" AND ", conditions);
     long total = jdbc.queryForObject("SELECT count(*)" + from, params, Long.class);
+    var now = clock.instant();
+    params.addValue("nowLocal", LocalDateTime.ofInstant(now, SpaceAvailabilityService.HUB_ZONE));
+    params.addValue("now", now.atOffset(ZoneOffset.UTC));
     List<AdminReservationPage.Entry> items =
         jdbc.query(
             """
         SELECT id, space_name, station_number, starts_at, ends_at, status, full_name, email,
                whatsapp, reason, profile, notes, late_cancellation,
+               no_show_at IS NOT NULL AS no_show,
+               (status = 'CONFIRMED' AND ends_at <= :nowLocal) AS attendance_editable,
+               (SELECT count(*) FROM reservations absences
+                 WHERE absences.cpf = reservations.cpf AND absences.no_show_at IS NOT NULL) AS no_show_count,
+               (SELECT max(ends_at) FROM requester_reservation_blocks
+                 WHERE cpf = reservations.cpf AND revoked_at IS NULL AND ends_at > :now) AS blocked_until,
                (SELECT state FROM reservation_emails WHERE reservation_id = reservations.id
                  ORDER BY id DESC LIMIT 1) AS email_delivery_status
         """
@@ -72,6 +89,12 @@ public class AdminReservationQuery {
                     ReservationRequest.Profile.valueOf(row.getString("profile")),
                     row.getString("notes"),
                     row.getBoolean("late_cancellation"),
+                    row.getBoolean("no_show"),
+                    row.getBoolean("attendance_editable"),
+                    row.getLong("no_show_count"),
+                    Optional.ofNullable(row.getObject("blocked_until", OffsetDateTime.class))
+                        .map(OffsetDateTime::toInstant)
+                        .orElse(null),
                     deliveryStatus(row.getString("email_delivery_status"))));
     return new AdminReservationPage(
         items, page, size, total, Math.toIntExact(Math.ceilDiv(total, size)));

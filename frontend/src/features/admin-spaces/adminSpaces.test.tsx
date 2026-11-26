@@ -189,6 +189,39 @@ test('edits a space starting from its current data', async () => {
   })
 })
 
+test('validates and saves optional booking duration limits', async () => {
+  const user = userEvent.setup()
+  const api = fakeApi({
+    [SESSION]: spacesManager,
+    [LIST]: () => page([room]),
+    [FIND]: () => json({ ...room, bookingDuration: { minMinutes: 30 } }),
+    [UPDATE]: () => json(room),
+  })
+  renderApp(`/admin/espacos/${ROOM_ID}`)
+
+  expect(await screen.findByLabelText('Duração mínima (minutos)')).toHaveValue(
+    30,
+  )
+  const maximum = screen.getByLabelText('Duração máxima (minutos)')
+  await user.type(maximum, '20')
+  await user.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+  expect(
+    await screen.findByText(
+      'A duração máxima deve ser maior ou igual à mínima.',
+    ),
+  ).toBeVisible()
+  expect(api.sent(UPDATE)).toHaveLength(0)
+
+  await user.clear(maximum)
+  await user.type(maximum, '60')
+  await user.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+  await screen.findByRole('heading', { name: 'Espaços' })
+  expect(JSON.parse(api.sent(UPDATE)[0].body).bookingDuration).toEqual({
+    minMinutes: 30,
+    maxMinutes: 60,
+  })
+})
+
 test('explains when the space to edit does not exist', async () => {
   fakeApi({
     [SESSION]: spacesManager,

@@ -26,6 +26,7 @@ public class ReservationService {
   private final ReservationRepository reservations;
   private final Clock clock;
   private final ReservationEmailQueue emails;
+  private final RequesterBlockService requesterBlocks;
   private final SecureRandom random = new SecureRandom();
 
   ReservationService(
@@ -33,16 +34,19 @@ public class ReservationService {
       SpaceAvailabilityService availability,
       ReservationRepository reservations,
       Clock clock,
-      ReservationEmailQueue emails) {
+      ReservationEmailQueue emails,
+      RequesterBlockService requesterBlocks) {
     this.spaces = spaces;
     this.availability = availability;
     this.reservations = reservations;
     this.clock = clock;
     this.emails = emails;
+    this.requesterBlocks = requesterBlocks;
   }
 
   @Transactional
   public ReservationSubmission submit(ReservationRequest request) {
+    requesterBlocks.checkSubmission(request.requester().cpf());
     var scope = lockScope(request);
     var result = availability.check(scope.selected().getId(), request.startsAt(), request.endsAt());
     boolean free =

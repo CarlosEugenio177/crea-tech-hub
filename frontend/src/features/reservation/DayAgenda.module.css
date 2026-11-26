@@ -1,67 +1,69 @@
 .agenda {
   display: grid;
-  gap: 8px;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(12px, 3vw, 22px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-public-panel);
+  background: var(--color-surface);
 }
 
 .agenda h2 {
-  margin: 0;
-  font: var(--font-field);
-  font-weight: 600;
+  font: var(--font-label);
 }
 
 .agenda p {
-  margin: 0;
-  color: var(--color-text);
+  color: var(--color-text-muted);
   font: var(--font-small);
-}
-
-.header,
-.navigation,
-.free,
-.busy {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.header,
-.free,
-.busy {
-  justify-content: space-between;
 }
 
 .periods {
   display: grid;
   gap: 4px;
-  margin: 0;
-  padding: 0;
   list-style: none;
 }
 
 .free,
 .busy {
-  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
   width: 100%;
+  min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid var(--color-border-field);
-  border-radius: var(--radius-button);
+  border: 1px solid transparent;
+  border-radius: var(--radius-public-control);
   font: var(--font-label);
+  font-variant-numeric: tabular-nums;
 }
 
 .free {
-  background: var(--color-info-background);
-  color: var(--color-primary-hover);
+  color: var(--color-text);
+  background: var(--color-background);
   cursor: pointer;
 }
 
-.free:hover:not(:disabled) {
-  border-color: var(--color-primary);
+.free span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
 }
 
-.free:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+.free span:last-child::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-mutua-green);
+  content: '';
+}
+
+.free:hover:not(:disabled),
+.free[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-info-background);
 }
 
 .free:disabled {
@@ -69,6 +71,18 @@
 }
 
 .busy {
-  background: var(--color-background);
-  color: var(--color-text);
+  color: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .free {
+    transition:
+      background-color var(--motion-public-response),
+      border-color var(--motion-public-response),
+      scale var(--motion-public-response);
+  }
+
+  .free:active:not(:disabled) {
+    scale: 0.99;
+  }
 }

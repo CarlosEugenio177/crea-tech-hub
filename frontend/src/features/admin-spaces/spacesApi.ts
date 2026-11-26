@@ -1,6 +1,7 @@
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../shared/api/client.ts'
 import type { components } from '../../shared/api/schema'
+import { dayAgendaKey } from '../reservation/availabilityApi.ts'
 
 export type Space = components['schemas']['Space']
 export type SpaceRequest = components['schemas']['SpaceRequest']
@@ -15,6 +16,7 @@ function useRefreshSpaces(onRefreshed?: () => void) {
   return async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['get', LIST_PATH] }),
+      queryClient.invalidateQueries({ queryKey: dayAgendaKey }),
       queryClient.invalidateQueries({
         queryKey: ['get', '/api/v1/admin/spaces/{roomId}/stations'],
       }),
