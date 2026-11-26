@@ -11,6 +11,7 @@ export type SpaceOption = {
   tag: string
   illustration: string
   illustrationAlt: string
+  photoUrl?: string
 }
 
 const presentationByType = {
@@ -44,5 +45,6 @@ export function toSpaceOption(space: PublicSpace): SpaceOption {
     tag: `${presentation.tag} · ${capacityLabel(space.capacity)}`,
     illustration: presentation.illustration,
     illustrationAlt: presentation.illustrationAlt,
+    photoUrl: space.photoUrl,
   }
 }

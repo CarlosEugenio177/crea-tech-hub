@@ -104,7 +104,7 @@ class RoomLayoutApiTests {
   @Test
   void rejectsStaleRoomAndStationsFromAnotherRoom() throws Exception {
     try (var client = admin()) {
-      service.update(room.id(), new SpaceRequest("Renomeada", SpaceType.ROOM, 12, null));
+      service.update(room.id(), new SpaceRequest("Renomeada", SpaceType.ROOM, 12, null, null));
       assertThat(client.json("PUT", path(), request(), client.csrf()).statusCode()).isEqualTo(409);
       room = service.find(room.id());
       var other = spaces.saveAndFlush(new Space("Outra", SpaceType.WORKSTATION, 1, null));

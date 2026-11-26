@@ -122,6 +122,10 @@ test('registers a space and returns to the list', async () => {
   await user.type(screen.getByLabelText('Nome'), '  Sala de reunião ')
   await user.selectOptions(screen.getByLabelText('Tipo'), 'Sala')
   await user.type(screen.getByLabelText('Capacidade'), '8')
+  await user.type(
+    screen.getByLabelText('Link da foto (opcional)'),
+    'https://images.example.com/coworking.jpg',
+  )
   await user.click(screen.getByRole('button', { name: 'Cadastrar espaço' }))
 
   expect(
@@ -134,6 +138,7 @@ test('registers a space and returns to the list', async () => {
     type: 'ROOM',
     capacity: 8,
     description: null,
+    photoUrl: 'https://images.example.com/coworking.jpg',
   })
 })
 

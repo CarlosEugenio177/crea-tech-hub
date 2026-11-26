@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import java.net.URI;
 
 public record SpaceRequest(
     @NotBlank(message = "Informe o nome do espaço.")
@@ -18,7 +19,24 @@ public record SpaceRequest(
         Integer capacity,
     @Schema(types = {"string", "null"})
         @Size(max = 2000, message = "A descrição deve ter até 2000 caracteres.")
-        String description) {
+        String description,
+    @Size(max = 2048)
+        @Schema(description = "URL HTTPS pública da foto. No PUT, valor vazio remove a foto.")
+        String photoUrl) {
+
+  @AssertTrue(message = "Informe um link HTTPS válido para a foto.")
+  @Schema(hidden = true)
+  public boolean isPhotoUrlValid() {
+    if (photoUrl == null || photoUrl.isBlank()) return true;
+    try {
+      var url = URI.create(photoUrl.strip());
+      return "https".equalsIgnoreCase(url.getScheme())
+          && url.getHost() != null
+          && url.getUserInfo() == null;
+    } catch (IllegalArgumentException exception) {
+      return false;
+    }
+  }
 
   @AssertTrue(message = "Uma estação individual deve ter capacidade para uma pessoa.")
   @Schema(hidden = true)

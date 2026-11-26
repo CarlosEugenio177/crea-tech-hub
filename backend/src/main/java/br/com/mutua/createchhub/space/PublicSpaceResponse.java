@@ -14,7 +14,8 @@ public record PublicSpaceResponse(
     int capacity,
     @Schema(types = {"string", "null"}) String description,
     BookingMode bookingMode,
-    @JsonInclude(JsonInclude.Include.NON_NULL) RoomDimensions roomDimensions) {
+    @JsonInclude(JsonInclude.Include.NON_NULL) RoomDimensions roomDimensions,
+    @JsonInclude(JsonInclude.Include.NON_NULL) String photoUrl) {
 
   static PublicSpaceResponse from(Space space) {
     return new PublicSpaceResponse(
@@ -24,6 +25,7 @@ public record PublicSpaceResponse(
         space.getCapacity(),
         space.getDescription(),
         space.getBookingMode(),
-        space.getRoomDimensions());
+        space.getRoomDimensions(),
+        space.getPhotoUrl());
   }
 }

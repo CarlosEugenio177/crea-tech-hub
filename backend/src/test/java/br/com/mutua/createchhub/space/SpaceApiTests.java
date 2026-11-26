@@ -115,6 +115,44 @@ class SpaceApiTests {
     }
   }
 
+  @Test
+  void publishesOptionalPhotoAndKeepsItWhenAnOlderClientOmitsIt() throws Exception {
+    try (var client = admin();
+        var visitor = new SessionClient(port)) {
+      var csrf = client.csrf();
+      var space =
+          new HashMap<String, Object>(Map.of("name", "Coworking", "type", "ROOM", "capacity", 4));
+      var photo = "https://images.example.com/coworking.jpg";
+      space.put("photoUrl", "http://images.example.com/coworking.jpg");
+      assertThat(client.json("POST", PATH, space, csrf).statusCode()).isEqualTo(400);
+      space.put("photoUrl", photo);
+      var created = client.json("POST", PATH, space, csrf);
+      assertThat(created.statusCode()).isEqualTo(201);
+      var item = json.readTree(created.body());
+      assertThat(item.path("photoUrl").asString()).isEqualTo(photo);
+      var itemPath = PATH + "/" + item.path("id").asString();
+      var catalogPath = "/api/v1/spaces";
+      assertThat(
+              json.readTree(visitor.get(catalogPath).body())
+                  .path("items")
+                  .get(0)
+                  .path("photoUrl")
+                  .asString())
+          .isEqualTo(photo);
+
+      space.remove("photoUrl");
+      var unchanged = client.json("PUT", itemPath, space, csrf);
+      assertThat(unchanged.statusCode()).isEqualTo(200);
+      assertThat(json.readTree(unchanged.body()).path("photoUrl").asString()).isEqualTo(photo);
+      space.put("photoUrl", "");
+      var cleared = client.json("PUT", itemPath, space, csrf);
+      assertThat(cleared.statusCode()).isEqualTo(200);
+      assertThat(
+              json.readTree(visitor.get(catalogPath).body()).path("items").get(0).has("photoUrl"))
+          .isFalse();
+    }
+  }
+
   @ParameterizedTest
   @CsvSource({"WORKSTATION,1", "SHARED_TABLE,6"})
   void createsEachKindOfReservableUnit(String type, int capacity) throws Exception {

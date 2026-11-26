@@ -2285,6 +2285,9 @@
           "name" : {
             "type" : "string"
           },
+          "photoUrl" : {
+            "type" : "string"
+          },
           "roomDimensions" : {
             "$ref" : "#/components/schemas/RoomDimensions"
           },
@@ -2563,6 +2566,9 @@
           "name" : {
             "type" : "string"
           },
+          "photoUrl" : {
+            "type" : "string"
+          },
           "roomDimensions" : {
             "$ref" : "#/components/schemas/RoomDimensions"
           },
@@ -2803,6 +2809,12 @@
           "name" : {
             "type" : "string",
             "maxLength" : 150,
+            "minLength" : 0
+          },
+          "photoUrl" : {
+            "type" : "string",
+            "description" : "URL HTTPS pública da foto. No PUT, valor vazio remove a foto.",
+            "maxLength" : 2048,
             "minLength" : 0
           },
           "type" : {
