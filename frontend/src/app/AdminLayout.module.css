@@ -103,6 +103,11 @@
   }
 
   .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100dvh;
+    overflow-y: auto;
     flex: none;
     width: 248px;
     gap: 28px;
