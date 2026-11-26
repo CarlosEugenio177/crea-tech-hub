@@ -125,6 +125,7 @@ A hospedagem para deploy automático ainda será definida.
 - `config`: configuração técnica, incluindo a política inicial de acesso.
 - `user`: conta de usuário, perfil de acesso e repositório JPA.
 - `space`: cadastro administrativo de salas, mesas compartilhadas e estações.
+- `reservation`: solicitação, acompanhamento, análise e cancelamento de reservas.
 - `block`: criação, consulta e cancelamento de bloqueios pontuais de espaços.
 - `operatinghours`: consulta pública e configuração administrativa do funcionamento do Hub.
 - `access`: equipe, permissões e auditoria de acesso.
@@ -133,10 +134,9 @@ A hospedagem para deploy automático ainda será definida.
 - `src/main/resources/application.yml`: configuração comum; a porta aceita `SERVER_PORT`.
 - `src/test/java`: testes da aplicação.
 
-O backend será uma aplicação única, organizada por funcionalidade conforme cada
-história for implementada: usuários, espaços, reservas e bloqueios. Cada funcionalidade
-terá seus controllers, serviços, DTOs e persistência quando necessários. Os endpoints
-de negócio seguirão o prefixo `/api/v1`.
+O backend é uma aplicação única organizada por funcionalidade. Os controllers recebem
+as requisições HTTP, os serviços coordenam os casos de uso e os repositórios acessam o
+banco. Os endpoints de negócio usam o prefixo `/api/v1`.
 
 O contrato de erros, com `ProblemDetail`, está descrito em
 [Erros da API](../docs/14-erros-da-api.md).
@@ -144,7 +144,6 @@ O contrato OpenAPI gerado, sua atualização e o uso pelo frontend estão em
 [OpenAPI](../docs/18-openapi.md). A documentação HTTP é habilitada com `OPENAPI_ENABLED=true`;
 os arquivos versionados ficam em `../openapi/`.
 
-Nesta etapa, a leitura da saúde e os endpoints necessários para entrar são públicos.
 As rotas administrativas de autenticação estão descritas em
 [Acesso administrativo](../docs/15-autenticacao.md). Esse documento explica como
 criar o primeiro administrador, obter CSRF, entrar, consultar a sessão e sair.
@@ -152,44 +151,40 @@ criar o primeiro administrador, obter CSRF, entrar, consultar a sessão e sair.
 O acesso administrativo usa e-mail e senha com sessão por cookie. A gestão de equipe
 e a recuperação estão em [Equipe e permissões](../docs/17-equipe-permissoes-recuperacao.md).
 Cada ação administrativa também exige a permissão correspondente.
-O fluxo de solicitação de reservas continuará público nesta fase, com os dados informados
-na própria solicitação. O login de solicitantes via Crea/Mútua é uma evolução futura.
+No beta, qualquer pessoa pode solicitar uma reserva pelo fluxo público, com os dados
+informados no pedido. A autenticação de solicitantes via Crea/Mútua fica para uma etapa futura.
 
-## Limite desta entrega
+## Acompanhar uma solicitação de reserva
 
-Esta etapa inclui PostgreSQL, migrações, persistência de contas, login administrativo
-e cadastro administrativo básico de espaços, restritos à role `ADMIN`.
-As roles são `ADMIN` e `USER`;
-somente administradores ativos usam o login local nesta fase.
-Gestão de equipe, recuperação de acesso e catálogo público também possuem APIs e
-integração com o frontend. Reservas, aprovação e notificações de reservas serão
-implementadas nas próximas etapas.
+1. Na tela pública, a pessoa escolhe o espaço e o período, preenche os dados e revisa
+   o pedido. [`ReviewPage.tsx`](../frontend/src/features/reservation/ReviewPage.tsx) chama
+   [`useSubmitReservation`](../frontend/src/features/reservation/reservationApi.ts) para enviar `POST /api/v1/reservations`.
+2. [`PublicReservationController.submit`](src/main/java/br/com/mutua/createchhub/reservation/PublicReservationController.java)
+   recebe os dados. [`ReservationService.submit`](src/main/java/br/com/mutua/createchhub/reservation/ReservationService.java)
+   valida a solicitação, aplica as regras e verifica o conflito de horário.
+3. [`ReservationRepository.persistPending`](src/main/java/br/com/mutua/createchhub/reservation/ReservationRepository.java) grava
+   o pedido na tabela `reservations`, criada pela
+   [migração V10](src/main/resources/db/migration/V10__create_reservations.sql).
+   O status começa em `PENDING` e o horário fica ocupado enquanto a equipe analisa.
+4. O `201 Created` devolve um código privado. O frontend abre o comprovante usando
+   esse código, que também permite acompanhar e cancelar pelo link individual.
 
-O cadastro permite criar, editar, consultar com paginação e ativar/desativar espaços.
-O contrato está em [Cadastro administrativo de espaços](../docs/16-espacos.md).
-Fotos, recursos e a tela de funcionamento completam o CTH-15 nas próximas entregas.
-A numeração e as posições das estações já possuem APIs de edição e consulta pública;
-consulte [Estações e mapa](../docs/20-estacoes-e-mapa.md).
-O editor visual, as modalidades e as operações em lote estão em
-[Montagem de salas](../docs/22-montagem-de-salas.md).
-O funcionamento já está disponível por API, com dias e horários configuráveis;
-consulte [Funcionamento do Hub](../docs/19-funcionamento-do-hub.md). Sua tela de edição
-e a aplicação dessas regras nas futuras reservas ficam para as próximas partes.
-Os bloqueios pontuais já possuem APIs administrativas, descritas em
-[Bloqueios de horário](../docs/21-bloqueios-de-horario.md). Sua aplicação nas reservas
-e a tela de gestão serão implementadas nas próximas etapas.
+Para testar o caminho HTTP até o PostgreSQL, execute em `backend/` com o banco de
+testes configurado como em [Verificar e empacotar](#verificar-e-empacotar).
 
-Decisões de reserva já alinhadas para a implementação futura:
+```sh
+./mvnw -Dtest=ReservationApiTests test
+```
 
-- Toda solicitação passa pela análise da equipe.
-- Solicitações pendentes e reservas confirmadas bloqueiam o recurso no intervalo solicitado.
-- A pendência não expira automaticamente; a decisão é manual.
-- O solicitante informa os horários de início e fim, com precisão de minutos.
-- O fim de um intervalo pode coincidir com o início do próximo.
-- A antecedência mínima para solicitar ainda será definida.
+No Windows, use `.\mvnw.cmd` com os mesmos argumentos. Em `frontend/`, após instalar
+as dependências, rode o teste da solicitação com a API simulada.
 
-As histórias em `../histories/` e seu plano de implementação são a referência atual
-do escopo. O frontend fica em [`../frontend/`](../frontend/README.md).
+```sh
+npm test -- src/features/reservation/reservationRequest.test.tsx
+```
+
+O [plano de implementação](../histories/PLANO-DE-IMPLEMENTACAO.md) reúne as histórias
+e decisões de escopo atuais.
 
 Referências técnicas: [Spring Boot](https://docs.spring.io/spring-boot/),
 [Actuator](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html) e

@@ -9,6 +9,7 @@ import { StationControls } from './StationControls.tsx'
 import { StationMap } from './StationMap.tsx'
 import { LayoutSelectionTools } from './LayoutSelectionTools.tsx'
 import { RoomDimensionsForm } from './RoomDimensionsForm.tsx'
+import { RoomLayoutDraftGuard } from './RoomLayoutDraftGuard.tsx'
 import { useSaveRoomLayout } from './roomLayoutApi.ts'
 import { useRoomLayoutDraft } from './useRoomLayoutDraft.ts'
 import styles from './RoomLayout.module.css'
@@ -41,6 +42,7 @@ export function RoomLayoutEditor({
   const disabled = save.isPending || fetching || Boolean(loadError)
   return (
     <div className={styles.layout}>
+      <RoomLayoutDraftGuard dirty={dirty} />
       <aside className={styles.sidebar} aria-label="Configuração da sala">
         <BookingModeForm
           roomId={roomId}

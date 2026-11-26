@@ -121,6 +121,10 @@ agora retornam `bookingMode`; a resposta administrativa `Space` inclui `version`
 Nome, tipo, capacidade e descrição continuam usando o corpo de cadastro anterior:
 editar esses campos preserva a modalidade e a posição.
 
+Ao sair do editor com alterações pendentes, o painel pede confirmação. Continuar
+editando mantém o rascunho na tela. Descartar e sair encerra a edição sem salvar.
+Ao recarregar ou fechar a página, o aviso é exibido pelo navegador.
+
 ## Persistência
 
 V8 adiciona `booking_mode` e a versão otimista aos espaços. Salas que já possuem

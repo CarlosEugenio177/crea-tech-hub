@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { components } from '../../../shared/api/schema'
 import { arrangePoints, type Dimensions } from './layoutGeometry.ts'
 import {
@@ -35,13 +35,6 @@ export function useRoomLayoutDraft(room: Space, stations: Station[]) {
     removedStations.length > 0 ||
     dimensions.width !== (room.roomDimensions?.width ?? 10) ||
     dimensions.length !== (room.roomDimensions?.length ?? 6)
-
-  useEffect(() => {
-    if (!dirty) return
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [dirty])
 
   const start = (): Draft => ({
     version: room.version,
