@@ -29,6 +29,13 @@ Executa, em ordem, sincronização do contrato (`api:check`), formatação (`for
 testes (`test`) e build (`build`). Cada etapa também pode ser executada separadamente.
 Para aplicar a formatação, use `npm run format`.
 
+Se os testes de interface excederem o tempo limite na sua máquina, rode a suíte
+com dois workers.
+
+```sh
+npm test -- --maxWorkers=2
+```
+
 ## Contrato com a API
 
 ```sh
