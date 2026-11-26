@@ -16,7 +16,22 @@
     var(--font-family);
   --font-public-section: 700 clamp(1.125rem, 2.5vw, 1.5rem) / 1.2
     var(--font-family);
+  --color-primary: var(--color-mutua-navy);
+  --color-primary-hover: var(--color-mutua-blue);
+  --color-primary-ring: color-mix(
+    in srgb,
+    var(--color-primary) 25%,
+    transparent
+  );
+  --color-background: var(--color-mutua-ivory);
+  --color-text: var(--color-mutua-ink);
+  --color-text-muted: var(--color-public-muted);
   --color-border-field: var(--color-text-muted);
+  --color-info-background: color-mix(
+    in srgb,
+    var(--color-primary) 8%,
+    var(--color-surface)
+  );
   --radius-button: var(--radius-public-control);
   --radius-button-large: var(--radius-public-control);
   --radius-field: var(--radius-public-control);
@@ -63,12 +78,11 @@
 
 .bar > a {
   align-self: center;
-  padding: 6px 10px;
-  background: var(--color-inverse);
+  padding-block: 4px;
 }
 
 .bar img {
-  height: 27px;
+  height: 34px;
 }
 
 .nav {

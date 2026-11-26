@@ -46,7 +46,18 @@
 }
 
 .free span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-primary);
+}
+
+.free span:last-child::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-mutua-green);
+  content: '';
 }
 
 .free:hover:not(:disabled),

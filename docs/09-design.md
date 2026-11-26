@@ -92,6 +92,12 @@ barras pretas o frontend usa a versão negativa (texto branco, como no rodapé d
 Mútua), gerada a partir desse arquivo em `frontend/src/shared/assets/logo-mutua-negativa.png`.
 O ícone da aba (`frontend/public/favicon.png`) é o emblema recortado da mesma imagem.
 
+No fluxo público, a interface usa as cores amostradas dessa logomarca. O azul
+`#2D4484` marca a ação principal e a seleção. O azul `#4F6CA4` aparece ao passar
+o ponteiro sobre ações principais. O verde `#6EAA49` sinaliza horários livres, o
+gelo `#F3F3EF` é o fundo e o preto `#1B1B1A` é o texto principal. O cabeçalho
+claro usa a versão original da marca.
+
 ### Código da recriação
 
 O HTML fica em [`design/prototipo/`](design/prototipo/) e serve de referência visual.

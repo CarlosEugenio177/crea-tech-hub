@@ -19,7 +19,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
     <div className={styles.site}>
       <header className={styles.header}>
         <div className={styles.bar}>
-          <Brand to="/" />
+          <Brand to="/" variant="positive" />
           <nav className={styles.nav} aria-label="Principal">
             {MENU.map((item) => (
               <NavLink

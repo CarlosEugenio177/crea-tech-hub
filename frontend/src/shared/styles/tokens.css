@@ -43,6 +43,13 @@
     0 1px 2px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
   --transition: 120ms ease;
 
+  --color-mutua-navy: #2d4484;
+  --color-mutua-blue: #4f6ca4;
+  --color-mutua-green: #6eaa49;
+  --color-mutua-ivory: #f3f3ef;
+  --color-mutua-ink: #1b1b1a;
+  --color-public-muted: #566171;
+
   --radius-public-control: 10px;
   --radius-public-panel: 20px;
 
