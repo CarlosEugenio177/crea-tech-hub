@@ -3,7 +3,7 @@ import { Button } from '../../shared/ui/Button.tsx'
 import { ProblemNotice } from '../../shared/ui/ProblemNotice.tsx'
 import { TextField } from '../../shared/ui/TextField.tsx'
 import styles from './AdminReservationRequesterBlock.module.css'
-import { useAdminRequesterBlock } from './adminReservationsApi.ts'
+import { useAdminRequesterBlock } from './adminRequesterBlockApi.ts'
 import { formatHubInstant } from './reservationDates.ts'
 
 type Props = {

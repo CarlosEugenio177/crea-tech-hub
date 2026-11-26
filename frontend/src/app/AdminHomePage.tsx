@@ -18,6 +18,7 @@ export function AdminHomePage() {
     { status: 'PENDING' },
     0,
     managesReservations,
+    1,
   )
   const count = pending.data?.totalElements
   const areas = adminMenuFor(account).filter(
