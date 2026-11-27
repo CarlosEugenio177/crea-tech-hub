@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, expect, test } from 'vitest'
+import { beforeEach, expect, test, vi } from 'vitest'
 import { fakeApi, json } from '../../test/fakeApi.ts'
 import { renderApp } from '../../test/renderApp.tsx'
 import { selectTime, timeControls } from '../../test/timeControls.ts'
@@ -80,6 +80,66 @@ test('lets the visitor choose an available period from the day agenda and adjust
     api.sent(DAY_AGENDA).filter(({ search }) => search.includes('2099-03-12')),
   ).toHaveLength(1)
   expect(api.sent(AVAILABILITY)).toHaveLength(0)
+})
+
+test('browses months without querying availability until a day is selected', async () => {
+  vi.setSystemTime(new Date('2026-11-27T12:00:00Z'))
+  try {
+    const user = userEvent.setup()
+    const api = fakeApi({
+      [CATALOG]: catalog,
+      [DAY_AGENDA]: wholeRoomAgenda,
+    })
+    renderApp('/reservar')
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Ver horários de Sala de podcast',
+      }),
+    )
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Usar horário das 08:00 às 18:00',
+      }),
+    )
+
+    const calendar = within(screen.getByRole('group', { name: 'Escolher dia' }))
+    await user.click(calendar.getByRole('button', { name: 'Ver mês' }))
+    expect(
+      calendar.getByRole('button', { name: 'Mês anterior' }),
+    ).toBeDisabled()
+    expect(
+      calendar.getByRole('button', { name: /26 de novembro de 2026/ }),
+    ).toBeDisabled()
+    expect(
+      calendar.getByRole('button', { name: /27 de novembro de 2026/ }),
+    ).toHaveAttribute('aria-pressed', 'true')
+
+    await user.click(calendar.getByRole('button', { name: 'Mês seguinte' }))
+    await user.click(calendar.getByRole('button', { name: 'Mês seguinte' }))
+    expect(calendar.getByText('janeiro de 2027')).toBeVisible()
+    expect(api.sent(DAY_AGENDA)).toHaveLength(1)
+    expect(screen.getByLabelText('Data')).toHaveValue('27/11/2026')
+
+    await user.click(
+      calendar.getByRole('button', { name: /15 de janeiro de 2027/ }),
+    )
+    expect(screen.getByLabelText('Data')).toHaveValue('15/01/2027')
+    expect(timeControls('Início').hour).toHaveValue('')
+    expect(timeControls('Fim').hour).toHaveValue('')
+    expect(calendar.getByRole('button', { name: 'Ver mês' })).toHaveFocus()
+    expect(
+      await screen.findByRole('button', {
+        name: 'Usar horário das 08:00 às 18:00',
+      }),
+    ).toBeVisible()
+    expect(
+      api
+        .sent(DAY_AGENDA)
+        .map(({ search }) => new URLSearchParams(search).get('date')),
+    ).toEqual(['2026-11-27', '2027-01-15'])
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 test('offers only valid end times after the chosen start', async () => {
