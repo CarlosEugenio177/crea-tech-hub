@@ -29,7 +29,10 @@ Mostrar, em visão de calendário, quando cada ambiente, estação ou equipament
 ## Critérios de aceite
 
 A agenda diária mostra períodos livres e indisponíveis no horário local do Hub.
-O visitante pode trocar de dia pelo calendário ou informar a data no campo.
+O visitante pode escolher um dia nos atalhos da semana, abrir **Ver mês** ou
+informar a data no campo. A visão mensal permite navegar sem consultar horários.
+Ao escolher uma data, são carregados os horários daquele dia. Dias passados
+ficam desabilitados.
 A consulta do dia entrega as janelas livres da sala ou de cada estação.
 O visitante toca em um intervalo livre ou ajusta início e fim por minuto
 entre as opções disponíveis, dentro dos limites de duração configurados.
